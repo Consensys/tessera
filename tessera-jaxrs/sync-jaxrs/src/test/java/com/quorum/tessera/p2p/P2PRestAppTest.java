@@ -10,8 +10,6 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
@@ -39,8 +37,6 @@ public class P2PRestAppTest {
 
   private TransactionManager transactionManager;
 
-  private PayloadEncoder payloadEncoder;
-
   private BatchResendManager batchResendManager;
 
   private LegacyResendManager legacyResendManager;
@@ -50,7 +46,7 @@ public class P2PRestAppTest {
   private URI peerUri = URI.create("junit");
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
 
     runtimeContext = mock(RuntimeContext.class);
 
@@ -59,7 +55,6 @@ public class P2PRestAppTest {
     partyStore = mock(PartyStore.class);
     transactionManager = mock(TransactionManager.class);
     batchResendManager = mock(BatchResendManager.class);
-    payloadEncoder = mock(PayloadEncoder.class);
     legacyResendManager = mock(LegacyResendManager.class);
     privacyGroupManager = mock(PrivacyGroupManager.class);
 
@@ -70,7 +65,6 @@ public class P2PRestAppTest {
             partyStore,
             transactionManager,
             batchResendManager,
-            payloadEncoder,
             legacyResendManager,
             privacyGroupManager);
 
@@ -82,7 +76,7 @@ public class P2PRestAppTest {
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     verifyNoMoreInteractions(runtimeContext);
     verifyNoMoreInteractions(enclave);
     verifyNoMoreInteractions(discovery);
@@ -96,7 +90,7 @@ public class P2PRestAppTest {
   @Test
   public void getSingletons() {
 
-    try (var mockedStaticRuntimeContext = mockStatic(RuntimeContext.class); ) {
+    try (var mockedStaticRuntimeContext = mockStatic(RuntimeContext.class)) {
       mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
       Set<Object> results = p2PRestApp.getSingletons();
@@ -127,7 +121,7 @@ public class P2PRestAppTest {
 
     when(runtimeContext.isRecoveryMode()).thenReturn(true);
 
-    try (var mockedStaticRuntimeContext = mockStatic(RuntimeContext.class); ) {
+    try (var mockedStaticRuntimeContext = mockStatic(RuntimeContext.class)) {
       mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
       Set<Object> results = p2PRestApp.getSingletons();
@@ -170,7 +164,6 @@ public class P2PRestAppTest {
         var discoveryMockedStatic = mockStatic(Discovery.class);
         var partyStoreMockedStatic = mockStatic(PartyStore.class);
         var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
-        var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class);
         var batchResendManagerMockedStatic = mockStatic(BatchResendManager.class);
         var legacyResendManagerMockedStatic = mockStatic(LegacyResendManager.class);
         var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class)) {
@@ -188,9 +181,6 @@ public class P2PRestAppTest {
       transactionManagerMockedStatic
           .when(TransactionManager::create)
           .thenReturn(transactionManager);
-      payloadEncoderMockedStatic
-          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-          .thenReturn(payloadEncoder);
       batchResendManagerMockedStatic
           .when(BatchResendManager::create)
           .thenReturn(batchResendManager);
@@ -208,9 +198,6 @@ public class P2PRestAppTest {
 
       transactionManagerMockedStatic.verify(TransactionManager::create);
       transactionManagerMockedStatic.verifyNoMoreInteractions();
-
-      payloadEncoderMockedStatic.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
-      payloadEncoderMockedStatic.verifyNoMoreInteractions();
 
       batchResendManagerMockedStatic.verify(BatchResendManager::create);
       batchResendManagerMockedStatic.verifyNoMoreInteractions();
