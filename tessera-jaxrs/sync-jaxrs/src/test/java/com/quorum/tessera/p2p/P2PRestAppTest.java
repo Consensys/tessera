@@ -104,7 +104,7 @@ public class P2PRestAppTest {
       mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
       Set<Object> results = p2PRestApp.getSingletons();
-      assertThat(results).hasSize(5);
+      assertThat(results).hasSize(6);
       results.forEach(
           o ->
               assertThat(o)
@@ -113,7 +113,8 @@ public class P2PRestAppTest {
                       PartyInfoResource.class,
                       IPWhitelistFilter.class,
                       TransactionResource.class,
-                      UpCheckResource.class));
+                      UpCheckResource.class,
+                      MessageResource.class));
 
       mockedStaticRuntimeContext.verify(RuntimeContext::getInstance);
       mockedStaticRuntimeContext.verifyNoMoreInteractions();
@@ -135,7 +136,7 @@ public class P2PRestAppTest {
       mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
       Set<Object> results = p2PRestApp.getSingletons();
-      assertThat(results).hasSize(4);
+      assertThat(results).hasSize(5);
       results.forEach(
           o ->
               assertThat(o)
@@ -144,7 +145,8 @@ public class P2PRestAppTest {
                       UpCheckResource.class,
                       PartyInfoResource.class,
                       IPWhitelistFilter.class,
-                      RecoveryResource.class));
+                      RecoveryResource.class,
+                      MessageResource.class));
 
       mockedStaticRuntimeContext.verify(RuntimeContext::getInstance);
       mockedStaticRuntimeContext.verifyNoMoreInteractions();
@@ -177,7 +179,8 @@ public class P2PRestAppTest {
         var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class);
         var batchResendManagerMockedStatic = mockStatic(BatchResendManager.class);
         var legacyResendManagerMockedStatic = mockStatic(LegacyResendManager.class);
-        var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class)) {
+        var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class);
+        var inboxMockedStatic = mockStatic(Inbox.class)) {
 
       privacyGroupManagerMockedStatic
           .when(PrivacyGroupManager::create)
@@ -198,6 +201,7 @@ public class P2PRestAppTest {
       batchResendManagerMockedStatic
           .when(BatchResendManager::create)
           .thenReturn(batchResendManager);
+      inboxMockedStatic.when(Inbox::create).thenReturn(inbox);
 
       new P2PRestApp();
 
@@ -224,6 +228,9 @@ public class P2PRestAppTest {
 
       privacyGroupManagerMockedStatic.verify(PrivacyGroupManager::create);
       partyStoreMockedStatic.verifyNoMoreInteractions();
+
+      inboxMockedStatic.verify(Inbox::create);
+      inboxMockedStatic.verifyNoMoreInteractions();
     }
   }
 }
