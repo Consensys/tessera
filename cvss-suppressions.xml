@@ -16,4 +16,9 @@
         <cpe>cpe:/a:org.jacoco:org.jacoco.report</cpe>
         <cve>CVE-2021-21275</cve>
     </suppress>
+
+    <suppress>
+        <cpe>cpe:2.3:a:eclipse:jakarta_expression_language:3.0.3</cpe>
+        <cve>CVE-2021-28170</cve>
+    </suppress>
 </suppressions>

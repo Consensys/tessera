@@ -1,0 +1,7 @@
+# sends only the .tar distributions to the Docker build context
+*
+!tessera-dist/build/distributions/*.tar
+!key-vault/aws-key-vault/build/distributions/*.tar
+!key-vault/azure-key-vault/build/distributions/*.tar
+!key-vault/hashicorp-key-vault/build/distributions/*.tar
+!enclave/enclave-jaxrs/build/distributions/*.tar

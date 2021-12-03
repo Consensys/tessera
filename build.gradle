@@ -1,7 +1,7 @@
 import java.time.Duration
 
 plugins {
-  id "org.owasp.dependencycheck" version "6.1.6"
+  id "org.owasp.dependencycheck" version "6.2.2"
   id 'jacoco'
   id 'com.diffplug.gradle.spotless' version '3.25.0'
   id 'com.github.ben-manes.versions' version '0.8'
@@ -12,7 +12,7 @@ plugins {
 }
 
 ext {
-  jettyVersion = "9.4.42.v20210604"
+  jettyVersion = "9.4.43.v20210629"
   eclipselinkVersion = "2.7.7"
   swaggerVersion = "2.1.9"
   jerseyVersion = "2.32"

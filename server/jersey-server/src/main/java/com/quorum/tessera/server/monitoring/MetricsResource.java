@@ -34,12 +34,12 @@ public class MetricsResource {
       List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(type);
       PrometheusProtocolFormatter formatter = new PrometheusProtocolFormatter();
 
-      formattedMetrics.append(formatter.format(metrics, type)).append("\n");
+      formattedMetrics.append(formatter.format(metrics, type));
     }
 
     return Response.status(Response.Status.OK)
         .header(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .entity(formattedMetrics.toString().trim())
+        .entity(formattedMetrics.toString())
         .build();
   }
 }

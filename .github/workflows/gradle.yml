@@ -1,12 +1,10 @@
 name: Tessera Gradle Build
 
 on:
+  pull_request:
   push:
     branches:
       - master
-  pull_request:
-    branches: ['*']
-  
 env:
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
   DIST_TAR: tessera-dist/build/distributions/tessera-*.tar
@@ -474,8 +472,9 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.date.outputs.now }}
           push: false
-          file: .github/workflows/noBuild.Dockerfile
-          context: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+          file: docker/tessera.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
           outputs: type=docker,dest=/tmp/tessera-develop-image.tar
       - name: Upload artifact
         uses: actions/upload-artifact@v2

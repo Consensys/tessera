@@ -104,13 +104,18 @@ public class TransactionManagerImpl implements TransactionManager {
         privacyHelper.findAffectedContractTransactionsFromSendRequest(
             sendRequest.getAffectedContractTransactions());
 
-    privacyHelper.validateSendRequest(privacyMode, recipientList, affectedContractTransactions);
+    privacyHelper.validateSendRequest(
+        privacyMode,
+        recipientList,
+        affectedContractTransactions,
+        sendRequest.getMandatoryRecipients());
 
     final PrivacyMetadata.Builder metadataBuilder =
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(privacyMode)
             .withAffectedTransactions(affectedContractTransactions)
-            .withExecHash(execHash);
+            .withExecHash(execHash)
+            .withMandatoryRecipients(sendRequest.getMandatoryRecipients());
     sendRequest.getPrivacyGroupId().ifPresent(metadataBuilder::withPrivacyGroupId);
 
     final EncodedPayload payload =
@@ -179,7 +184,11 @@ public class TransactionManagerImpl implements TransactionManager {
         privacyHelper.findAffectedContractTransactionsFromSendRequest(
             sendRequest.getAffectedContractTransactions());
 
-    privacyHelper.validateSendRequest(privacyMode, recipientList, affectedContractTransactions);
+    privacyHelper.validateSendRequest(
+        privacyMode,
+        recipientList,
+        affectedContractTransactions,
+        sendRequest.getMandatoryRecipients());
 
     final List<PublicKey> recipientListNoDuplicate =
         recipientList.stream().distinct().collect(Collectors.toList());
@@ -188,7 +197,8 @@ public class TransactionManagerImpl implements TransactionManager {
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(privacyMode)
             .withAffectedTransactions(affectedContractTransactions)
-            .withExecHash(execHash);
+            .withExecHash(execHash)
+            .withMandatoryRecipients(sendRequest.getMandatoryRecipients());
     sendRequest.getPrivacyGroupId().ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
 
     final EncodedPayload payload =

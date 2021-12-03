@@ -2,10 +2,10 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.DefaultKeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -15,6 +15,11 @@ public class KeyVaultConfigValidator
     implements ConstraintValidator<ValidKeyVaultConfig, DefaultKeyVaultConfig> {
 
   private ValidKeyVaultConfig config;
+
+  private static final String URL = "url";
+  private static final String TLS_KEY_STORE_PATH = "tlsKeyStorePath";
+  private static final String TLS_TRUST_STORE_PATH = "tlsTrustStorePath";
+  private static final String ENDPOINT = "endpoint";
 
   @Override
   public void initialize(ValidKeyVaultConfig config) {
@@ -36,7 +41,7 @@ public class KeyVaultConfigValidator
       if (!keyVaultConfig.getProperties().containsKey("url")) {
         constraintValidatorContext.disableDefaultConstraintViolation();
         constraintValidatorContext
-            .buildConstraintViolationWithTemplate("URL is required")
+            .buildConstraintViolationWithTemplate(String.format("%s: is required", URL))
             .addConstraintViolation();
         outcomes.add(Boolean.FALSE);
       }
@@ -44,40 +49,60 @@ public class KeyVaultConfigValidator
 
     if (keyVaultType == KeyVaultType.HASHICORP) {
 
-      if (!keyVaultConfig.getProperties().containsKey("url")) {
+      if (!keyVaultConfig.getProperties().containsKey(URL)) {
         constraintValidatorContext.disableDefaultConstraintViolation();
         constraintValidatorContext
-            .buildConstraintViolationWithTemplate("URL is required")
+            .buildConstraintViolationWithTemplate(String.format("%s: is required", URL))
             .addConstraintViolation();
         outcomes.add(Boolean.FALSE);
       }
 
-      PathValidator pathValidator = new PathValidator();
-      ValidPath validPath = this.getClass().getAnnotation(ValidPath.class);
+      final ValidPath validPath = this.getClass().getAnnotation(ValidPath.class);
+      final PathValidator pathValidator = new PathValidator();
       pathValidator.initialize(validPath);
 
-      if (keyVaultConfig.getProperties().containsKey("tlsKeyStorePath")) {
-        Path tlsKeyStorePath = Paths.get(keyVaultConfig.getProperties().get("tlsKeyStorePath"));
-        outcomes.add(pathValidator.isValid(tlsKeyStorePath, constraintValidatorContext));
-      }
-      if (keyVaultConfig.getProperties().containsKey("tlsTrustStorePath")) {
-        Path tlsKeyStorePath = Paths.get(keyVaultConfig.getProperties().get("tlsTrustStorePath"));
-        outcomes.add(pathValidator.isValid(tlsKeyStorePath, constraintValidatorContext));
-      }
+      Optional.ofNullable(keyVaultConfig.getProperties().get(TLS_KEY_STORE_PATH))
+          .map(Paths::get)
+          .filter(path -> !pathValidator.isValid(path, constraintValidatorContext))
+          .ifPresent(
+              b -> {
+                constraintValidatorContext.disableDefaultConstraintViolation();
+                constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(
+                        String.format("%s: %s", TLS_KEY_STORE_PATH, validPath.message()))
+                    .addConstraintViolation();
+                outcomes.add(Boolean.FALSE);
+              });
+
+      Optional.ofNullable(keyVaultConfig.getProperties().get(TLS_TRUST_STORE_PATH))
+          .map(Paths::get)
+          .filter(path -> !pathValidator.isValid(path, constraintValidatorContext))
+          .ifPresent(
+              b -> {
+                constraintValidatorContext.disableDefaultConstraintViolation();
+                constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(
+                        String.format("%s: %s", TLS_TRUST_STORE_PATH, validPath.message()))
+                    .addConstraintViolation();
+                outcomes.add(Boolean.FALSE);
+              });
     }
 
     if (keyVaultType == KeyVaultType.AWS) {
-
-      if (keyVaultConfig.getProperties().containsKey("endpoint")) {
-        if (!keyVaultConfig.getProperties().get("endpoint").matches("^https?://.+$")) {
-          constraintValidatorContext.disableDefaultConstraintViolation();
-          constraintValidatorContext
-              .buildConstraintViolationWithTemplate(
-                  "must be a valid AWS service endpoint URL with scheme")
-              .addConstraintViolation();
-          outcomes.add(Boolean.FALSE);
-        }
-      }
+      // we do not require endpoint to be provided as AWS client will fallback to alternate methods
+      // (e.g. environment variables or properties files)
+      Optional.ofNullable(keyVaultConfig.getProperties().get(ENDPOINT))
+          .filter(endpoint -> !endpoint.matches("^https?://.+$"))
+          .ifPresent(
+              b -> {
+                constraintValidatorContext.disableDefaultConstraintViolation();
+                constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(
+                        String.format(
+                            "%s: must be a valid AWS service endpoint URL with scheme", ENDPOINT))
+                    .addConstraintViolation();
+                outcomes.add(Boolean.FALSE);
+              });
     }
 
     return outcomes.stream().allMatch(Boolean::booleanValue);
