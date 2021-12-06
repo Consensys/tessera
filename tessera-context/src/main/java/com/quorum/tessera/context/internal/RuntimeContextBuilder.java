@@ -38,6 +38,8 @@ public class RuntimeContextBuilder {
 
   private boolean outputServerURIs;
 
+  private String outputServerURIPath;
+
   private ClientMode clientMode;
 
   private boolean multiplePrivateStates;
@@ -108,6 +110,11 @@ public class RuntimeContextBuilder {
     return this;
   }
 
+  public RuntimeContextBuilder withOutputServerURIPath(String outputServerURIPath) {
+    this.outputServerURIPath = outputServerURIPath;
+    return this;
+  }
+
   public RuntimeContextBuilder withClientMode(ClientMode clientMode) {
     this.clientMode = clientMode;
     return this;
@@ -141,6 +148,7 @@ public class RuntimeContextBuilder {
             recoveryMode,
             clientMode == ClientMode.ORION,
             outputServerURIs,
+            outputServerURIPath,
             multiplePrivateStates);
     LOGGER.debug("Built {}", this);
     return instance;

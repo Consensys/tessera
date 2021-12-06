@@ -37,7 +37,9 @@ public interface RuntimeContext {
 
   boolean isOrionMode();
 
-  boolean outputServerURIs();
+  boolean getOutputServerURIs();
+
+  String getOutputServerURIPath();
 
   boolean isMultiplePrivateStates();
 
