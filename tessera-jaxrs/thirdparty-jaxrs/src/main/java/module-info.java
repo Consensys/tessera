@@ -11,6 +11,7 @@ module tessera.thirdparty.jaxrs {
   requires tessera.partyinfo;
   requires tessera.partyinfo.model;
   requires tessera.jaxrs.client;
+  requires org.slf4j;
 
   exports com.quorum.tessera.thirdparty;
   exports com.quorum.tessera.thirdparty.messaging;
