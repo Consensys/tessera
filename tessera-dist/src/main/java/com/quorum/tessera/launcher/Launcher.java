@@ -79,7 +79,7 @@ public enum Launcher {
       }
       LOGGER.debug("Created servers");
 
-      if (config.outputServerURIs()) {
+      if (config.getOutputServerURIs()) {
         // Write server URIs to file
         final List<String> uriPaths = writeServerURIs(config, servers);
 
@@ -178,7 +178,7 @@ public enum Launcher {
             .findFirst()
             .orElse(null);
 
-    final Path path = Paths.get(config.outputServerURIPath());
+    final Path path = Paths.get(config.getOutputServerURIPath());
     final List<String> uriPaths = new LinkedList<>();
 
     uriPaths.add(Launcher.writeURIFile(path, q2tServer, "q2tServer.uri"));

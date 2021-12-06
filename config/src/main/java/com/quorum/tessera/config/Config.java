@@ -203,7 +203,7 @@ public class Config extends ConfigItem {
     this.outputServerURIs = outputServerURIs;
   }
 
-  public boolean outputServerURIs() {
+  public boolean getOutputServerURIs() {
     return outputServerURIs;
   }
 
@@ -211,7 +211,7 @@ public class Config extends ConfigItem {
     this.outputServerURIPath = outputServerURIPath;
   }
 
-  public String outputServerURIPath() {
+  public String getOutputServerURIPath() {
     return outputServerURIPath;
   }
 
