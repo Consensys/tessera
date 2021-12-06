@@ -36,6 +36,8 @@ public class RuntimeContextBuilder {
 
   private boolean recoveryMode;
 
+  private boolean outputServerURIs;
+
   private ClientMode clientMode;
 
   private boolean multiplePrivateStates;
@@ -101,6 +103,11 @@ public class RuntimeContextBuilder {
     return this;
   }
 
+  public RuntimeContextBuilder withOutputServerURIs(boolean outputServerURIs) {
+    this.outputServerURIs = outputServerURIs;
+    return this;
+  }
+
   public RuntimeContextBuilder withClientMode(ClientMode clientMode) {
     this.clientMode = clientMode;
     return this;
@@ -133,6 +140,7 @@ public class RuntimeContextBuilder {
             useWhiteList,
             recoveryMode,
             clientMode == ClientMode.ORION,
+            outputServerURIs,
             multiplePrivateStates);
     LOGGER.debug("Built {}", this);
     return instance;
