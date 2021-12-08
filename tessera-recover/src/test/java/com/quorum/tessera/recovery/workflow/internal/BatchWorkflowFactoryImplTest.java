@@ -7,7 +7,6 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
@@ -19,25 +18,41 @@ import com.quorum.tessera.service.Service;
 import java.util.List;
 import java.util.Set;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 public class BatchWorkflowFactoryImplTest {
 
   private Enclave enclave = mock(Enclave.class);
-  private PayloadEncoder payloadEncoder = mock(PayloadEncoder.class);
   private Discovery discovery = mock(Discovery.class);
   private ResendBatchPublisher resendBatchPublisher = mock(ResendBatchPublisher.class);
+  private final MockedStatic<EncodedPayload.Builder> mockStaticPayloadBuilder =
+      mockStatic(EncodedPayload.Builder.class);
+  private final EncodedPayload.Builder mockPayloadBuilder = mock(EncodedPayload.Builder.class);
+
+  @Before
+  public void setUp() {
+    mockStaticPayloadBuilder
+        .when(() -> EncodedPayload.Builder.forRecipient(any(), any()))
+        .thenReturn(mockPayloadBuilder);
+  }
 
   @After
   public void onTearDown() {
-    verifyNoMoreInteractions(enclave, payloadEncoder, discovery, resendBatchPublisher);
+    verifyNoMoreInteractions(enclave, discovery, resendBatchPublisher, mockPayloadBuilder);
+    try {
+      mockStaticPayloadBuilder.verifyNoMoreInteractions();
+    } finally {
+      mockStaticPayloadBuilder.close();
+    }
   }
 
   @Test
   public void loadMockBatchWorkflowFactory() {
 
     BatchWorkflowFactory batchWorkflowFactory =
-        new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
+        new BatchWorkflowFactoryImpl(enclave, discovery, resendBatchPublisher);
 
     assertThat(batchWorkflowFactory).isExactlyInstanceOf(BatchWorkflowFactoryImpl.class);
   }
@@ -46,7 +61,7 @@ public class BatchWorkflowFactoryImplTest {
   public void createBatchWorkflowFactoryImplAndExecuteWorkflow() {
 
     BatchWorkflowFactoryImpl batchWorkflowFactory =
-        new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
+        new BatchWorkflowFactoryImpl(enclave, discovery, resendBatchPublisher);
 
     BatchWorkflow batchWorkflow = batchWorkflowFactory.create(1L);
 
@@ -68,7 +83,7 @@ public class BatchWorkflowFactoryImplTest {
     batchWorkflowContext.setEncodedPayload(encodedPayload);
     batchWorkflowContext.setBatchSize(100);
 
-    when(payloadEncoder.forRecipient(any(), any())).thenReturn(encodedPayload);
+    when(mockPayloadBuilder.build()).thenReturn(encodedPayload);
     when(enclave.status()).thenReturn(Service.Status.STARTED);
     when(enclave.getPublicKeys()).thenReturn(Set.of(ownedKey));
 
@@ -82,7 +97,8 @@ public class BatchWorkflowFactoryImplTest {
 
     verify(enclave).status();
     verify(enclave, times(2)).getPublicKeys();
-    verify(payloadEncoder).forRecipient(any(), any());
+    mockStaticPayloadBuilder.verify(() -> EncodedPayload.Builder.forRecipient(any(), any()));
+    verify(mockPayloadBuilder).build();
     verify(discovery).getCurrent();
 
     verify(resendBatchPublisher).publishBatch(any(), any());
@@ -92,7 +108,7 @@ public class BatchWorkflowFactoryImplTest {
   public void workflowExecutedReturnFalse() {
 
     BatchWorkflowFactoryImpl batchWorkflowFactory =
-        new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
+        new BatchWorkflowFactoryImpl(enclave, discovery, resendBatchPublisher);
 
     BatchWorkflow batchWorkflow = batchWorkflowFactory.create(999L);
 

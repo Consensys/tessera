@@ -11,7 +11,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.ResendRequest;
@@ -33,8 +32,6 @@ public class LegacyResendManagerImplTest {
 
   private Discovery discovery;
 
-  private PayloadEncoder encoder;
-
   private PayloadPublisher publisher;
 
   private EncryptedTransactionDAO dao;
@@ -45,17 +42,15 @@ public class LegacyResendManagerImplTest {
   public void init() {
     this.enclave = mock(Enclave.class);
     this.discovery = mock(Discovery.class);
-    this.encoder = mock(PayloadEncoder.class);
     this.publisher = mock(PayloadPublisher.class);
     this.dao = mock(EncryptedTransactionDAO.class);
 
-    this.resendManager =
-        new LegacyResendManagerImpl(enclave, dao, 1, encoder, publisher, discovery);
+    this.resendManager = new LegacyResendManagerImpl(enclave, dao, 1, publisher, discovery);
   }
 
   @After
   public void after() {
-    verifyNoMoreInteractions(enclave, discovery, encoder, publisher, dao);
+    verifyNoMoreInteractions(enclave, discovery, publisher, dao);
   }
 
   @Test
@@ -125,15 +120,24 @@ public class LegacyResendManagerImplTest {
             .build();
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.forRecipient(nonSPPayload, targetResendKey)).thenReturn(nonSPPayload);
 
-    final ResendResponse response = resendManager.resend(request);
+    final ResendResponse response;
+    try (var mockStatic = mockStatic(EncodedPayload.Builder.class)) {
+      EncodedPayload.Builder builder = mock(EncodedPayload.Builder.class);
+      mockStatic
+          .when(() -> EncodedPayload.Builder.forRecipient(nonSPPayload, targetResendKey))
+          .thenReturn(builder);
+      when(builder.build()).thenReturn(nonSPPayload);
+
+      response = resendManager.resend(request);
+
+      mockStatic.verify(() -> EncodedPayload.Builder.forRecipient(nonSPPayload, targetResendKey));
+    }
 
     assertThat(response).isNotNull();
     assertThat(response.getPayload()).isEqualTo(nonSPPayload);
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).forRecipient(nonSPPayload, targetResendKey);
   }
 
   @Test
