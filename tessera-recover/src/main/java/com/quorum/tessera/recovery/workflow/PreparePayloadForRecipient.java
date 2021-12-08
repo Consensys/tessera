@@ -1,7 +1,6 @@
 package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.Objects;
@@ -9,12 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class PreparePayloadForRecipient implements BatchWorkflowAction {
-
-  private final PayloadEncoder payloadEncoder;
-
-  public PreparePayloadForRecipient(final PayloadEncoder payloadEncoder) {
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
-  }
 
   @Override
   public boolean execute(final BatchWorkflowContext event) {
@@ -24,7 +17,8 @@ public class PreparePayloadForRecipient implements BatchWorkflowAction {
     if (!Objects.equals(payload.getSenderKey(), targetPublicKey)) {
       // we are the sender, so need to format the payload for the recipient
       // which is: for PSV, all recipients and one box, or just one box and one recipient
-      final EncodedPayload adjustedPayload = payloadEncoder.forRecipient(payload, targetPublicKey);
+      final EncodedPayload adjustedPayload =
+          EncodedPayload.Builder.forRecipient(payload, targetPublicKey).build();
       event.setPayloadsToPublish(Set.of(adjustedPayload));
       return true;
     }
@@ -39,7 +33,7 @@ public class PreparePayloadForRecipient implements BatchWorkflowAction {
       final Set<EncodedPayload> formattedPayloads =
           payload.getRecipientKeys().stream()
               .filter(key -> payload.getRecipientKeys().indexOf(key) < numberOfBoxes)
-              .map(key -> payloadEncoder.forRecipient(payload, key))
+              .map(key -> EncodedPayload.Builder.forRecipient(payload, key).build())
               .collect(Collectors.toSet());
       event.setPayloadsToPublish(formattedPayloads);
       return true;

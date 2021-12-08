@@ -6,7 +6,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.ResendRequest;
@@ -27,8 +26,6 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
 
   private final int resendFetchSize;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final PayloadPublisher payloadPublisher;
 
   private final Discovery discovery;
@@ -37,13 +34,11 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
       final Enclave enclave,
       final EncryptedTransactionDAO encryptedTransactionDAO,
       final int resendFetchSize,
-      final PayloadEncoder payloadEncoder,
       final PayloadPublisher payloadPublisher,
       final Discovery discovery) {
     this.enclave = Objects.requireNonNull(enclave);
     this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
     this.resendFetchSize = resendFetchSize;
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
     this.discovery = Objects.requireNonNull(discovery);
   }
@@ -55,7 +50,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     }
 
     final LegacyWorkflowFactory batchWorkflowFactory =
-        new LegacyWorkflowFactory(enclave, payloadEncoder, discovery, payloadPublisher);
+        new LegacyWorkflowFactory(enclave, discovery, payloadPublisher);
 
     final BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 
@@ -97,7 +92,8 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     }
 
     if (!Objects.equals(payload.getSenderKey(), targetResendKey)) {
-      final EncodedPayload formattedPayload = payloadEncoder.forRecipient(payload, targetResendKey);
+      final EncodedPayload formattedPayload =
+          EncodedPayload.Builder.forRecipient(payload, targetResendKey).build();
       return ResendResponse.Builder.create().withPayload(formattedPayload).build();
     }
 
@@ -119,8 +115,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     new SearchRecipientKeyForPayload(enclave).execute(context);
 
     final EncodedPayload.Builder builder =
-        EncodedPayload.Builder.create()
-            .from(payload)
+        EncodedPayload.Builder.from(payload)
             .withNewRecipientKeys(new ArrayList<>())
             .withRecipientBoxes(new ArrayList<>());
     context
