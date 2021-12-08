@@ -99,7 +99,7 @@ jobs:
         java-version: 14
         check-latest: true
     - name: Execute gradle test
-      run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
+      run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc --info
 #    - name: Send slack notification
 #      uses: homoluctus/slatify@v3.0.0
 #      if: always()
