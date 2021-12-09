@@ -2,7 +2,6 @@ package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import java.util.List;
 import java.util.Objects;
@@ -12,30 +11,22 @@ public class LegacyWorkflowFactory {
 
   private final Enclave enclave;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final Discovery discovery;
 
   private final PayloadPublisher payloadPublisher;
 
   public LegacyWorkflowFactory(
-      final Enclave enclave,
-      final PayloadEncoder payloadEncoder,
-      final Discovery discovery,
-      final PayloadPublisher payloadPublisher) {
+      final Enclave enclave, final Discovery discovery, final PayloadPublisher payloadPublisher) {
     this.enclave = Objects.requireNonNull(enclave);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.discovery = Objects.requireNonNull(discovery);
     this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
   }
 
   public BatchWorkflow create() {
     final ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
-    final DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler(payloadEncoder);
     final StandardPrivateOnlyFilter standardPrivateOnlyFilter = new StandardPrivateOnlyFilter();
     final FilterPayload filterPayload = new FilterPayload(enclave);
-    final PreparePayloadForRecipient preparePayloadForRecipient =
-        new PreparePayloadForRecipient(payloadEncoder);
+    final PreparePayloadForRecipient preparePayloadForRecipient = new PreparePayloadForRecipient();
     final SearchRecipientKeyForPayload searchRecipientKeyForPayload =
         new SearchRecipientKeyForPayload(enclave);
     final FindRecipientFromPartyInfo findRecipientFromPartyInfo =
@@ -47,7 +38,6 @@ public class LegacyWorkflowFactory {
     final List<BatchWorkflowAction> handlers =
         List.of(
             validateEnclaveStatus,
-            decodePayloadHandler,
             standardPrivateOnlyFilter,
             filterPayload,
             preparePayloadForRecipient,

@@ -1,5 +1,7 @@
 package com.quorum.tessera.enclave;
 
+import static java.util.Collections.singletonList;
+
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.*;
@@ -130,6 +132,43 @@ public class EncodedPayload {
               .withExecHash(encodedPayload.getExecHash());
 
       encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
+
+      return builder;
+    }
+
+    /**
+     * Strips a payload of any data that isn't relevant to the given recipient Used to format a
+     * payload before it is sent to the target node
+     *
+     * @param payload the full payload from which data needs to be stripped
+     * @param recipient the recipient to retain information about
+     * @return a payload which contains a subset of data from the input, which is relevant to the
+     *     recipient
+     */
+    public static Builder forRecipient(final EncodedPayload payload, final PublicKey recipient) {
+
+      final Builder builder = from(payload);
+
+      if (!payload.getRecipientKeys().contains(recipient)) {
+        throw new InvalidRecipientException(
+            "Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
+      }
+
+      final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
+      final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
+
+      List<PublicKey> recipientList;
+
+      if (PrivacyMode.PRIVATE_STATE_VALIDATION == payload.getPrivacyMode()) {
+        recipientList = new ArrayList<>(payload.getRecipientKeys());
+        recipientList.remove(recipientIndex);
+        recipientList.add(0, recipient);
+      } else {
+        recipientList = singletonList(recipient);
+      }
+
+      builder.withRecipientBoxes(singletonList(recipientBox));
+      builder.withNewRecipientKeys(recipientList);
 
       return builder;
     }

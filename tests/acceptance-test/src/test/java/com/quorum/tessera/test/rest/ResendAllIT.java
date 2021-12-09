@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.p2p.resend.ResendRequest;
@@ -188,7 +189,8 @@ public class ResendAllIT {
     assertThat(resendRequestNode3).isNotNull();
     assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
-    final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
+    final String fetch =
+        "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
     final Connection databaseConnection =
         PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
     try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
@@ -196,7 +198,9 @@ public class ResendAllIT {
       try (ResultSet rs = statement.executeQuery()) {
         assertThat(rs.next()).isTrue();
         final byte[] output = rs.getBytes(1);
-        final EncodedPayload payload = ENCODER.decode(output);
+        final EncodedPayloadCodec codec = EncodedPayloadCodec.valueOf(rs.getString(2));
+        final PayloadEncoder encoderToUse = PayloadEncoder.create(codec);
+        final EncodedPayload payload = encoderToUse.decode(output);
         assertThat(payload.getRecipientKeys()).hasSize(3);
         assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(partyOne.getPublicKey());
         assertThat(payload.getRecipientBoxes()).hasSize(3);
@@ -265,7 +269,8 @@ public class ResendAllIT {
     assertThat(resendRequest).isNotNull();
     assertThat(resendRequest.getStatus()).isEqualTo(200);
 
-    final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
+    final String fetch =
+        "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
     final Connection databaseConnection =
         PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
     try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
@@ -273,7 +278,9 @@ public class ResendAllIT {
       try (ResultSet rs = statement.executeQuery()) {
         assertThat(rs.next()).isTrue();
         final byte[] output = rs.getBytes(1);
-        final EncodedPayload payload = ENCODER.decode(output);
+        final EncodedPayloadCodec codec = EncodedPayloadCodec.valueOf(rs.getString(2));
+        final PayloadEncoder encoderToUse = PayloadEncoder.create(codec);
+        final EncodedPayload payload = encoderToUse.decode(output);
         assertThat(payload.getRecipientKeys()).hasSize(1);
         assertThat(payload.getRecipientKeys().get(0).encodeToBase64())
             .isEqualTo(partyTwo.getPublicKey());

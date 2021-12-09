@@ -2,13 +2,16 @@ package com.quorum.tessera.p2p;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static java.util.Collections.emptyList;
 
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.p2p.recovery.PushBatchRequest;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.shared.Constants;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,10 +20,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +39,10 @@ public class RecoveryResource {
 
   private final BatchResendManager batchResendManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   public RecoveryResource(
-      TransactionManager transactionManager,
-      BatchResendManager batchResendManager,
-      PayloadEncoder payloadEncoder) {
+      TransactionManager transactionManager, BatchResendManager batchResendManager) {
     this.transactionManager = Objects.requireNonNull(transactionManager);
     this.batchResendManager = Objects.requireNonNull(batchResendManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   @Operation(
@@ -60,7 +60,7 @@ public class RecoveryResource {
 
     com.quorum.tessera.recovery.resend.PushBatchRequest request =
         com.quorum.tessera.recovery.resend.PushBatchRequest.from(
-            pushBatchRequest.getEncodedPayloads());
+            pushBatchRequest.getEncodedPayloads(), EncodedPayloadCodec.LEGACY);
 
     batchResendManager.storeResendBatch(request);
 
@@ -75,9 +75,20 @@ public class RecoveryResource {
   @POST
   @Path("push")
   @Consumes(APPLICATION_OCTET_STREAM)
-  public Response push(final byte[] payload) {
+  public Response push(
+      final byte[] payload, @HeaderParam(Constants.API_VERSION_HEADER) final List<String> headers) {
 
     LOGGER.debug("Received push request during recovery mode");
+
+    final Set<String> versions =
+        Optional.ofNullable(headers).orElse(emptyList()).stream()
+            .filter(Objects::nonNull)
+            .flatMap(v -> Arrays.stream(v.split(",")))
+            .collect(Collectors.toSet());
+
+    final EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodec(versions);
+
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(codec);
 
     final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
 
