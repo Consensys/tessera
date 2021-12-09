@@ -39,8 +39,7 @@ public class LegacyResendWorkflowFactoryTest {
     this.payloadEncoder = mock(PayloadEncoder.class);
     this.payloadPublisher = mock(PayloadPublisher.class);
 
-    this.wfFactory =
-        new LegacyWorkflowFactory(enclave, payloadEncoder, discovery, payloadPublisher);
+    this.wfFactory = new LegacyWorkflowFactory(enclave, discovery, payloadPublisher);
   }
 
   @After
