@@ -8,14 +8,7 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.AffectedTransaction;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveServer;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PrivacyMetadata;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.TxHash;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -32,6 +25,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class EnclaveApplicationTest {
+
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   private Enclave enclave;
 
@@ -129,9 +124,10 @@ public class EnclaveApplicationTest {
 
     assertThat(result.getRecipientKeys()).isNotNull().isEqualTo(pay.getRecipientKeys());
 
-    byte[] resultBytes = PayloadEncoder.create().encode(result);
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+    byte[] resultBytes = payloadEncoder.encode(result);
 
-    assertThat(resultBytes).isEqualTo(PayloadEncoder.create().encode(pay));
+    assertThat(resultBytes).isEqualTo(payloadEncoder.encode(pay));
 
     assertThat(results.get(0)).isEqualTo(message);
 

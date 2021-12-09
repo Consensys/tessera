@@ -23,15 +23,10 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
   private final boolean isEnhancedPrivacyEnabled;
 
-  private final PayloadEncoder payloadEncoder;
-
   public PrivacyHelperImpl(
-      EncryptedTransactionDAO encryptedTransactionDAO,
-      boolean isEnhancedPrivacyEnabled,
-      PayloadEncoder payloadEncoder) {
+      EncryptedTransactionDAO encryptedTransactionDAO, boolean isEnhancedPrivacyEnabled) {
     this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
     this.isEnhancedPrivacyEnabled = isEnhancedPrivacyEnabled;
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   @Override
@@ -63,7 +58,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
             et ->
                 AffectedTransaction.Builder.create()
                     .withHash(et.getHash().getHashBytes())
-                    .withPayload(payloadEncoder.decode(et.getEncodedPayload()))
+                    .withPayload(et.getPayload())
                     .build())
         .collect(Collectors.toList());
   }
@@ -100,7 +95,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
             et ->
                 AffectedTransaction.Builder.create()
                     .withHash(et.getHash().getHashBytes())
-                    .withPayload(payloadEncoder.decode(et.getEncodedPayload()))
+                    .withPayload(et.getPayload())
                     .build())
         .collect(Collectors.toList());
   }

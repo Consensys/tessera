@@ -85,10 +85,9 @@ public class LegacyResendManagerImplTest {
     final EncodedPayload nonSPPayload =
         EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.PARTY_PROTECTION).build();
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    databaseTx.setPayload(nonSPPayload);
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
 
     final MessageHash txHash = new MessageHash("sample-hash".getBytes());
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
@@ -106,7 +105,6 @@ public class LegacyResendManagerImplTest {
         .hasMessage("Cannot resend enhanced privacy transaction in legacy resend");
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
   }
 
   @Test
@@ -117,7 +115,7 @@ public class LegacyResendManagerImplTest {
     final EncodedPayload nonSPPayload =
         EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    databaseTx.setPayload(nonSPPayload);
 
     final ResendRequest request =
         ResendRequest.Builder.create()
@@ -127,7 +125,6 @@ public class LegacyResendManagerImplTest {
             .build();
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
     when(encoder.forRecipient(nonSPPayload, targetResendKey)).thenReturn(nonSPPayload);
 
     final ResendResponse response = resendManager.resend(request);
@@ -136,7 +133,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isEqualTo(nonSPPayload);
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
     verify(encoder).forRecipient(nonSPPayload, targetResendKey);
   }
 
@@ -153,7 +149,7 @@ public class LegacyResendManagerImplTest {
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
             .build();
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    databaseTx.setPayload(nonSPPayload);
 
     final ResendRequest request =
         ResendRequest.Builder.create()
@@ -163,7 +159,6 @@ public class LegacyResendManagerImplTest {
             .build();
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
     when(enclave.getPublicKeys()).thenReturn(Set.of(localRecipientKey));
     when(enclave.unencryptTransaction(any(), eq(localRecipientKey))).thenReturn(new byte[0]);
 
@@ -175,7 +170,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isEqualToComparingFieldByFieldRecursively(expected);
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(any(), eq(localRecipientKey));
   }
@@ -203,7 +197,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isNull();
 
     verify(enclave, times(2)).status();
-    verify(encoder, times(2)).decode(any());
     verify(dao).transactionCount();
     verify(dao).retrieveTransactions(0, 1);
     verify(dao).retrieveTransactions(1, 1);

@@ -31,7 +31,6 @@ public class LegacyWorkflowFactory {
 
   public BatchWorkflow create() {
     final ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
-    final DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler(payloadEncoder);
     final StandardPrivateOnlyFilter standardPrivateOnlyFilter = new StandardPrivateOnlyFilter();
     final FilterPayload filterPayload = new FilterPayload(enclave);
     final PreparePayloadForRecipient preparePayloadForRecipient =
@@ -47,7 +46,6 @@ public class LegacyWorkflowFactory {
     final List<BatchWorkflowAction> handlers =
         List.of(
             validateEnclaveStatus,
-            decodePayloadHandler,
             standardPrivateOnlyFilter,
             filterPayload,
             preparePayloadForRecipient,

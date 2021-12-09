@@ -17,6 +17,7 @@ module tessera.common.jaxrs {
   // requires jakarta.servlet;
   // TODO: CHange for jakarta.servlet when jetty sort out the module name
   requires jetty.servlet.api;
+  requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.api;
   exports com.quorum.tessera.api.common;

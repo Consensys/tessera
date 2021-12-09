@@ -6,7 +6,6 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.recovery.Recovery;
@@ -39,19 +38,15 @@ class RecoveryImpl implements Recovery {
 
   private final TransactionManager transactionManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   RecoveryImpl(
       StagingEntityDAO stagingEntityDAO,
       Discovery discovery,
       BatchTransactionRequester transactionRequester,
-      TransactionManager transactionManager,
-      PayloadEncoder payloadEncoder) {
+      TransactionManager transactionManager) {
     this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
     this.discovery = Objects.requireNonNull(discovery);
     this.transactionRequester = Objects.requireNonNull(transactionRequester);
     this.transactionManager = Objects.requireNonNull(transactionManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   @Override
@@ -127,9 +122,8 @@ class RecoveryImpl implements Recovery {
                   .filter(
                       t -> {
                         payloadCount.incrementAndGet();
-                        byte[] payload = t.getPayload();
+                        EncodedPayload encodedPayload = t.getEncodedPayload();
                         try {
-                          EncodedPayload encodedPayload = payloadEncoder.decode(payload);
                           transactionManager.storePayload(encodedPayload);
                         } catch (PrivacyViolationException | PersistenceException ex) {
                           LOGGER.error("An error occurred during batch resend sync stage.", ex);
