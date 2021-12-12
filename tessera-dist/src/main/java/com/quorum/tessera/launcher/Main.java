@@ -123,7 +123,7 @@ public class Main {
           Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
       LOGGER.debug("Created Launcher");
 
-      if (!config.getOutputServerURIPath().isBlank()) {
+      if (config.getOutputServerURIPath() != null) {
         ServerURIOutputMixin.writeServerURIsToFile(config, tesseraServers);
       }
 

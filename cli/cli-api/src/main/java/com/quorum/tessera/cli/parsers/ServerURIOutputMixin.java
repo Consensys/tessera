@@ -20,10 +20,10 @@ public class ServerURIOutputMixin {
   @CommandLine.Option(
       names = {"--outputServerURIs"},
       description = "Output the server URI(s) to a specified path")
-  private String outputServerURIPath;
+  private Path outputServerURIPath = null;
 
   public void updateConfig(final Config config) {
-    if (!outputServerURIPath.isEmpty()) {
+    if (outputServerURIPath != null) {
       config.setOutputServerURIPath(outputServerURIPath);
     }
   }
@@ -50,7 +50,7 @@ public class ServerURIOutputMixin {
               .findFirst()
               .orElse(null);
 
-      final Path path = Paths.get(config.getOutputServerURIPath());
+      final Path path = config.getOutputServerURIPath();
 
       final List<String> uriPaths = new LinkedList<>();
       uriPaths.add(writeURIFile(path, q2tServer, "q2tServer.uri"));

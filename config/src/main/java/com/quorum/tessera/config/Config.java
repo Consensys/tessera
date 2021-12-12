@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.*;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +60,7 @@ public class Config extends ConfigItem {
 
   @XmlTransient private boolean outputServerURIs;
 
-  @XmlTransient private String outputServerURIPath;
+  @XmlTransient private Path outputServerURIPath;
 
   @XmlElement(name = "mode")
   private ClientMode clientMode = ClientMode.TESSERA;
@@ -207,11 +209,11 @@ public class Config extends ConfigItem {
     return outputServerURIs;
   }
 
-  public void setOutputServerURIPath(String outputServerURIPath) {
+  public void setOutputServerURIPath(Path outputServerURIPath) {
     this.outputServerURIPath = outputServerURIPath;
   }
 
-  public String getOutputServerURIPath() {
+  public Path getOutputServerURIPath() {
     return outputServerURIPath;
   }
 
