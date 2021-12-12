@@ -8,6 +8,7 @@ dependencies {
   implementation project(":config")
   implementation project(":shared")
   implementation project(":tessera-context")
+  implementation project(":server:server-api")
   implementation project(":encryption:encryption-api")
   implementation "org.glassfish:jakarta.el"
 }

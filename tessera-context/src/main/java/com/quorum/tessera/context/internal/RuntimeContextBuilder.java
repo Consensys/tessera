@@ -147,8 +147,6 @@ public class RuntimeContextBuilder {
             useWhiteList,
             recoveryMode,
             clientMode == ClientMode.ORION,
-            outputServerURIs,
-            outputServerURIPath,
             multiplePrivateStates);
     LOGGER.debug("Built {}", this);
     return instance;

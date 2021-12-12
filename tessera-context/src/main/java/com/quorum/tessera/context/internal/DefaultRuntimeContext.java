@@ -34,10 +34,6 @@ class DefaultRuntimeContext implements RuntimeContext {
 
   private final boolean orionMode;
 
-  private final boolean outputServerURIs;
-
-  private final String outputServerURIPath;
-
   private final boolean multiplePrivateStates;
 
   protected DefaultRuntimeContext(
@@ -53,8 +49,6 @@ class DefaultRuntimeContext implements RuntimeContext {
       boolean useWhiteList,
       boolean recoveryMode,
       boolean orionMode,
-      boolean outputServerURIs,
-      String outputServerURIPath,
       boolean multiplePrivateStates) {
     this.keys = Set.copyOf(keys);
     this.keyEncryptor = keyEncryptor;
@@ -68,8 +62,6 @@ class DefaultRuntimeContext implements RuntimeContext {
     this.useWhiteList = useWhiteList;
     this.recoveryMode = recoveryMode;
     this.orionMode = orionMode;
-    this.outputServerURIs = outputServerURIs;
-    this.outputServerURIPath = outputServerURIPath;
     this.multiplePrivateStates = multiplePrivateStates;
   }
 
@@ -132,16 +124,6 @@ class DefaultRuntimeContext implements RuntimeContext {
   }
 
   @Override
-  public boolean getOutputServerURIs() {
-    return outputServerURIs;
-  }
-
-  @Override
-  public String getOutputServerURIPath() {
-    return outputServerURIPath;
-  }
-
-  @Override
   public boolean isMultiplePrivateStates() {
     return multiplePrivateStates;
   }
@@ -173,10 +155,6 @@ class DefaultRuntimeContext implements RuntimeContext {
         + recoveryMode
         + ", orionMode="
         + orionMode
-        + ", outputServerURIs="
-        + outputServerURIs
-        + ", outputServerURIPath="
-        + outputServerURIPath
         + ", multiplePrivateStates="
         + multiplePrivateStates
         + '}';

@@ -44,8 +44,6 @@ public class DefaultRuntimeContextTest {
             true,
             true,
             true,
-            false,
-            "",
             true);
 
     assertThat(instance).isNotNull();
@@ -73,8 +71,6 @@ public class DefaultRuntimeContextTest {
             true,
             true,
             true,
-            false,
-            "",
             true);
 
     assertThat(instance.getPublicKeys()).containsExactly(publicKey);

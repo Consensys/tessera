@@ -5,6 +5,7 @@ module tessera.cli.api {
   requires tessera.config;
   requires tessera.shared;
   requires tessera.encryption.api;
+  requires tessera.server.api;
 
   exports com.quorum.tessera.cli;
   exports com.quorum.tessera.cli.keypassresolver;

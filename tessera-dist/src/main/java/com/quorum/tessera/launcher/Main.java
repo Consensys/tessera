@@ -2,6 +2,7 @@ package com.quorum.tessera.launcher;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.parsers.ServerURIOutputMixin;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.ConfigFactory;
@@ -11,6 +12,7 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.json.JsonException;
@@ -117,8 +119,14 @@ public class Main {
       LOGGER.debug("Created ScheduledServiceFactory");
 
       LOGGER.debug("Creating Launcher");
-      Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
+      final List<TesseraServer> tesseraServers =
+          Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
       LOGGER.debug("Created Launcher");
+
+      if (!config.getOutputServerURIPath().isBlank()) {
+        ServerURIOutputMixin.writeServerURIsToFile(config, tesseraServers);
+      }
+
     } catch (final ConstraintViolationException ex) {
       for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
         System.err.println(
