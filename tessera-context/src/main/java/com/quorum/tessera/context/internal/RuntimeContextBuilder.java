@@ -36,10 +36,6 @@ public class RuntimeContextBuilder {
 
   private boolean recoveryMode;
 
-  private boolean outputServerURIs;
-
-  private String outputServerURIPath;
-
   private ClientMode clientMode;
 
   private boolean multiplePrivateStates;
@@ -102,16 +98,6 @@ public class RuntimeContextBuilder {
 
   public RuntimeContextBuilder withRecoveryMode(boolean recoveryMode) {
     this.recoveryMode = recoveryMode;
-    return this;
-  }
-
-  public RuntimeContextBuilder withOutputServerURIs(boolean outputServerURIs) {
-    this.outputServerURIs = outputServerURIs;
-    return this;
-  }
-
-  public RuntimeContextBuilder withOutputServerURIPath(String outputServerURIPath) {
-    this.outputServerURIPath = outputServerURIPath;
     return this;
   }
 

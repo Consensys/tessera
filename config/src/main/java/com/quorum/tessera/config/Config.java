@@ -57,8 +57,6 @@ public class Config extends ConfigItem {
 
   @XmlTransient private boolean recoveryMode;
 
-  @XmlTransient private boolean outputServerURIs;
-
   @XmlTransient private Path outputServerURIPath;
 
   @XmlElement(name = "mode")
@@ -198,14 +196,6 @@ public class Config extends ConfigItem {
 
   public void setRecoveryMode(boolean recoveryMode) {
     this.recoveryMode = recoveryMode;
-  }
-
-  public void setOutputServerURIs(boolean outputServerURIs) {
-    this.outputServerURIs = outputServerURIs;
-  }
-
-  public boolean getOutputServerURIs() {
-    return outputServerURIs;
   }
 
   public void setOutputServerURIPath(Path outputServerURIPath) {
