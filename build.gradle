@@ -20,6 +20,7 @@ ext {
   slf4jVersion = "1.7.30"
   logbackVersion = "1.2.6"
   hk2Version = "3.0.2"
+  jacksonVersion = "2.12.3";
 }
 
 allprojects {

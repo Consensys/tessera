@@ -2,6 +2,7 @@ package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -20,6 +21,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +29,12 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RestPayloadPublisher.class);
 
-  private final Client restclient;
-
-  private final PayloadEncoder payloadEncoder;
+  private final Client client;
 
   private final Discovery discovery;
 
-  RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
-    this.restclient = Objects.requireNonNull(restclient);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+  RestPayloadPublisher(Client client, Discovery discovery) {
+    this.client = Objects.requireNonNull(client);
     this.discovery = Objects.requireNonNull(discovery);
   }
 
@@ -43,18 +42,20 @@ public class RestPayloadPublisher implements PayloadPublisher {
   public void publishPayload(EncodedPayload payload, PublicKey recipientKey) {
 
     final NodeInfo remoteNodeInfo = discovery.getRemoteNodeInfo(recipientKey);
+    final Set<String> supportedApiVersions = remoteNodeInfo.supportedApiVersions();
+    final EncodedPayloadCodec preferredCodec =
+        EncodedPayloadCodec.getPreferredCodec(supportedApiVersions);
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(preferredCodec);
 
     if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()
-        && !remoteNodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)) {
+        && !supportedApiVersions.contains(EnhancedPrivacyVersion.API_VERSION_2)) {
       throw new EnhancedPrivacyNotSupportedException(
           "Transactions with enhanced privacy is not currently supported on recipient "
               + recipientKey.encodeToBase64());
     }
 
     if (PrivacyMode.MANDATORY_RECIPIENTS == payload.getPrivacyMode()
-        && !remoteNodeInfo
-            .supportedApiVersions()
-            .contains(MandatoryRecipientsVersion.API_VERSION_4)) {
+        && !supportedApiVersions.contains(MandatoryRecipientsVersion.API_VERSION_4)) {
       throw new MandatoryRecipientsNotSupportedException(
           "Transactions with mandatory recipients are not currently supported on recipient "
               + recipientKey.encodeToBase64());
@@ -66,7 +67,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
     final byte[] encoded = payloadEncoder.encode(payload);
 
     try (Response response =
-        restclient
+        client
             .target(targetUrl)
             .path("/push")
             .request()

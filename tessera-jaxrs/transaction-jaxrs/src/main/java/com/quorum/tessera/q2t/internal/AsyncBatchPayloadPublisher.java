@@ -1,7 +1,6 @@
 package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.threading.CancellableCountDownLatch;
 import com.quorum.tessera.threading.CancellableCountDownLatchFactory;
@@ -24,17 +23,13 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
   private final PayloadPublisher publisher;
 
-  private final PayloadEncoder encoder;
-
   public AsyncBatchPayloadPublisher(
       ExecutorFactory executorFactory,
       CancellableCountDownLatchFactory countDownLatchFactory,
-      PayloadPublisher publisher,
-      PayloadEncoder encoder) {
+      PayloadPublisher publisher) {
     this.executor = executorFactory.createCachedThreadPool();
     this.countDownLatchFactory = countDownLatchFactory;
     this.publisher = publisher;
-    this.encoder = encoder;
   }
 
   /**
@@ -60,7 +55,8 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             executor.execute(
                 () -> {
                   try {
-                    final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
+                    final EncodedPayload outgoing =
+                        EncodedPayload.Builder.forRecipient(payload, recipient).build();
                     publisher.publishPayload(outgoing, recipient);
                     latch.countDown();
                   } catch (RuntimeException e) {

@@ -40,9 +40,14 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
   public EncryptedTransaction update(final EncryptedTransaction entity) {
     return entityManagerTemplate.execute(
         entityManager -> {
-          entityManager.merge(entity);
+          EncryptedTransaction existing =
+              entityManager.find(EncryptedTransaction.class, entity.getHash());
+          existing.setPayload(entity.getPayload());
+          existing.setEncodedPayload(null);
+          existing.setHash(entity.getHash());
+          EncryptedTransaction merged = entityManager.merge(existing);
           LOGGER.debug("Updated transaction {}", entity.getHash());
-          return entity;
+          return merged;
         });
   }
 

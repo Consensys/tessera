@@ -50,8 +50,8 @@ public class TransactionManagerProvider {
 
     return transactionManagerHolder.store(
         new TransactionManagerImpl(
-            encryptedTransactionDAO,
             enclave,
+            encryptedTransactionDAO,
             encryptedRawTransactionDAO,
             resendManager,
             batchPayloadPublisher,

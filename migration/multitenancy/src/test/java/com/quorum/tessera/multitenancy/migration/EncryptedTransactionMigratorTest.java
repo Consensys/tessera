@@ -18,17 +18,14 @@ public class EncryptedTransactionMigratorTest {
 
   private EntityManager secondaryDao;
 
-  private PayloadEncoder payloadEncoder;
-
   private EncryptedTransactionMigrator migrator;
 
   @Before
   public void init() {
     this.primaryDao = mock(EntityManager.class);
     this.secondaryDao = mock(EntityManager.class);
-    this.payloadEncoder = mock(PayloadEncoder.class);
 
-    this.migrator = new EncryptedTransactionMigrator(primaryDao, secondaryDao, payloadEncoder);
+    this.migrator = new EncryptedTransactionMigrator(primaryDao, secondaryDao);
   }
 
   @After

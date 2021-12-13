@@ -7,7 +7,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import org.junit.Test;
 
@@ -23,14 +22,10 @@ public class PayloadPublisherProviderTest {
     when(configFactory.getConfig()).thenReturn(config);
 
     try (var configFactoryMockedStatic = mockStatic(ConfigFactory.class);
-        var discoveryMockedStatic = mockStatic(Discovery.class);
-        var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class)) {
+        var discoveryMockedStatic = mockStatic(Discovery.class)) {
 
       configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
       discoveryMockedStatic.when(Discovery::create).thenReturn(mock(Discovery.class));
-      payloadEncoderMockedStatic
-          .when(PayloadEncoder::create)
-          .thenReturn(mock(PayloadEncoder.class));
 
       PayloadPublisher payloadPublisher = PayloadPublisherProvider.provider();
       assertThat(payloadPublisher).isNotNull();
@@ -40,9 +35,6 @@ public class PayloadPublisherProviderTest {
 
       discoveryMockedStatic.verify(Discovery::create);
       discoveryMockedStatic.verifyNoMoreInteractions();
-
-      payloadEncoderMockedStatic.verify(PayloadEncoder::create);
-      payloadEncoderMockedStatic.verifyNoMoreInteractions();
     }
   }
 
