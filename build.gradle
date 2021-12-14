@@ -160,8 +160,8 @@ allprojects {
 
         implementation "net.java.dev.jna:jna:5.6.0"
 
-        testImplementation "org.apache.tuweni:tuweni-rlp:1.1.0"
-        testImplementation "org.apache.tuweni:tuweni-bytes:1.1.0"
+        testImplementation "org.apache.tuweni:tuweni-rlp:2.0.0"
+        testImplementation "org.apache.tuweni:tuweni-bytes:2.0.0"
 
       }
     }
