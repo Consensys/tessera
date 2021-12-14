@@ -14,11 +14,11 @@ ext {
   jettyVersion = "11.0.6"
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.1.9"
-  jerseyVersion = "3.0.2"
-  slf4jVersion = "1.7.30"
+  jerseyVersion = "3.0.3"
+  slf4jVersion = "1.7.32"
   logbackVersion = "1.2.6"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.12.3";
+  jacksonVersion = "2.12.4";
 }
 
 allprojects {
