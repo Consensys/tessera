@@ -1,5 +1,5 @@
 module tessera.jaxrs.client {
-  requires java.ws.rs;
+  requires jakarta.ws.rs;
   requires tessera.config;
   requires tessera.security;
   requires tessera.shared;

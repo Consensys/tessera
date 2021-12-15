@@ -1,8 +1,7 @@
 module tessera.transaction.jaxrs {
-  requires java.validation;
-  requires java.ws.rs;
+  requires jakarta.validation;
+  requires jakarta.ws.rs;
   requires org.slf4j;
-  requires io.swagger.v3.oas.annotations;
   requires tessera.config;
   requires tessera.encryption.api;
   requires tessera.transaction;
@@ -13,7 +12,8 @@ module tessera.transaction.jaxrs {
   requires tessera.context;
   requires tessera.jaxrs.client;
   requires tessera.shared;
-  requires java.json;
+  requires jakarta.json;
+  requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.q2t;
 

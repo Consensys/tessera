@@ -10,11 +10,11 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.json.Json;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import javax.json.Json;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 import suite.ExecutionContext;
 

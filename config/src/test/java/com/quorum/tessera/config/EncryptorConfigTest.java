@@ -3,12 +3,12 @@ package com.quorum.tessera.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.util.JaxbUtil;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import javax.json.Json;
-import javax.json.JsonObject;
 import org.junit.Test;
 
 public class EncryptorConfigTest {
@@ -91,7 +91,7 @@ public class EncryptorConfigTest {
   }
 
   @Test
-  public void marshal() {
+  public void marshal() throws ClassNotFoundException {
 
     EncryptorConfig encryptorConfig = new EncryptorConfig();
     encryptorConfig.setType(EncryptorType.EC);

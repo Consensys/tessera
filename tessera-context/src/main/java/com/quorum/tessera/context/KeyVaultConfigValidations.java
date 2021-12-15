@@ -2,10 +2,10 @@ package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import jakarta.validation.ConstraintViolation;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
 
 public interface KeyVaultConfigValidations {
 

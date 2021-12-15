@@ -1,8 +1,8 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.EnclaveNotAvailableException;
+import jakarta.ws.rs.ProcessingException;
 import java.net.ConnectException;
-import javax.ws.rs.ProcessingException;
 
 public interface ClientCallback<T> {
 

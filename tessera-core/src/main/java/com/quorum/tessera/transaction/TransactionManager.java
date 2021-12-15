@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 public interface TransactionManager {
 
@@ -26,6 +27,8 @@ public interface TransactionManager {
   boolean isSender(MessageHash transactionHash);
 
   List<PublicKey> getParticipants(MessageHash transactionHash);
+
+  Set<PublicKey> getMandatoryRecipients(MessageHash transactionHash);
 
   /**
    * @see Enclave#defaultPublicKey()

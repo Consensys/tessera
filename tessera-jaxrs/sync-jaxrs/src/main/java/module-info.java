@@ -1,7 +1,7 @@
 module tessera.partyinfo.jaxrs {
-  requires java.json;
-  requires java.validation;
-  requires java.ws.rs;
+  requires jakarta.json;
+  requires jakarta.validation;
+  requires jakarta.ws.rs;
   requires org.slf4j;
   requires tessera.config;
   requires tessera.enclave.api;
@@ -17,6 +17,7 @@ module tessera.partyinfo.jaxrs {
   requires org.apache.commons.lang3;
   requires tessera.partyinfo.model;
   requires tessera.recovery;
+  requires jakarta.xml.bind;
   requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.p2p;
@@ -24,13 +25,16 @@ module tessera.partyinfo.jaxrs {
   exports com.quorum.tessera.p2p.partyinfo;
   exports com.quorum.tessera.p2p.recovery;
 
-  opens com.quorum.tessera.p2p.recovery to
-      org.eclipse.persistence.moxy,
-      org.eclipse.persistence.core;
-  opens com.quorum.tessera.p2p.resend to
-      org.eclipse.persistence.moxy,
-      org.eclipse.persistence.core,
-      org.hibernate.validator;
+  opens com.quorum.tessera.p2p.recovery;
+  //  to
+  //      org.eclipse.persistence.moxy,
+  //      org.eclipse.persistence.core;
+
+  opens com.quorum.tessera.p2p.resend;
+  //    to
+  //      org.eclipse.persistence.moxy,
+  //      org.eclipse.persistence.core,
+  //      org.hibernate.validator;
 
   uses com.quorum.tessera.p2p.recovery.RecoveryClient;
   uses com.quorum.tessera.p2p.resend.ResendClient;

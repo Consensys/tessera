@@ -1,7 +1,7 @@
 package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlInlineBinaryData;
+import jakarta.xml.bind.annotation.XmlInlineBinaryData;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests

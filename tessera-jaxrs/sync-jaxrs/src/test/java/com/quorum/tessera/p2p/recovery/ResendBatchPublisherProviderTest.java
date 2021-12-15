@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class ResendBatchPublisherProviderTest {
           .when(RecoveryClient::create)
           .thenReturn(mock(RecoveryClient.class));
       payloadEncoderMockedStatic
-          .when(PayloadEncoder::create)
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
           .thenReturn(mock(PayloadEncoder.class));
 
       ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherProvider.provider();
@@ -30,7 +31,7 @@ public class ResendBatchPublisherProviderTest {
       recoveryClientMockedStatic.verify(RecoveryClient::create);
       recoveryClientMockedStatic.verifyNoMoreInteractions();
 
-      payloadEncoderMockedStatic.verify(PayloadEncoder::create);
+      payloadEncoderMockedStatic.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
       payloadEncoderMockedStatic.verifyNoMoreInteractions();
     }
   }

@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class KeyConfigurationValidator
     implements ConstraintValidator<ValidKeyConfiguration, KeyConfiguration> {

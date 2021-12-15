@@ -18,8 +18,10 @@ import java.util.concurrent.TimeoutException;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class RestfulEnclaveClientTest {
 
@@ -29,8 +31,21 @@ public class RestfulEnclaveClientTest {
 
   private RestfulEnclaveClient enclaveClient;
 
+  private EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
+
+  private PayloadEncoder payloadEncoder;
+
+  @BeforeClass
+  public static void beforeClass() {
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+  }
+
   @Before
   public void setUp() throws Exception {
+
+    payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+
     Config config = new Config();
     config.setEncryptor(new EncryptorConfig());
     config.getEncryptor().setType(EncryptorType.NACL);
@@ -148,8 +163,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayload);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayload);
 
     assertThat(result.getPrivacyGroupId()).isNotPresent();
 
@@ -198,8 +213,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(payloadWithGroupId);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(payloadWithGroupId);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
@@ -261,8 +276,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayload);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayload);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
@@ -313,8 +328,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayloadWithGroupId);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayloadWithGroupId);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 

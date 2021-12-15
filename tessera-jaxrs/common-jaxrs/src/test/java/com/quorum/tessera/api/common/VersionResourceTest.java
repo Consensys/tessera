@@ -5,11 +5,11 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.api.Version;
 import com.quorum.tessera.version.ApiVersion;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

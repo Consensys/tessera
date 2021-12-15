@@ -2,9 +2,9 @@ package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlMimeType;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlMimeType;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests
@@ -51,6 +51,12 @@ public class SendRequest {
 
   @Schema(description = "privacy group id of the payload", format = "base64")
   private String privacyGroupId;
+
+  @ArraySchema(
+      arraySchema =
+          @Schema(description = "public keys identifying the mandatory recipients of the payload"),
+      schema = @Schema(format = "base64"))
+  private String[] mandatoryRecipients;
 
   public byte[] getPayload() {
     return this.payload;
@@ -106,5 +112,13 @@ public class SendRequest {
 
   public void setPrivacyGroupId(String privacyGroupId) {
     this.privacyGroupId = privacyGroupId;
+  }
+
+  public String[] getMandatoryRecipients() {
+    return mandatoryRecipients;
+  }
+
+  public void setMandatoryRecipients(String... mandatoryRecipients) {
+    this.mandatoryRecipients = mandatoryRecipients;
   }
 }

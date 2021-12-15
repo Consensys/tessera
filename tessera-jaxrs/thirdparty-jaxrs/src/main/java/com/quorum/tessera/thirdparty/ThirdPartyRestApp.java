@@ -8,10 +8,10 @@ import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 
 /** The third party API */
 @ApplicationPath("/")
@@ -37,7 +37,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication
         new RawTransactionResource(transactionManager);
     final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
     final KeyResource keyResource = new KeyResource();
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
     return Set.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource);
   }
 

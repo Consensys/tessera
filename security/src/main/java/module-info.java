@@ -1,7 +1,6 @@
 module tessera.security {
-  // requires java.base;
-  requires java.xml.bind;
-  //  requires cryptacular;
+  requires jakarta.xml.bind;
+  requires cryptacular;
   requires org.slf4j;
   requires tessera.config;
   requires tessera.shared;

@@ -11,19 +11,18 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +49,6 @@ public class P2PRestApp extends TesseraRestApplication
 
   private final BatchResendManager batchResendManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final LegacyResendManager legacyResendManager;
 
   private final PrivacyGroupManager privacyGroupManager;
@@ -63,7 +60,6 @@ public class P2PRestApp extends TesseraRestApplication
         PartyStore.getInstance(),
         TransactionManager.create(),
         BatchResendManager.create(),
-        PayloadEncoder.create(),
         LegacyResendManager.create(),
         PrivacyGroupManager.create());
   }
@@ -74,7 +70,6 @@ public class P2PRestApp extends TesseraRestApplication
       PartyStore partyStore,
       TransactionManager transactionManager,
       BatchResendManager batchResendManager,
-      PayloadEncoder payloadEncoder,
       LegacyResendManager legacyResendManager,
       PrivacyGroupManager privacyGroupManager) {
     this.discovery = Objects.requireNonNull(discovery);
@@ -82,7 +77,6 @@ public class P2PRestApp extends TesseraRestApplication
     this.partyStore = Objects.requireNonNull(partyStore);
     this.transactionManager = Objects.requireNonNull(transactionManager);
     this.batchResendManager = Objects.requireNonNull(batchResendManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
     this.privacyGroupManager = Objects.requireNonNull(privacyGroupManager);
   }
@@ -111,16 +105,15 @@ public class P2PRestApp extends TesseraRestApplication
     final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
     final TransactionResource transactionResource =
-        new TransactionResource(
-            transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+        new TransactionResource(transactionManager, batchResendManager, legacyResendManager);
 
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
 
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
     if (runtimeContext.isRecoveryMode()) {
       final RecoveryResource recoveryResource =
-          new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+          new RecoveryResource(transactionManager, batchResendManager);
       return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
     }
     return Set.of(

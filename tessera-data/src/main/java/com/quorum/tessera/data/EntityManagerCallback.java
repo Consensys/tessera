@@ -1,7 +1,7 @@
 package com.quorum.tessera.data;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 
 public interface EntityManagerCallback<T> {
 

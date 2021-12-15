@@ -1,9 +1,9 @@
 package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.config.JdbcConfig;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.Map;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 public interface JdbcConfigUtil {
 
@@ -13,8 +13,8 @@ public interface JdbcConfigUtil {
 
   static Map toMap(JdbcConfig jdbcConfig) {
     return Map.of(
-        "javax.persistence.jdbc.url", jdbcConfig.getUrl(),
-        "javax.persistence.jdbc.user", jdbcConfig.getUsername(),
-        "javax.persistence.jdbc.password", jdbcConfig.getPassword());
+        "jakarta.persistence.jdbc.url", jdbcConfig.getUrl(),
+        "jakarta.persistence.jdbc.user", jdbcConfig.getUsername(),
+        "jakarta.persistence.jdbc.password", jdbcConfig.getPassword());
   }
 }

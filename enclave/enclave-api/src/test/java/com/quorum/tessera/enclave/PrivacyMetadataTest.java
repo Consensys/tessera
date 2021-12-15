@@ -3,7 +3,9 @@ package com.quorum.tessera.enclave;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 
 public class PrivacyMetadataTest {
@@ -70,5 +72,33 @@ public class PrivacyMetadataTest {
     assertThat(metaData.getExecHash()).isEqualTo("execHash".getBytes());
     assertThat(metaData.getPrivacyGroupId()).isPresent();
     assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(id);
+  }
+
+  @Test
+  public void buildMandatoryRecipients() {
+    final AffectedTransaction affected = mock(AffectedTransaction.class);
+
+    PrivacyGroup.Id id = PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes());
+
+    final PrivacyMetadata metaData =
+        PrivacyMetadata.Builder.create()
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withAffectedTransactions(List.of(affected))
+            .withPrivacyGroupId(id)
+            .withMandatoryRecipients(Set.of(PublicKey.from("KEY1".getBytes())))
+            .build();
+
+    assertThat(metaData).isNotNull();
+    assertThat(metaData.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(metaData.getAffectedContractTransactions()).containsExactly(affected);
+    assertThat(metaData.getPrivacyGroupId()).isPresent();
+    assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(id);
+    assertThat(metaData.getMandatoryRecipients())
+        .containsExactly(PublicKey.from("KEY1".getBytes()));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void mandatoryRecipientsInvalid() {
+    PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS).build();
   }
 }

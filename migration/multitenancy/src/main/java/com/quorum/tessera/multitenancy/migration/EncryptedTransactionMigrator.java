@@ -2,17 +2,16 @@ package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.enclave.SecurityHash;
 import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 public class EncryptedTransactionMigrator {
 
@@ -20,17 +19,12 @@ public class EncryptedTransactionMigrator {
 
   private final EntityManager secondaryEntityManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final int maxBatchSize = 100;
 
   public EncryptedTransactionMigrator(
-      final EntityManager primaryEntityManager,
-      final EntityManager secondaryEntityManager,
-      final PayloadEncoder payloadEncoder) {
+      final EntityManager primaryEntityManager, final EntityManager secondaryEntityManager) {
     this.primaryEntityManager = Objects.requireNonNull(primaryEntityManager);
     this.secondaryEntityManager = Objects.requireNonNull(secondaryEntityManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   public void migrate() {
@@ -49,7 +43,7 @@ public class EncryptedTransactionMigrator {
                     .createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
                     .setFirstResult(offset)
                     .setMaxResults(maxBatchSize))
-        .flatMap(TypedQuery<EncryptedTransaction>::getResultStream)
+        .flatMap(TypedQuery::getResultStream)
         .forEach(
             et -> {
               final Optional<EncryptedTransaction> existing =
@@ -69,14 +63,13 @@ public class EncryptedTransactionMigrator {
 
               final EncryptedTransaction outerTx = existing.get();
 
-              final EncodedPayload primaryTx = payloadEncoder.decode(outerTx.getEncodedPayload());
-              final EncodedPayload secondaryTx = payloadEncoder.decode(et.getEncodedPayload());
+              final EncodedPayload primaryTx = outerTx.getPayload();
+              final EncodedPayload secondaryTx = et.getPayload();
 
               final EncodedPayload updatedPayload =
                   this.handleSingleTransaction(primaryTx, secondaryTx);
 
-              final byte[] updatedEncoded = payloadEncoder.encode(updatedPayload);
-              outerTx.setEncodedPayload(updatedEncoded);
+              outerTx.setPayload(updatedPayload);
               primaryEntityManager.getTransaction().begin();
               primaryEntityManager.merge(outerTx);
               primaryEntityManager.getTransaction().commit();

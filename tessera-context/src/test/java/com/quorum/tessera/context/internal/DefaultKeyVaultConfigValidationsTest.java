@@ -10,10 +10,10 @@ import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import jakarta.validation.ConstraintViolation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
 import org.junit.Before;
 import org.junit.Test;
 

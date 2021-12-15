@@ -46,7 +46,7 @@ public class ConfigBuilder {
 
   private Integer partyInfoInterval;
 
-  private Integer adminPort;
+  private Integer thirdPartyPort;
 
   private Integer enclavePort;
 
@@ -86,8 +86,8 @@ public class ConfigBuilder {
     return this;
   }
 
-  public ConfigBuilder withAdminPort(Integer adminPort) {
-    this.adminPort = adminPort;
+  public ConfigBuilder withThirdPartyPort(Integer thirdPartyPort) {
+    this.thirdPartyPort = thirdPartyPort;
     return this;
   }
 
@@ -151,13 +151,10 @@ public class ConfigBuilder {
     config.setEncryptor(encryptorConfig);
     JdbcConfig jdbcConfig = new JdbcConfig();
 
-    String nodeName =
-        executionContext.getPrefix().map(s -> s.concat("-").concat(nodeId)).orElse(nodeId);
-
-    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeName, nodeNumber));
+    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
     jdbcConfig.setUsername("sa");
-    jdbcConfig.setPassword("");
-    jdbcConfig.setAutoCreateTables(true);
+    jdbcConfig.setPassword("password");
+    jdbcConfig.setAutoCreateTables(executionContext.isAutoCreateTables());
     config.setJdbcConfig(jdbcConfig);
 
     ServerConfig q2tServerConfig = new ServerConfig();
@@ -189,14 +186,14 @@ public class ConfigBuilder {
     servers.add(p2pServerConfig);
 
     if (executionContext.getCommunicationType() == CommunicationType.REST
-        && Objects.nonNull(adminPort)) {
-      ServerConfig adminServerConfig = new ServerConfig();
-      adminServerConfig.setApp(AppType.ADMIN);
-      adminServerConfig.setServerAddress("http://localhost:" + adminPort);
-      adminServerConfig.setBindingAddress("http://0.0.0.0:" + adminPort);
-      adminServerConfig.setCommunicationType(CommunicationType.REST);
+        && Objects.nonNull(thirdPartyPort)) {
+      ServerConfig thirdPartyServerConfig = new ServerConfig();
+      thirdPartyServerConfig.setApp(AppType.THIRD_PARTY);
+      thirdPartyServerConfig.setServerAddress("http://localhost:" + thirdPartyPort);
+      thirdPartyServerConfig.setBindingAddress("http://0.0.0.0:" + thirdPartyPort);
+      thirdPartyServerConfig.setCommunicationType(CommunicationType.REST);
 
-      // servers.add(adminServerConfig);
+      servers.add(thirdPartyServerConfig);
     }
 
     if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -268,9 +265,9 @@ public class ConfigBuilder {
   public static void main(String... args) throws Exception {
 
     System.setProperty(
-        "javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
     System.setProperty(
-        "javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
     ExecutionContext executionContext =
         ExecutionContext.Builder.create()

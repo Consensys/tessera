@@ -1,13 +1,13 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.io.FilesDelegate;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class ValidContentValidator implements ConstraintValidator<ValidContent, Path> {
 

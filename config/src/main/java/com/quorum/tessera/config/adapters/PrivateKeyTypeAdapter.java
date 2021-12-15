@@ -1,9 +1,9 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.PrivateKeyType;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class PrivateKeyTypeAdapter extends XmlAdapter<String, PrivateKeyType> {
 

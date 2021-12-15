@@ -1,5 +1,7 @@
 package com.quorum.tessera.enclave;
 
+import static java.util.Collections.singletonList;
+
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.*;
@@ -28,6 +30,8 @@ public class EncodedPayload {
 
   private final PrivacyGroup.Id privacyGroupId;
 
+  private final Set<PublicKey> mandatoryRecipients;
+
   private EncodedPayload(
       final PublicKey senderKey,
       final byte[] cipherText,
@@ -38,7 +42,8 @@ public class EncodedPayload {
       final PrivacyMode privacyMode,
       final Map<TxHash, SecurityHash> affectedContractTransactions,
       final byte[] execHash,
-      final PrivacyGroup.Id privacyGroupId) {
+      final PrivacyGroup.Id privacyGroupId,
+      final Set<PublicKey> mandatoryRecipients) {
     this.senderKey = senderKey;
     this.cipherText = cipherText;
     this.cipherTextNonce = cipherTextNonce;
@@ -49,6 +54,7 @@ public class EncodedPayload {
     this.affectedContractTransactions = affectedContractTransactions;
     this.execHash = execHash;
     this.privacyGroupId = privacyGroupId;
+    this.mandatoryRecipients = mandatoryRecipients;
   }
 
   public PublicKey getSenderKey() {
@@ -91,6 +97,10 @@ public class EncodedPayload {
     return Optional.ofNullable(privacyGroupId);
   }
 
+  public Set<PublicKey> getMandatoryRecipients() {
+    return mandatoryRecipients;
+  }
+
   public static class Builder {
 
     private Builder() {}
@@ -118,9 +128,47 @@ public class EncodedPayload {
               .withCipherTextNonce(encodedPayload.getCipherTextNonce())
               .withPrivacyMode(encodedPayload.getPrivacyMode())
               .withAffectedContractTransactions(affectedContractTransactionMap)
+              .withMandatoryRecipients(encodedPayload.getMandatoryRecipients())
               .withExecHash(encodedPayload.getExecHash());
 
       encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
+
+      return builder;
+    }
+
+    /**
+     * Strips a payload of any data that isn't relevant to the given recipient Used to format a
+     * payload before it is sent to the target node
+     *
+     * @param payload the full payload from which data needs to be stripped
+     * @param recipient the recipient to retain information about
+     * @return a payload which contains a subset of data from the input, which is relevant to the
+     *     recipient
+     */
+    public static Builder forRecipient(final EncodedPayload payload, final PublicKey recipient) {
+
+      final Builder builder = from(payload);
+
+      if (!payload.getRecipientKeys().contains(recipient)) {
+        throw new InvalidRecipientException(
+            "Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
+      }
+
+      final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
+      final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
+
+      List<PublicKey> recipientList;
+
+      if (PrivacyMode.PRIVATE_STATE_VALIDATION == payload.getPrivacyMode()) {
+        recipientList = new ArrayList<>(payload.getRecipientKeys());
+        recipientList.remove(recipientIndex);
+        recipientList.add(0, recipient);
+      } else {
+        recipientList = singletonList(recipient);
+      }
+
+      builder.withRecipientBoxes(singletonList(recipientBox));
+      builder.withNewRecipientKeys(recipientList);
 
       return builder;
     }
@@ -144,6 +192,8 @@ public class EncodedPayload {
     private byte[] execHash = new byte[0];
 
     private PrivacyGroup.Id privacyGroupId;
+
+    private Set<PublicKey> mandatoryRecipients = Collections.emptySet();
 
     public Builder withSenderKey(final PublicKey senderKey) {
       this.senderKey = senderKey;
@@ -227,6 +277,11 @@ public class EncodedPayload {
       return this;
     }
 
+    public Builder withMandatoryRecipients(final Set<PublicKey> mandatoryRecipients) {
+      this.mandatoryRecipients = mandatoryRecipients;
+      return this;
+    }
+
     public EncodedPayload build() {
 
       Map<TxHash, SecurityHash> affectedTransactions =
@@ -242,6 +297,12 @@ public class EncodedPayload {
         throw new RuntimeException("ExecutionHash data is invalid");
       }
 
+      if ((privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) == mandatoryRecipients.isEmpty()) {
+        throw new RuntimeException(
+            "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
+                + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
+      }
+
       return new EncodedPayload(
           senderKey,
           cipherText,
@@ -252,7 +313,8 @@ public class EncodedPayload {
           privacyMode,
           affectedTransactions,
           execHash,
-          privacyGroupId);
+          privacyGroupId,
+          mandatoryRecipients);
     }
   }
 
@@ -269,7 +331,8 @@ public class EncodedPayload {
         && Objects.equals(recipientKeys, that.recipientKeys)
         && privacyMode == that.privacyMode
         && Arrays.equals(execHash, that.execHash)
-        && Objects.equals(privacyGroupId, that.privacyGroupId);
+        && Objects.equals(privacyGroupId, that.privacyGroupId)
+        && Objects.equals(mandatoryRecipients, that.mandatoryRecipients);
   }
 
   @Override
@@ -282,7 +345,8 @@ public class EncodedPayload {
             recipientNonce,
             recipientKeys,
             privacyMode,
-            privacyGroupId);
+            privacyGroupId,
+            mandatoryRecipients);
     result = 31 * result + Arrays.hashCode(cipherText);
     result = 31 * result + Arrays.hashCode(execHash);
     return result;

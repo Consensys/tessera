@@ -2,12 +2,12 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.MapAdapter;
 import com.quorum.tessera.config.constraints.ValidKeyVaultConfig;
+import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @ValidKeyVaultConfig
 @XmlType(name = "keyVaultConfig")

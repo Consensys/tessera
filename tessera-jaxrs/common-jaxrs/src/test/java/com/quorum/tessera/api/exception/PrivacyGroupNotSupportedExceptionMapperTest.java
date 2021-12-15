@@ -3,7 +3,7 @@ package com.quorum.tessera.api.exception;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotSupportedException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import org.junit.Test;
 
 public class PrivacyGroupNotSupportedExceptionMapperTest {

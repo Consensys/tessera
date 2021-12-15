@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.adapters;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class CharArrayAdapter extends XmlAdapter<String, char[]> {
   @Override

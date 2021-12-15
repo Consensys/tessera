@@ -5,9 +5,9 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraApp;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
+import jakarta.ws.rs.core.Application;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

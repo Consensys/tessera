@@ -53,6 +53,15 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
       executionHash = encodeField(payload.getExecHash());
     }
 
+    byte[] mandatoryRecipients = new byte[0];
+    if (payload.getPrivacyMode() == PrivacyMode.MANDATORY_RECIPIENTS) {
+      mandatoryRecipients =
+          encodeArray(
+              payload.getMandatoryRecipients().stream()
+                  .map(PublicKey::getKeyBytes)
+                  .collect(Collectors.toUnmodifiableList()));
+    }
+
     byte[] privacyGroupId =
         payload
             .getPrivacyGroupId()
@@ -70,6 +79,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 + privacyModeByte.length
                 + affectedContractsPayloadLength
                 + executionHash.length
+                + mandatoryRecipients.length
                 + privacyGroupId.length)
         .put(senderKey)
         .put(cipherText)
@@ -80,6 +90,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         .put(privacyModeByte)
         .put(affectedContractTxs.array())
         .put(executionHash)
+        .put(mandatoryRecipients)
         .put(privacyGroupId)
         .array();
   }
@@ -113,17 +124,20 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
     final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
     buffer.get(recipientNonce);
 
+    EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+
+    payloadBuilder
+        .withSenderKey(PublicKey.from(senderKey))
+        .withCipherText(cipherText)
+        .withCipherTextNonce(nonce)
+        .withRecipientBoxes(recipientBoxes)
+        .withRecipientNonce(recipientNonce);
+
     // this means there are no recipients in the payload (which we receive when we are a
     // participant)
     // TODO - not sure this is right
     if (!buffer.hasRemaining()) {
-
-      return EncodedPayload.Builder.create()
-          .withSenderKey(PublicKey.from(senderKey))
-          .withCipherText(cipherText)
-          .withCipherTextNonce(nonce)
-          .withRecipientBoxes(recipientBoxes)
-          .withRecipientNonce(recipientNonce)
+      return payloadBuilder
           .withRecipientKeys(emptyList())
           .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
           .withAffectedContractTransactions(emptyMap())
@@ -141,15 +155,10 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
       recipientKeys.add(box);
     }
 
-    if (!buffer.hasRemaining()) {
+    payloadBuilder.withRecipientKeys(recipientKeys.stream().map(PublicKey::from).collect(toList()));
 
-      return EncodedPayload.Builder.create()
-          .withSenderKey(PublicKey.from(senderKey))
-          .withCipherText(cipherText)
-          .withCipherTextNonce(nonce)
-          .withRecipientBoxes(recipientBoxes)
-          .withRecipientNonce(recipientNonce)
-          .withRecipientKeys(recipientKeys.stream().map(PublicKey::from).collect(toList()))
+    if (!buffer.hasRemaining()) {
+      return payloadBuilder
           .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
           .withAffectedContractTransactions(emptyMap())
           .withExecHash(new byte[0])
@@ -185,85 +194,44 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
       }
     }
 
+    payloadBuilder
+        .withPrivacyMode(privacyMode)
+        .withAffectedContractTransactions(affectedContractTransactions)
+        .withExecHash(executionHash);
+
+    if (buffer.hasRemaining()) {
+      if (privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) {
+        final long mandatoryRecipientLength = buffer.getLong();
+
+        final List<byte[]> mandatoryRecipients = new ArrayList<>();
+        for (long i = 0; i < mandatoryRecipientLength; i++) {
+          final long boxSize = buffer.getLong();
+          final byte[] box = new byte[Math.toIntExact(boxSize)];
+          buffer.get(box);
+          mandatoryRecipients.add(box);
+        }
+        payloadBuilder.withMandatoryRecipients(
+            mandatoryRecipients.stream().map(PublicKey::from).collect(Collectors.toSet()));
+      }
+    }
+
     if (!buffer.hasRemaining()) {
-      return EncodedPayload.Builder.create()
-          .withSenderKey(PublicKey.from(senderKey))
-          .withCipherText(cipherText)
-          .withCipherTextNonce(nonce)
-          .withRecipientBoxes(recipientBoxes)
-          .withRecipientNonce(recipientNonce)
-          .withRecipientKeys(recipientKeys.stream().map(PublicKey::from).collect(toList()))
-          .withPrivacyMode(privacyMode)
-          .withAffectedContractTransactions(affectedContractTransactions)
-          .withExecHash(executionHash)
-          .build();
+      return payloadBuilder.build();
     }
 
     final long privacyGroupIdSize = buffer.getLong();
     final byte[] privacyGroupId = new byte[Math.toIntExact(privacyGroupIdSize)];
     buffer.get(privacyGroupId);
 
-    return EncodedPayload.Builder.create()
-        .withSenderKey(PublicKey.from(senderKey))
-        .withCipherText(cipherText)
-        .withCipherTextNonce(nonce)
-        .withRecipientBoxes(recipientBoxes)
-        .withRecipientNonce(recipientNonce)
-        .withRecipientKeys(recipientKeys.stream().map(PublicKey::from).collect(toList()))
-        .withPrivacyMode(privacyMode)
-        .withAffectedContractTransactions(affectedContractTransactions)
-        .withExecHash(executionHash)
-        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId))
-        .build();
+    if (privacyGroupId.length > 0) {
+      payloadBuilder.withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId));
+    }
+
+    return payloadBuilder.build();
   }
 
   @Override
-  public EncodedPayload forRecipient(final EncodedPayload payload, final PublicKey recipient) {
-
-    if (!payload.getRecipientKeys().contains(recipient)) {
-      throw new InvalidRecipientException(
-          "Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
-    }
-
-    final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
-    final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
-
-    List<PublicKey> recipientList;
-
-    if (PrivacyMode.PRIVATE_STATE_VALIDATION == payload.getPrivacyMode()) {
-      recipientList = new ArrayList<>(payload.getRecipientKeys());
-      recipientList.remove(recipientIndex);
-      recipientList.add(0, recipient);
-    } else {
-      recipientList = singletonList(recipient);
-    }
-
-    Map<TxHash, byte[]> affectedTxnMap =
-        payload.getAffectedContractTransactions().entrySet().stream()
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData()));
-
-    final EncodedPayload.Builder builder =
-        EncodedPayload.Builder.create()
-            .withSenderKey(payload.getSenderKey())
-            .withCipherText(payload.getCipherText())
-            .withCipherTextNonce(payload.getCipherTextNonce())
-            .withRecipientBoxes(singletonList(recipientBox))
-            .withRecipientNonce(payload.getRecipientNonce())
-            .withRecipientKeys(recipientList)
-            .withPrivacyMode(payload.getPrivacyMode())
-            .withAffectedContractTransactions(affectedTxnMap)
-            .withExecHash(payload.getExecHash());
-    payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
-
-    return builder.build();
-  }
-
-  @Override
-  public EncodedPayload withRecipient(final EncodedPayload payload, final PublicKey recipient) {
-    // this method is to be used for adding a recipient to an EncodedPayload that does not have any.
-    if (!payload.getRecipientKeys().isEmpty()) {
-      return payload;
-    }
-    return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
+  public EncodedPayloadCodec encodedPayloadCodec() {
+    return EncodedPayloadCodec.LEGACY;
   }
 }

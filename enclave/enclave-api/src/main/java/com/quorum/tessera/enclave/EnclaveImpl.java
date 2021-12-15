@@ -59,6 +59,7 @@ public class EnclaveImpl implements Enclave {
         .withPrivacyMode(privacyMetadata.getPrivacyMode())
         .withAffectedContractTransactions(affectedContractTransactionHashes)
         .withExecHash(privacyMetadata.getExecHash())
+        .withMandatoryRecipients(privacyMetadata.getMandatoryRecipients())
         .build();
   }
 
@@ -149,6 +150,7 @@ public class EnclaveImpl implements Enclave {
         .withPrivacyMode(privacyMetadata.getPrivacyMode())
         .withAffectedContractTransactions(affectedContractTransactionHashes)
         .withExecHash(privacyMetadata.getExecHash())
+        .withMandatoryRecipients(privacyMetadata.getMandatoryRecipients())
         .build();
   }
 

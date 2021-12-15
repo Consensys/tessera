@@ -1,8 +1,10 @@
 package com.quorum.tessera.data;
 
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.*;
 
 /**
  * The JPA entity that contains the transaction information A simple key/value pair
@@ -19,9 +21,10 @@ import javax.persistence.*;
       query = "select et from EncryptedTransaction et order by et.timestamp,et.hash"),
   @NamedQuery(
       name = "EncryptedTransaction.Upcheck",
-      query = "select count(c) from EncryptedTransaction c")
+      query = "select count(c.timestamp) from EncryptedTransaction c")
 })
 @Entity
+@EntityListeners(EncryptedTransactionListener.class)
 @Table(name = "ENCRYPTED_TRANSACTION")
 public class EncryptedTransaction implements Serializable {
 
@@ -35,12 +38,18 @@ public class EncryptedTransaction implements Serializable {
   @Column(name = "ENCODED_PAYLOAD", nullable = false)
   private byte[] encodedPayload;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "PAYLOAD_CODEC", nullable = false, length = 50)
+  private EncodedPayloadCodec encodedPayloadCodec;
+
   @Column(name = "TIMESTAMP", updatable = false)
   private long timestamp;
 
-  public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
+  @Transient private transient EncodedPayload payload;
+
+  public EncryptedTransaction(final MessageHash hash, final EncodedPayload payload) {
     this.hash = hash;
-    this.encodedPayload = encodedPayload;
+    this.payload = payload;
   }
 
   public EncryptedTransaction() {}
@@ -64,6 +73,22 @@ public class EncryptedTransaction implements Serializable {
 
   public void setEncodedPayload(final byte[] encodedPayload) {
     this.encodedPayload = encodedPayload;
+  }
+
+  public EncodedPayloadCodec getEncodedPayloadCodec() {
+    return encodedPayloadCodec;
+  }
+
+  public void setEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+    this.encodedPayloadCodec = encodedPayloadCodec;
+  }
+
+  public EncodedPayload getPayload() {
+    return payload;
+  }
+
+  public void setPayload(EncodedPayload payload) {
+    this.payload = payload;
   }
 
   public long getTimestamp() {

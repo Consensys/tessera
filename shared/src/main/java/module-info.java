@@ -1,7 +1,7 @@
 module tessera.shared {
   // requires java.compiler;
 
-  requires java.annotation;
+  requires jakarta.annotation;
   requires org.slf4j;
 
   exports com.quorum.tessera.base64;
@@ -24,5 +24,7 @@ module tessera.shared {
       com.quorum.tessera.version.BaseVersion,
       com.quorum.tessera.version.EnhancedPrivacyVersion,
       com.quorum.tessera.version.MultiTenancyVersion,
-      com.quorum.tessera.version.PrivacyGroupVersion;
+      com.quorum.tessera.version.PrivacyGroupVersion,
+      com.quorum.tessera.version.MandatoryRecipientsVersion,
+      com.quorum.tessera.version.CBORSupportVersion;
 }

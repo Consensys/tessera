@@ -1,6 +1,6 @@
 package com.quorum.tessera.server.jersey;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class PongImpl implements Pong {

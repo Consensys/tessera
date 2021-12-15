@@ -7,10 +7,10 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.*;
 import suite.*;
 

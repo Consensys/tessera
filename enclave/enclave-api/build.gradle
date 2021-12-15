@@ -8,9 +8,18 @@ dependencies {
   implementation project(":shared")
   implementation project(":key-vault:key-vault-api")
   implementation "org.bouncycastle:bcpkix-jdk15on"
-  implementation "org.slf4j:slf4j-api"
+
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+  implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:$jacksonVersion"
+
 
 
   testImplementation "org.apache.tuweni:tuweni-rlp"
   testImplementation "org.apache.tuweni:tuweni-bytes"
+
+  api "org.slf4j:slf4j-api"
+  testRuntimeOnly "org.slf4j:jcl-over-slf4j"
+  testRuntimeOnly "org.slf4j:jul-to-slf4j"
+  testRuntimeOnly "ch.qos.logback:logback-classic"
+  testRuntimeOnly "ch.qos.logback:logback-core"
 }

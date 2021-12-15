@@ -6,13 +6,13 @@ import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.PartyInfoBuilder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
+import jakarta.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import javax.ws.rs.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

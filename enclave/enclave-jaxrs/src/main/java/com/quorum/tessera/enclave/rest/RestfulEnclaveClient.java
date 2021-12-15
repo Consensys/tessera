@@ -3,6 +3,10 @@ package com.quorum.tessera.enclave.rest;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.json.JsonArray;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Base64;
 import java.util.List;
@@ -11,10 +15,6 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.json.JsonArray;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
   public RestfulEnclaveClient(Client client, URI uri, ExecutorService executorService) {
     this.client = Objects.requireNonNull(client);
     this.uri = Objects.requireNonNull(uri);
-    this.payloadEncoder = PayloadEncoder.create();
+    this.payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
     this.executorService = executorService;
   }
 
@@ -113,6 +113,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
               convertAffectedContractTransactions(
                   privacyMetaData.getAffectedContractTransactions()));
           enclavePayload.setExecHash(privacyMetaData.getExecHash());
+          enclavePayload.setMandatoryRecipients(
+              privacyMetaData.getMandatoryRecipients().stream()
+                  .map(PublicKey::getKeyBytes)
+                  .collect(Collectors.toList()));
           privacyMetaData
               .getPrivacyGroupId()
               .map(PrivacyGroup.Id::getBytes)
@@ -125,7 +129,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
           byte[] result = response.readEntity(byte[].class);
 
-          return PayloadEncoder.create().decode(result);
+          return payloadEncoder.decode(result);
         });
   }
 
@@ -150,6 +154,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
           enclaveRawPayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
           enclaveRawPayload.setExecHash(privacyMetaData.getExecHash());
 
+          enclaveRawPayload.setMandatoryRecipients(
+              privacyMetaData.getMandatoryRecipients().stream()
+                  .map(PublicKey::getKeyBytes)
+                  .collect(Collectors.toList()));
+
           enclaveRawPayload.setAffectedContractTransactions(
               convertAffectedContractTransactions(
                   privacyMetaData.getAffectedContractTransactions()));
@@ -171,7 +180,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
           byte[] body = response.readEntity(byte[].class);
 
-          return PayloadEncoder.create().decode(body);
+          return payloadEncoder.decode(body);
         });
   }
 
@@ -211,7 +220,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
         () -> {
           EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
 
-          byte[] body = PayloadEncoder.create().encode(payload);
+          byte[] body = payloadEncoder.encode(payload);
 
           dto.setData(body);
 
@@ -254,7 +263,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     return ClientCallback.execute(
         () -> {
-          final byte[] body = PayloadEncoder.create().encode(payload);
+          final byte[] body = payloadEncoder.encode(payload);
 
           final EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
           dto.setData(body);

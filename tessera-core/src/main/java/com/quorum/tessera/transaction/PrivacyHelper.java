@@ -20,7 +20,8 @@ public interface PrivacyHelper {
   boolean validateSendRequest(
       PrivacyMode privacyMode,
       List<PublicKey> recipientList,
-      List<AffectedTransaction> affectedTransactions);
+      List<AffectedTransaction> affectedTransactions,
+      Set<PublicKey> mandatoryRecipients);
 
   boolean validatePayload(
       TxHash txHash, EncodedPayload encodedPayload, List<AffectedTransaction> affectedTransactions);

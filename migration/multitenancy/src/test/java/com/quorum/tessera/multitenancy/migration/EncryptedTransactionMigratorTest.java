@@ -5,9 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,17 +18,14 @@ public class EncryptedTransactionMigratorTest {
 
   private EntityManager secondaryDao;
 
-  private PayloadEncoder payloadEncoder;
-
   private EncryptedTransactionMigrator migrator;
 
   @Before
   public void init() {
     this.primaryDao = mock(EntityManager.class);
     this.secondaryDao = mock(EntityManager.class);
-    this.payloadEncoder = mock(PayloadEncoder.class);
 
-    this.migrator = new EncryptedTransactionMigrator(primaryDao, secondaryDao, payloadEncoder);
+    this.migrator = new EncryptedTransactionMigrator(primaryDao, secondaryDao);
   }
 
   @After

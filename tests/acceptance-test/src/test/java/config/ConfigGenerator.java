@@ -191,6 +191,8 @@ public class ConfigGenerator {
 
     // Node A,B,C have enhanced private enabled, node D does not
 
+    // Only node A has a third party server
+
     Config first =
         new ConfigBuilder()
             .withNodeId(nodeId)
@@ -198,6 +200,7 @@ public class ConfigGenerator {
             .withExecutionContext(executionContext)
             .withQt2Port(port.nextPort())
             .withP2pPort(port.nextPort())
+            .withThirdPartyPort(port.nextPort())
             .withEnclavePort(port.nextPort())
             .withPartyInfoInterval(partyInfoInterval)
             .withKeys(keyLookUp.get(1))
@@ -268,9 +271,9 @@ public class ConfigGenerator {
   public static void main(String[] args) throws Exception {
 
     System.setProperty(
-        "javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
     System.setProperty(
-        "javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
     ExecutionContext executionContext =
         ExecutionContext.Builder.create()

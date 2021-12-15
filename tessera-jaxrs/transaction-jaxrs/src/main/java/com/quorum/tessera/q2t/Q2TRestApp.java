@@ -12,10 +12,10 @@ import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 
 /**
  * The main application that is submitted to the HTTP server Contains all the service classes
@@ -50,11 +50,13 @@ public class Q2TRestApp extends TesseraRestApplication
         new TransactionResource(transactionManager, privacyGroupManager);
     TransactionResource3 transactionResource3 =
         new TransactionResource3(transactionManager, privacyGroupManager);
+    TransactionResource4 transactionResource4 =
+        new TransactionResource4(transactionManager, privacyGroupManager);
 
     RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
     EncodedPayloadResource encodedPayloadResource =
         new EncodedPayloadResource(encodedPayloadManager, transactionManager);
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
 
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
@@ -71,7 +73,8 @@ public class Q2TRestApp extends TesseraRestApplication
         encodedPayloadResource,
         privacyGroupResource,
         upCheckResource,
-        transactionResource3);
+        transactionResource3,
+        transactionResource4);
   }
 
   @Override

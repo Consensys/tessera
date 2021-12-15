@@ -2,7 +2,7 @@ package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class PrivacyGroupSearchRequest {
 

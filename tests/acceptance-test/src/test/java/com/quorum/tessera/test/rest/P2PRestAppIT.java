@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 import org.junit.*;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class P2PRestAppIT {
 
     InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
 
-    javax.ws.rs.core.Response response =
+    jakarta.ws.rs.core.Response response =
         client
             .target(actor.getP2PUri())
             .path("/partyinfo")
@@ -56,7 +56,7 @@ public class P2PRestAppIT {
 
   @Test
   public void upcheck() {
-    javax.ws.rs.core.Response response =
+    jakarta.ws.rs.core.Response response =
         client.target(actor.getP2PUri()).path("/upcheck").request().get();
 
     assertThat(response).isNotNull();

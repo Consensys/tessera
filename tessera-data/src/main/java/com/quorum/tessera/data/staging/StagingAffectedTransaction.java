@@ -1,9 +1,13 @@
 package com.quorum.tessera.data.staging;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
+@NamedQuery(
+    name = "StagingAffectedTransaction.countAll",
+    query = "select count(sat) from StagingAffectedTransaction sat")
 @Entity
 @Table(name = "ST_AFFECTED_TRANSACTION")
 public class StagingAffectedTransaction {
@@ -57,6 +61,9 @@ public class StagingAffectedTransaction {
 
   @Override
   public int hashCode() {
-    return Objects.hash(sourceTransaction.getHash(), hash);
+    return Optional.ofNullable(sourceTransaction)
+        .map(StagingTransaction::getHash)
+        .map(h -> Objects.hash(h, hash))
+        .orElse(super.hashCode());
   }
 }

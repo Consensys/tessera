@@ -6,7 +6,6 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.recovery.Recovery;
@@ -15,13 +14,13 @@ import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
+import jakarta.persistence.PersistenceException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.PersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,19 +38,15 @@ class RecoveryImpl implements Recovery {
 
   private final TransactionManager transactionManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   RecoveryImpl(
       StagingEntityDAO stagingEntityDAO,
       Discovery discovery,
       BatchTransactionRequester transactionRequester,
-      TransactionManager transactionManager,
-      PayloadEncoder payloadEncoder) {
+      TransactionManager transactionManager) {
     this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
     this.discovery = Objects.requireNonNull(discovery);
     this.transactionRequester = Objects.requireNonNull(transactionRequester);
     this.transactionManager = Objects.requireNonNull(transactionManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   @Override
@@ -127,9 +122,8 @@ class RecoveryImpl implements Recovery {
                   .filter(
                       t -> {
                         payloadCount.incrementAndGet();
-                        byte[] payload = t.getPayload();
+                        EncodedPayload encodedPayload = t.getEncodedPayload();
                         try {
-                          EncodedPayload encodedPayload = payloadEncoder.decode(payload);
                           transactionManager.storePayload(encodedPayload);
                         } catch (PrivacyViolationException | PersistenceException ex) {
                           LOGGER.error("An error occurred during batch resend sync stage.", ex);
@@ -154,6 +148,18 @@ class RecoveryImpl implements Recovery {
 
   @Override
   public int recover() {
+
+    try {
+      if (stagingEntityDAO.countAll() != 0 || stagingEntityDAO.countAllAffected() != 0) {
+        LOGGER.error(
+            "Staging tables are not empty. Please ensure database has been setup correctly for recovery process");
+        return RecoveryResult.FAILURE.getCode();
+      }
+    } catch (Exception ex) {
+      LOGGER.error(
+          "Attempt to query failed. Please ensure database has been setup correctly for recovery process");
+      return RecoveryResult.FAILURE.getCode();
+    }
 
     final long startTime = System.nanoTime();
 

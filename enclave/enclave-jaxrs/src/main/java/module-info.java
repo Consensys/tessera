@@ -1,7 +1,7 @@
 module tessera.enclave.jaxrs {
-  requires java.json;
-  requires java.ws.rs;
-  requires java.xml.bind;
+  requires jakarta.json;
+  requires jakarta.ws.rs;
+  requires jakarta.xml.bind;
   requires info.picocli;
   requires org.apache.commons.lang3;
   requires org.slf4j;
@@ -15,6 +15,9 @@ module tessera.enclave.jaxrs {
   requires tessera.shared;
   requires tessera.jaxrs.client;
   requires org.bouncycastle.provider;
+  requires com.fasterxml.classmate;
+  requires org.glassfish.json.jaxrs;
+  requires org.eclipse.persistence.asm;
 
   opens com.quorum.tessera.enclave.rest to
       org.eclipse.persistence.moxy,
@@ -22,8 +25,8 @@ module tessera.enclave.jaxrs {
 
   exports com.quorum.tessera.enclave.rest to
       org.eclipse.persistence.core,
-      hk2.locator,
-      jersey.server;
+      jersey.server,
+      org.glassfish.hk2.locator;
 
   provides com.quorum.tessera.enclave.EnclaveClient with
       com.quorum.tessera.enclave.rest.EnclaveClientProvider;

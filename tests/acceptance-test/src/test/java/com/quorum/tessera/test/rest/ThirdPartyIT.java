@@ -10,6 +10,10 @@ import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.PortUtil;
 import exec.NodeExecManager;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.Response;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,10 +21,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import org.junit.*;
 import suite.EnclaveType;
 import suite.ExecutionContext;
@@ -64,6 +64,7 @@ public class ThirdPartyIT {
         .with(SocketType.HTTP)
         .with(EncryptorType.NACL)
         .with(EnclaveType.LOCAL)
+        .with(ClientMode.TESSERA)
         .prefix(ThirdPartyIT.class.getSimpleName().toLowerCase())
         .buildAndStoreContext();
 
@@ -110,6 +111,7 @@ public class ThirdPartyIT {
             setUsername("junit");
             setPassword("junit");
             setUrl("jdbc:h2:mem:thirdpty".concat(nodeAlias.name()));
+            setAutoCreateTables(true);
           }
         });
 

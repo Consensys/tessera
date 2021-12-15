@@ -11,22 +11,18 @@ import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -104,7 +100,7 @@ public class MigrationTest {
             .map(m -> new HashMap(m))
             .map(
                 p -> {
-                  p.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+                  p.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
                   EntityManagerFactory emf = Persistence.createEntityManagerFactory("tessera", p);
                   emf.createEntityManager();
                   return emf;
@@ -118,7 +114,7 @@ public class MigrationTest {
             .map(m -> new HashMap(m))
             .map(
                 p -> {
-                  p.put("javax.persistence.schema-generation.database.action", "create");
+                  p.put("jakarta.persistence.schema-generation.database.action", "create");
                   EntityManagerFactory emf = Persistence.createEntityManagerFactory("tessera", p);
                   return emf;
                 })
@@ -246,8 +242,8 @@ public class MigrationTest {
   static EncryptedTransaction generateEncryptedTransaction() {
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setHash(new MessageHash(UUID.randomUUID().toString().getBytes()));
-    encryptedTransaction.setEncodedPayload(
-        PayloadEncoder.create().encode(generateEncodedPayload()));
+    encryptedTransaction.setPayload(generateEncodedPayload());
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     return encryptedTransaction;
   }
 
@@ -271,6 +267,10 @@ public class MigrationTest {
             .withRecipientKeys(List.of(senderKey, PublicKey.from("Recipient".getBytes())));
 
     if (privacyMode != PrivacyMode.PRIVATE_STATE_VALIDATION) {
+      if (privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) {
+        encodedPayloadBuilder.withMandatoryRecipients(
+            Set.of(PublicKey.from("Recipient".getBytes())));
+      }
       encodedPayloadBuilder.withExecHash(new byte[0]);
     } else {
       encodedPayloadBuilder.withExecHash("execHash".getBytes());

@@ -7,11 +7,11 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 public class MetricsIT {

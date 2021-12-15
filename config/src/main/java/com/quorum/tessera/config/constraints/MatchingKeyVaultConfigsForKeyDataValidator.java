@@ -3,13 +3,13 @@ package com.quorum.tessera.config.constraints;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.KeyDataUtil;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class MatchingKeyVaultConfigsForKeyDataValidator
     implements ConstraintValidator<MatchingKeyVaultConfigsForKeyData, KeyConfiguration> {

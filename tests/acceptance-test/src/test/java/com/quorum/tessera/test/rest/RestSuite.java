@@ -3,6 +3,7 @@ package com.quorum.tessera.test.rest;
 import suite.TestSuite;
 
 @TestSuite.SuiteClasses({
+  SendMandatoryRecipientsIT.class,
   SendReceivePrivacyGroupIT.class,
   PrivacyGroupIT.class,
   PrivacyIT.class,

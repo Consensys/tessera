@@ -1,9 +1,8 @@
 package com.quorum.tessera.multitenancy.migration;
 
-import com.quorum.tessera.enclave.PayloadEncoder;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.Objects;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 public class MigrationRunner {
 
@@ -27,8 +26,7 @@ public class MigrationRunner {
 
     // migrate regular
     final EncryptedTransactionMigrator etMigrator =
-        new EncryptedTransactionMigrator(
-            primaryEntityManager, secondaryEntityManager, PayloadEncoder.create());
+        new EncryptedTransactionMigrator(primaryEntityManager, secondaryEntityManager);
     etMigrator.migrate();
   }
 }

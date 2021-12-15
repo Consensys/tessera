@@ -4,17 +4,17 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.List;
 import javax.management.MBeanServer;
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 public class InfluxDbClient {
 

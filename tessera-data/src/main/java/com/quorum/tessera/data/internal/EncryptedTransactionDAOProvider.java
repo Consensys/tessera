@@ -4,10 +4,10 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.data.DataSourceFactory;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class EncryptedTransactionDAOProvider {
 
     Map properties = new HashMap();
 
-    properties.put("javax.persistence.nonJtaDataSource", dataSource);
+    properties.put("jakarta.persistence.nonJtaDataSource", dataSource);
 
     properties.put(
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
@@ -34,7 +34,7 @@ public class EncryptedTransactionDAOProvider {
     properties.put("eclipselink.logging.level.sql", "FINE");
 
     properties.put(
-        "javax.persistence.schema-generation.database.action",
+        "jakarta.persistence.schema-generation.database.action",
         config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
 
     LOGGER.debug("Creating EntityManagerFactory from {}", properties);

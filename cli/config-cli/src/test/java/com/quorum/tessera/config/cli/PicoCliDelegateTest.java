@@ -16,6 +16,7 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
+import jakarta.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -27,7 +28,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.validation.ConstraintViolationException;
 import org.assertj.core.util.Strings;
 import org.junit.After;
 import org.junit.Before;
@@ -252,7 +252,7 @@ public class PicoCliDelegateTest {
     Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile"));
 
     assertThat(ex).isExactlyInstanceOf(CliException.class);
-    assertThat(ex).hasMessage("Missing required parameter for option '--configfile' (<config>)");
+    assertThat(ex).hasMessage("Missing required parameter for option '--config-file' (<config>)");
   }
 
   @Test

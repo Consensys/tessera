@@ -3,16 +3,22 @@ package com.quorum.tessera.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.util.JaxbUtil;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.JsonValue;
+import jakarta.json.spi.JsonProvider;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 import org.junit.Test;
 
 public class CrossDomainConfigTest {
+
+  @Test
+  public void doStuff() {
+    assertThat(JsonProvider.provider()).isNotNull();
+  }
 
   @Test
   public void unmarshal() {

@@ -1,41 +1,46 @@
 package com.quorum.tessera.q2t.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
+import com.quorum.tessera.transaction.exception.MandatoryRecipientsNotSupportedException;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 public class RestPayloadPublisherTest {
 
   private Client client;
 
   private PayloadEncoder payloadEncoder;
+
+  private final MockedStatic<PayloadEncoder> payloadEncoderFactoryFunction =
+      mockStatic(PayloadEncoder.class);
 
   private Discovery discovery;
 
@@ -46,12 +51,21 @@ public class RestPayloadPublisherTest {
     client = mock(Client.class);
     payloadEncoder = mock(PayloadEncoder.class);
     discovery = mock(Discovery.class);
-    payloadPublisher = new RestPayloadPublisher(client, payloadEncoder, discovery);
+    payloadPublisher = new RestPayloadPublisher(client, discovery);
+
+    payloadEncoderFactoryFunction
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(payloadEncoder);
   }
 
   @After
   public void afterTest() {
-    verifyNoMoreInteractions(client, payloadEncoder, discovery);
+    try {
+      verifyNoMoreInteractions(client, payloadEncoder, discovery);
+      payloadEncoderFactoryFunction.verifyNoMoreInteractions();
+    } finally {
+      payloadEncoderFactoryFunction.close();
+    }
   }
 
   @Test
@@ -67,7 +81,7 @@ public class RestPayloadPublisherTest {
 
         final NodeInfo nodeInfo = mock(NodeInfo.class);
         when(nodeInfo.supportedApiVersions())
-            .thenReturn(Set.of(EnhancedPrivacyVersion.API_VERSION_2));
+            .thenReturn(Set.of(EnhancedPrivacyVersion.API_VERSION_2, "2.1", "3.0", "4.0"));
         when(nodeInfo.getUrl()).thenReturn(targetUrl);
 
         when(discovery.getRemoteNodeInfo(publicKey)).thenReturn(nodeInfo);
@@ -101,10 +115,12 @@ public class RestPayloadPublisherTest {
       }
     }
 
-    int interations = Response.Status.values().length * PrivacyMode.values().length;
-    verify(client, times(interations)).target(targetUrl);
-    verify(discovery, times(interations)).getRemoteNodeInfo(publicKey);
-    verify(payloadEncoder, times(interations)).encode(encodedPayload);
+    int iterations = Response.Status.values().length * PrivacyMode.values().length;
+    verify(client, times(iterations)).target(targetUrl);
+    verify(discovery, times(iterations)).getRemoteNodeInfo(publicKey);
+    verify(payloadEncoder, times(iterations)).encode(encodedPayload);
+    payloadEncoderFactoryFunction.verify(
+        times(iterations), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -140,6 +156,9 @@ public class RestPayloadPublisherTest {
           .hasMessageContaining("Transactions with enhanced privacy is not currently supported");
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
     }
+
+    payloadEncoderFactoryFunction.verify(
+        times(2), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -164,8 +183,7 @@ public class RestPayloadPublisherTest {
     when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(payloadEncoder.encode(payload)).thenReturn("SomeData".getBytes());
 
-    RestPayloadPublisher restPayloadPublisher =
-        new RestPayloadPublisher(client, payloadEncoder, discovery);
+    RestPayloadPublisher restPayloadPublisher = new RestPayloadPublisher(client, discovery);
 
     try {
       restPayloadPublisher.publishPayload(payload, recipientKey);
@@ -176,6 +194,39 @@ public class RestPayloadPublisherTest {
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
       verify(payloadEncoder).encode(payload);
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
+      payloadEncoderFactoryFunction.verify(
+          () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
     }
+  }
+
+  @Test
+  public void publishMandatoryRecipientsToNodesThatDoNotSupport() {
+
+    String targetUrl = "http://someplace.com";
+
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    byte[] payloadData = "Some Data".getBytes();
+    when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
+
+    PublicKey recipientKey = mock(PublicKey.class);
+    NodeInfo nodeInfo = mock(NodeInfo.class);
+    when(nodeInfo.supportedApiVersions()).thenReturn(Set.of("v2", "2.1", "3.0"));
+    Recipient recipient = mock(Recipient.class);
+    when(recipient.getKey()).thenReturn(recipientKey);
+    when(recipient.getUrl()).thenReturn(targetUrl);
+
+    when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
+    when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
+
+    assertThatExceptionOfType(MandatoryRecipientsNotSupportedException.class)
+        .isThrownBy(() -> payloadPublisher.publishPayload(encodedPayload, recipientKey))
+        .withMessageContaining(
+            "Transactions with mandatory recipients are not currently supported on recipient");
+
+    verify(discovery).getRemoteNodeInfo(eq(recipientKey));
+
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 }

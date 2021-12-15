@@ -5,14 +5,14 @@ import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.MarshalException;
 import java.io.*;
 import java.util.Collections;
 import java.util.Optional;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.validation.ConstraintViolationException;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.MarshalException;
 import javax.xml.transform.TransformerException;
 import org.junit.Test;
 
@@ -177,7 +177,7 @@ public class JaxbUtilTest {
 
     assertThat(throwable)
         .isInstanceOf(ConfigException.class)
-        .hasCauseExactlyInstanceOf(javax.xml.bind.MarshalException.class);
+        .hasCauseExactlyInstanceOf(jakarta.xml.bind.MarshalException.class);
   }
 
   @Test

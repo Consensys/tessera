@@ -5,14 +5,16 @@ import com.quorum.tessera.api.common.VersionResource;
 import com.quorum.tessera.api.exception.*;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraApp;
+import jakarta.ws.rs.core.Application;
 import java.util.Set;
-import javax.ws.rs.core.Application;
 
 public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
   @Override
   public Set<Class<?>> getClasses() {
     return Set.of(
+        MandatoryRecipientsNotAvailableExceptionMapper.class,
+        MandatoryRecipientsNotSupportedExceptionMapper.class,
         PrivacyGroupNotFoundExceptionMapper.class,
         PrivacyGroupNotSupportedExceptionMapper.class,
         EnhancedPrivacyNotSupportedExceptionMapper.class,

@@ -5,15 +5,15 @@ import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.context.RestClientFactory;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.Configuration;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Configuration;
 
 /**
  * Creates HTTP clients that can make requests

@@ -6,6 +6,16 @@ dependencies {
   implementation project(":config")
   implementation project(":security")
   implementation project(":tessera-context")
-  implementation "org.eclipse.jetty:jetty-unixsocket"
+
+  implementation "org.eclipse.jetty:jetty-unixsocket-common"
+  // implementation "org.eclipse.jetty:jetty-unixsocket-client"
+  implementation "org.eclipse.jetty:jetty-unixsocket-server"
+
+  //api "jakarta.servlet:jakarta.servlet-api"
+
   implementation "org.eclipse.jetty:jetty-server"
+}
+
+configurations.all {
+  exclude group: "jakarta.servlet"
 }

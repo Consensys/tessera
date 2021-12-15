@@ -3,11 +3,11 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
-import javax.ws.rs.client.Client;
 
 public interface RuntimeContext {
 

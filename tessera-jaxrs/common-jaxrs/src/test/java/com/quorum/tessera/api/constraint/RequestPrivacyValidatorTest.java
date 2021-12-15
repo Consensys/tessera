@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendSignedRequest;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

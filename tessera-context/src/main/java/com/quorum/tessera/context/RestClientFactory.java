@@ -1,8 +1,8 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.ServerConfig;
+import jakarta.ws.rs.client.Client;
 import java.util.ServiceLoader;
-import javax.ws.rs.client.Client;
 
 public interface RestClientFactory {
 
