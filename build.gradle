@@ -17,7 +17,7 @@ ext {
   swaggerVersion = "2.1.9"
   jerseyVersion = "2.32"
   slf4jVersion = "1.7.30"
-  logbackVersion = "1.2.3"
+  logbackVersion = "1.2.8"
 }
 
 allprojects {
