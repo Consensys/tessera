@@ -16,7 +16,7 @@ ext {
   swaggerVersion = "2.1.9"
   jerseyVersion = "3.0.3"
   slf4jVersion = "1.7.32"
-  logbackVersion = "1.2.6"
+  logbackVersion = "1.2.8"
   hk2Version = "3.0.2"
   jacksonVersion = "2.12.4";
 }
