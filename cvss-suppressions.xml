@@ -16,4 +16,8 @@
         <cpe>cpe:/a:org.jacoco:org.jacoco.report</cpe>
         <cve>CVE-2021-21275</cve>
     </suppress>
+    <suppress>
+        <cpe>cpe:2.3:a:h2database:h2:*:*:*:*:*:*:*:*</cpe>
+        <cve>CVE-2021-23463</cve>
+    </suppress>
 </suppressions>
