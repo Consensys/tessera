@@ -21,4 +21,8 @@
 <!--        <cpe>cpe:2.3:a:eclipse:jakarta_expression_language:3.0.3</cpe>-->
 <!--        <cve>CVE-2021-28170</cve>-->
 <!--    </suppress>-->
+    <suppress>
+        <cpe>cpe:2.3:a:h2database:h2:*:*:*:*:*:*:*:*</cpe>
+        <cve>CVE-2021-23463</cve>
+    </suppress>
 </suppressions>
