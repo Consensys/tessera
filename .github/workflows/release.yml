@@ -1,8 +1,9 @@
 name: Tessera Release Build
 
 on:
-  repository_dispatch:
-    types: [release]
+  push:
+    branches:
+      - tessera-21.7.3-patch-release
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
