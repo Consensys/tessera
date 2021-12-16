@@ -24,17 +24,11 @@ class MessagingImpl implements Messaging {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MessagingImpl.class);
 
-  static final String SHA_256 = "SHA-256";
-  static final String SHA_1 = "SHA-1";
-
   private final Enclave enclave;
   private final Courier courier;
   private final Inbox inbox;
 
-  private final Base64Codec base64Codec = Base64Codec.create();
   private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
-
-  private MessageDigest sha256, sha1;
 
   MessagingImpl(Enclave enclave, Courier courier, Inbox inbox) {
 
