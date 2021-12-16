@@ -6,6 +6,7 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.messaging.Inbox;
 import com.quorum.tessera.messaging.MessageId;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,17 +16,15 @@ class InboxImpl implements Inbox {
   private static final Logger LOGGER = LoggerFactory.getLogger(InboxImpl.class);
 
   static final String SHA_256 = "SHA-256";
-  static final String SHA_1 = "SHA-1";
 
   private final EncryptedMessageDAO dao;
-  private MessageDigest sha256, sha1;
+  private MessageDigest sha256;
 
   InboxImpl(EncryptedMessageDAO dao) {
 
     this.dao = dao;
     try {
       sha256 = MessageDigest.getInstance(SHA_256);
-      sha1 = MessageDigest.getInstance(SHA_1);
     } catch (Exception ex) {
       LOGGER.warn("Failed to instantiate a required message digest", ex);
       throw new IllegalStateException(ex);
@@ -34,8 +33,10 @@ class InboxImpl implements Inbox {
 
   MessageHash hash(byte[] encoded) {
     sha256.reset();
-    sha1.reset();
-    return new MessageHash(sha1.digest(sha256.digest(encoded)));
+    int newLength = 20;
+    byte[] array = sha256.digest(encoded);
+    byte[] truncatedArray = Arrays.copyOf(array, newLength);
+    return new MessageHash(truncatedArray);
   }
 
   @Override
