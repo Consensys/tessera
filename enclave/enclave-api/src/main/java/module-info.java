@@ -5,6 +5,8 @@ module tessera.enclave.api {
   requires tessera.shared;
   requires org.bouncycastle.provider;
   requires org.slf4j;
+  requires com.fasterxml.jackson.databind;
+  requires com.fasterxml.jackson.dataformat.cbor;
 
   exports com.quorum.tessera.enclave;
 
@@ -19,8 +21,14 @@ module tessera.enclave.api {
   opens com.quorum.tessera.enclave to
       org.eclipse.persistence.moxy;
 
+  exports com.quorum.tessera.enclave.internal;
+
+  opens com.quorum.tessera.enclave.internal to
+      org.eclipse.persistence.moxy;
+
   provides com.quorum.tessera.enclave.PayloadEncoder with
-      com.quorum.tessera.enclave.PayloadEncoderImpl;
+      com.quorum.tessera.enclave.PayloadEncoderImpl,
+      com.quorum.tessera.enclave.CBOREncoder;
   provides com.quorum.tessera.enclave.Enclave with
       com.quorum.tessera.enclave.EnclaveProvider;
   provides com.quorum.tessera.enclave.EnclaveServer with

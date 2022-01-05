@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.p2p.recovery.PushBatchRequest;
@@ -15,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 public class RecoveryResourceTest {
 
@@ -26,17 +28,28 @@ public class RecoveryResourceTest {
 
   private PayloadEncoder payloadEncoder;
 
+  private final MockedStatic<PayloadEncoder> payloadEncoderFactoryFunction =
+      mockStatic(PayloadEncoder.class);
+
   @Before
   public void onSetup() {
     resendManager = mock(BatchResendManager.class);
     transactionManager = mock(TransactionManager.class);
     payloadEncoder = mock(PayloadEncoder.class);
-    recoveryResource = new RecoveryResource(transactionManager, resendManager, payloadEncoder);
+    payloadEncoderFactoryFunction
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(payloadEncoder);
+    recoveryResource = new RecoveryResource(transactionManager, resendManager);
   }
 
   @After
   public void onTearDown() {
-    verifyNoMoreInteractions(transactionManager, resendManager, payloadEncoder);
+    try {
+      verifyNoMoreInteractions(transactionManager, resendManager, payloadEncoder);
+      payloadEncoderFactoryFunction.verifyNoMoreInteractions();
+    } finally {
+      payloadEncoderFactoryFunction.close();
+    }
   }
 
   @Test
@@ -62,12 +75,14 @@ public class RecoveryResourceTest {
     when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(payloadEncoder.decode(someData)).thenReturn(payload);
 
-    final Response result = recoveryResource.push(someData);
+    final Response result = recoveryResource.push(someData, null);
 
     assertThat(result.getStatus()).isEqualTo(201);
     assertThat(result.hasEntity()).isTrue();
     verify(transactionManager).storePayload(payload);
     verify(payloadEncoder).decode(someData);
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -77,9 +92,11 @@ public class RecoveryResourceTest {
     when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
     when(payloadEncoder.decode(someData)).thenReturn(payload);
 
-    final Response result = recoveryResource.push(someData);
+    final Response result = recoveryResource.push(someData, null);
 
     assertThat(result.getStatus()).isEqualTo(403);
     verify(payloadEncoder).decode(someData);
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 }

@@ -13,6 +13,7 @@ module tessera.transaction.jaxrs {
   requires tessera.jaxrs.client;
   requires tessera.shared;
   requires jakarta.json;
+  requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.q2t;
 

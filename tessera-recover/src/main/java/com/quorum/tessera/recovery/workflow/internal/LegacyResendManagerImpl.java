@@ -6,7 +6,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.ResendRequest;
@@ -27,8 +26,6 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
 
   private final int resendFetchSize;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final PayloadPublisher payloadPublisher;
 
   private final Discovery discovery;
@@ -37,13 +34,11 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
       final Enclave enclave,
       final EncryptedTransactionDAO encryptedTransactionDAO,
       final int resendFetchSize,
-      final PayloadEncoder payloadEncoder,
       final PayloadPublisher payloadPublisher,
       final Discovery discovery) {
     this.enclave = Objects.requireNonNull(enclave);
     this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
     this.resendFetchSize = resendFetchSize;
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
     this.discovery = Objects.requireNonNull(discovery);
   }
@@ -55,7 +50,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     }
 
     final LegacyWorkflowFactory batchWorkflowFactory =
-        new LegacyWorkflowFactory(enclave, payloadEncoder, discovery, payloadPublisher);
+        new LegacyWorkflowFactory(enclave, discovery, payloadPublisher);
 
     final BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 
@@ -70,6 +65,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
             encryptedTransaction -> {
               final BatchWorkflowContext context = new BatchWorkflowContext();
               context.setEncryptedTransaction(encryptedTransaction);
+              context.setEncodedPayload(encryptedTransaction.getPayload());
               context.setRecipientKey(request.getRecipient());
               context.setBatchSize(1);
               batchWorkflow.execute(context);
@@ -88,7 +84,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
                     new TransactionNotFoundException(
                         "Message with hash " + messageHash + " was not found"));
 
-    final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
+    final EncodedPayload payload = encryptedTransaction.getPayload();
 
     if (payload.getPrivacyMode() != PrivacyMode.STANDARD_PRIVATE) {
       throw new EnhancedPrivacyNotSupportedException(
@@ -96,7 +92,8 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     }
 
     if (!Objects.equals(payload.getSenderKey(), targetResendKey)) {
-      final EncodedPayload formattedPayload = payloadEncoder.forRecipient(payload, targetResendKey);
+      final EncodedPayload formattedPayload =
+          EncodedPayload.Builder.forRecipient(payload, targetResendKey).build();
       return ResendResponse.Builder.create().withPayload(formattedPayload).build();
     }
 
@@ -118,8 +115,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     new SearchRecipientKeyForPayload(enclave).execute(context);
 
     final EncodedPayload.Builder builder =
-        EncodedPayload.Builder.create()
-            .from(payload)
+        EncodedPayload.Builder.from(payload)
             .withNewRecipientKeys(new ArrayList<>())
             .withRecipientBoxes(new ArrayList<>());
     context

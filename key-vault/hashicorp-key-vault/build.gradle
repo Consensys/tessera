@@ -42,6 +42,8 @@ dependencies {
   testImplementation "org.glassfish:jakarta.json"
 
   implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+  implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
 }
 
 

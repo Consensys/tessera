@@ -3,6 +3,7 @@ package com.quorum.tessera.data.staging;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
+import java.util.Optional;
 
 @NamedQuery(
     name = "StagingAffectedTransaction.countAll",
@@ -60,6 +61,9 @@ public class StagingAffectedTransaction {
 
   @Override
   public int hashCode() {
-    return Objects.hash(sourceTransaction.getHash(), hash);
+    return Optional.ofNullable(sourceTransaction)
+        .map(StagingTransaction::getHash)
+        .map(h -> Objects.hash(h, hash))
+        .orElse(super.hashCode());
   }
 }

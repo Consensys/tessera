@@ -11,7 +11,7 @@ import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import jakarta.persistence.EntityManager;
@@ -242,8 +242,8 @@ public class MigrationTest {
   static EncryptedTransaction generateEncryptedTransaction() {
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setHash(new MessageHash(UUID.randomUUID().toString().getBytes()));
-    encryptedTransaction.setEncodedPayload(
-        PayloadEncoder.create().encode(generateEncodedPayload()));
+    encryptedTransaction.setPayload(generateEncodedPayload());
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     return encryptedTransaction;
   }
 

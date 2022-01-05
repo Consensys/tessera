@@ -1,7 +1,6 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.encryption.PublicKey;
-import java.util.ServiceLoader;
+import java.util.*;
 
 /** Encodes and decodes a {@link EncodedPayload} to and from its binary representation */
 public interface PayloadEncoder {
@@ -22,30 +21,18 @@ public interface PayloadEncoder {
    */
   EncodedPayload decode(byte[] input);
 
-  /**
-   * Strips a payload of any data that isn't relevant to the given recipient Used to format a
-   * payload before it is sent to the target node
-   *
-   * @param input the full payload from which data needs to be stripped
-   * @param recipient the recipient to retain information about
-   * @return a payload which contains a subset of data from the input, which is relevant to the
-   *     recipient
-   */
-  EncodedPayload forRecipient(EncodedPayload input, PublicKey recipient);
+  EncodedPayloadCodec encodedPayloadCodec();
 
-  /**
-   * Checks whether recipientKeys is empty. If it is, it tries to add the specified recipient. If
-   * the recipientKeys list is immutable then it creates a new EncodedPayload with the recipientKeys
-   * containing the specified recipient and the rest of the fields copied from the input
-   * EncodedPayload.
-   *
-   * @param input the payload
-   * @param recipient the recipient to add to recipientKeys
-   * @return a payload which contains the added recipient key
-   */
-  EncodedPayload withRecipient(EncodedPayload input, PublicKey recipient);
-
-  static PayloadEncoder create() {
-    return ServiceLoader.load(PayloadEncoder.class).findFirst().get();
+  static PayloadEncoder create(EncodedPayloadCodec encodedPayloadCodec) {
+    return ServiceLoader.load(PayloadEncoder.class).stream()
+        .map(ServiceLoader.Provider::get)
+        .filter(e -> e.encodedPayloadCodec() == encodedPayloadCodec)
+        .reduce(
+            (l, r) -> {
+              throw new IllegalStateException(
+                  "Resolved multiple encoders for codec " + encodedPayloadCodec);
+            })
+        .orElseThrow(
+            () -> new IllegalStateException("No encoder found for " + encodedPayloadCodec));
   }
 }
