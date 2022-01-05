@@ -124,7 +124,7 @@ public class Main {
       LOGGER.debug("Created Launcher");
 
       if (config.getOutputServerURIPath() != null) {
-        ServerURIOutputMixin.writeServerURIsToFile(config, tesseraServers);
+        ServerURIOutputMixin.writeServerURIsToFile(config.getOutputServerURIPath(), tesseraServers);
       }
 
     } catch (final ConstraintViolationException ex) {
