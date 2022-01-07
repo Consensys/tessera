@@ -8,9 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -38,30 +36,16 @@ public class ServerURIOutputMixin {
   public static void writeServerURIsToFile(
       final Path outputServerURIPath, final List<TesseraServer> servers) {
     try {
-      final TesseraServer q2tServer =
-          servers.stream()
-              .filter(server -> server.getAppType() != null && server.getAppType() == AppType.Q2T)
-              .findFirst()
-              .orElse(null);
-
-      final TesseraServer p2pServer =
-          servers.stream()
-              .filter(server -> server.getAppType() != null && server.getAppType() == AppType.P2P)
-              .findFirst()
-              .orElse(null);
-
-      final TesseraServer thirdPartyServer =
+      final List<TesseraServer> serverList =
           servers.stream()
               .filter(
-                  server ->
-                      server.getAppType() != null && server.getAppType() == AppType.THIRD_PARTY)
-              .findFirst()
-              .orElse(null);
-
-      final List<TesseraServer> serverList =
-          Stream.of(q2tServer, p2pServer, thirdPartyServer)
-              .filter(Objects::nonNull)
+                  tesseraServer ->
+                      tesseraServer.getAppType() != null
+                          && (tesseraServer.getAppType() == AppType.Q2T
+                              || tesseraServer.getAppType() == AppType.P2P
+                              || tesseraServer.getAppType() == AppType.THIRD_PARTY))
               .collect(Collectors.toList());
+
       final List<Path> uriPaths = writeURIFile(outputServerURIPath, serverList);
 
       // Add a shutdown hook to clean them up
@@ -69,12 +53,12 @@ public class ServerURIOutputMixin {
           .addShutdownHook(
               new Thread(
                   () -> {
-                    try {
-                      for (final Path uriFilePath : uriPaths) {
+                    for (final Path uriFilePath : uriPaths) {
+                      try {
                         Files.delete(uriFilePath);
+                      } catch (final Exception ex) {
+                        LOGGER.error("Error while deleting: " + uriFilePath.toAbsolutePath(), ex);
                       }
-                    } catch (final Exception ex) {
-                      LOGGER.error(null, ex);
                     }
                   }));
     } catch (final Exception e) {
