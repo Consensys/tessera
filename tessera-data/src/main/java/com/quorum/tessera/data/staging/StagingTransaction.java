@@ -69,7 +69,7 @@ public class StagingTransaction implements Serializable {
   private byte[] payload;
 
   @Enumerated(value = EnumType.STRING)
-  @Column(name = "PAYLOAD_CODEC", nullable = false)
+  @Column(name = "PAYLOAD_CODEC", length = 50)
   private EncodedPayloadCodec encodedPayloadCodec;
 
   @Transient private EncodedPayload encodedPayload;
