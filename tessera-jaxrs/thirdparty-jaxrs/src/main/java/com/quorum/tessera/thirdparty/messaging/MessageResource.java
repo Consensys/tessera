@@ -1,6 +1,6 @@
 package com.quorum.tessera.thirdparty.messaging;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.base64.DecodingException;
@@ -14,10 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 import java.util.Objects;
 import java.util.Optional;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

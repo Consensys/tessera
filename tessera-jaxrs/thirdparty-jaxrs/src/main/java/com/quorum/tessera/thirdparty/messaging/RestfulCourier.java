@@ -7,11 +7,11 @@ import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.CourierException;
 import com.quorum.tessera.messaging.MessageId;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

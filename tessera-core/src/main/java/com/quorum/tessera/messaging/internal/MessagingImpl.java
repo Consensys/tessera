@@ -1,8 +1,8 @@
 package com.quorum.tessera.messaging.internal;
 
-import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMetadata;
 import com.quorum.tessera.encryption.PublicKey;
@@ -13,7 +13,6 @@ import com.quorum.tessera.messaging.MessageId;
 import com.quorum.tessera.messaging.Messaging;
 import com.quorum.tessera.messaging.NoSuchMessageException;
 import com.quorum.tessera.messaging.UnknownRecipientException;
-import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +27,7 @@ class MessagingImpl implements Messaging {
   private final Courier courier;
   private final Inbox inbox;
 
-  private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+  private final PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
 
   MessagingImpl(Enclave enclave, Courier courier, Inbox inbox) {
 

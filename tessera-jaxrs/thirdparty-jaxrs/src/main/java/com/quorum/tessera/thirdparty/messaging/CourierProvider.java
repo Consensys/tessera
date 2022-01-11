@@ -5,7 +5,7 @@ import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.messaging.Courier;
-import javax.ws.rs.client.Client;
+import jakarta.ws.rs.client.Client;
 
 public class CourierProvider {
 
