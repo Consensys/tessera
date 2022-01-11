@@ -39,7 +39,7 @@ public class EncryptedTransaction implements Serializable {
   private byte[] encodedPayload;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "PAYLOAD_CODEC", nullable = false, length = 50)
+  @Column(name = "PAYLOAD_CODEC", length = 50)
   private EncodedPayloadCodec encodedPayloadCodec;
 
   @Column(name = "TIMESTAMP", updatable = false)

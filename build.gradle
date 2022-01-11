@@ -16,7 +16,7 @@ ext {
   swaggerVersion = "2.1.9"
   jerseyVersion = "3.0.3"
   slf4jVersion = "1.7.32"
-  logbackVersion = "1.2.8"
+  logbackVersion = "1.2.10"
   hk2Version = "3.0.2"
   jacksonVersion = "2.12.4";
 }
@@ -116,7 +116,7 @@ allprojects {
         implementation "org.bouncycastle:bcpkix-jdk15on:1.68"
         implementation "org.bouncycastle:bcprov-jdk15on:1.68"
 
-        implementation "com.h2database:h2:2.0.202"
+        implementation "com.h2database:h2:2.0.206"
         implementation "com.zaxxer:HikariCP:3.2.0"
         implementation "org.hsqldb:hsqldb:2.5.1"
         implementation "org.xerial:sqlite-jdbc:3.23.1"
