@@ -167,7 +167,11 @@ allprojects {
 
 nexusPublishing {
   repositories {
-    sonatype()
+    sonatype {
+      // new infrastructure
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+    }
   }
   clientTimeout = Duration.ofMinutes(10)
 }
