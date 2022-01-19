@@ -1,6 +1,6 @@
 package com.quorum.tessera.messaging;
 
-public class NoSuchMessageException extends Exception {
+public class NoSuchMessageException extends RuntimeException {
 
   private final MessageId messageId;
 

@@ -4,9 +4,10 @@ import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.*;
 import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import com.quorum.tessera.messaging.MessageId;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class MessagingImplTest extends TestCase {
+public class MessagingImplTest {
 
   private Enclave enclave;
   private Courier courier;
@@ -24,8 +25,9 @@ public class MessagingImplTest extends TestCase {
   private Message message;
   private PayloadEncoder payloadEncoder;
   private MessageId messageId;
-  @Override
-  protected void setUp() throws Exception {
+  private EncodedPayload encodedPayload;
+  @Before
+  public void setUp() {
     enclave = mock(Enclave.class);
     courier = mock(Courier.class);
     inbox = mock(Inbox.class);
@@ -33,12 +35,14 @@ public class MessagingImplTest extends TestCase {
     message = mock(Message.class);
     payloadEncoder = mock(PayloadEncoder.class);
     messageId = mock(MessageId.class);
+    encodedPayload = mock(EncodedPayload.class);
   }
 
   @Test
   public void testGetInboxInstance(){
     messagingImpl = mock(MessagingImpl.class);
     when(messagingImpl.getInbox()).thenReturn(inbox);
+    Assert.assertNotNull(messagingImpl);
   }
 
   @Test
@@ -50,7 +54,7 @@ public class MessagingImplTest extends TestCase {
     when(payloadEncoder.encode(encrypted)).thenReturn(any(byte[].class));
     byte [] encoded = payloadEncoder.encode(encrypted);
     when(courier.push(encoded,recipient)).thenReturn(messageId);
-    when(messageId.toString()).thenReturn(anyString());
+    Assert.assertNotNull(courier);
   }
 
   @Test
@@ -62,17 +66,18 @@ public class MessagingImplTest extends TestCase {
     stringList.forEach(a -> verify(a instanceof String));
   }
 
-
   @Test
   public void testRead() {
-    final MessageId parsed = messageId.parseMessageId("xy");
-    byte[] encoded = messagingImpl.getInbox().get(parsed);
-    final PublicKey publicKey = enclave.defaultPublicKey();
-    EncodedPayload payload = payloadEncoder.decode(encoded);
-    byte[] decrypted = enclave.unencryptTransaction(payload, publicKey);
-    when(message.toString()).thenReturn(anyString());
-    //doThrow(new RuntimeException()).when(messagingImpl).getInbox().get(parsed);
-    //when(isEncodedValueNull()).thenThrow(new NoSuchMessageException(parsed));
+    messagingImpl = mock(MessagingImpl.class);
+    when(messagingImpl.getInbox()).thenReturn(inbox);
+    String testData = "this is test method";
+    byte [] arr = testData.getBytes();
+    when(messagingImpl.getInbox().get(messageId)).thenReturn(arr);
+    when(messagingImpl.getInbox().get(messageId)==null).thenThrow(new NoSuchMessageException(messageId));
+    PublicKey publicKey = enclave.defaultPublicKey();
+    doReturn(arr).when(enclave).unencryptTransaction(encodedPayload,publicKey);
+    doReturn(message).when(messagingImpl).read(anyString());
+    Assert.assertNotNull(messagingImpl);
   }
 
   @Test

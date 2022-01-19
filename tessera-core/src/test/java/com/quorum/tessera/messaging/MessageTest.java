@@ -5,12 +5,13 @@ import com.quorum.tessera.encryption.PublicKey;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MessageTest extends TestCase {
+public class MessageTest{
   private PublicKey sender;
   private PublicKey recipient;
   private byte[] data;
@@ -18,41 +19,27 @@ public class MessageTest extends TestCase {
   private static final Base64Codec base64Codec = Base64Codec.create();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp()  {
     sender = mock(PublicKey.class);
     recipient = mock(PublicKey.class);
-    //data = mock(byte[].class);
+    data = new byte[256];
     message = mock(Message.class);
   }
 
   @Test
   public void testGetSender() {
-    when(message.getSender()).thenReturn(sender);
+    PublicKey key = sender;
+    when(message.getSender()).thenReturn(key);
   }
 
   @Test
   public void testGetRecipient() {
-    when(message.getRecipient()).thenReturn(recipient);
+    PublicKey key = recipient;
+    when(message.getRecipient()).thenReturn(key);
   }
 
   @Test
   public void testGetData() {
-    when(message.getData()).thenReturn(any());
+    when(message.getData()).thenReturn(data);
   }
-
-  @Test
-  public void getToString() {
-    when(message.toString()).thenReturn(getStringForReturn());
-  }
-
-  public String getStringForReturn() {
-      return "[\""
-        + sender.encodeToBase64()
-        + "\" -> \""
-        + recipient.encodeToBase64()
-        + "\": \""
-        + base64Codec.encodeToString(any())
-        + "\"]";
-  }
-
 }

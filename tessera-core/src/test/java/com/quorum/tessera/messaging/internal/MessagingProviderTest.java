@@ -7,17 +7,18 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MessagingProviderTest extends TestCase {
+public class MessagingProviderTest {
 
   private MessagingHolder holder;
   private Messaging messaging;
 
-  @Override
+
   @Before
-  public void setUp() throws Exception {
+  public void setUp()  {
     holder = mock(MessagingHolder.class);
   }
 

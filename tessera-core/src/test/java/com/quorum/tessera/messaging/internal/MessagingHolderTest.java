@@ -9,12 +9,12 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
-public class MessagingHolderTest extends TestCase {
+public class MessagingHolderTest{
   Messaging messaging;
   MessagingHolder messagingHolder;
 
   @Before
-  protected void setUp() throws Exception {
+  public void setUp() {
     messaging = mock(Messaging.class);
     messagingHolder = mock(MessagingHolder.class);
   }
