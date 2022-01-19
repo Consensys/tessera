@@ -42,4 +42,10 @@ public class MessageIdTest {
      */
     // given(anyString()).willReturn(String.valueOf(0));
   }
+
+  @Test
+  public void testGetValue() {
+    byte[] value = new byte[256];
+    when(messageId.getValue()).thenReturn(value);
+  }
 }
