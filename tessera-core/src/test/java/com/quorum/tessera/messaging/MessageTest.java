@@ -1,33 +1,37 @@
 package com.quorum.tessera.messaging;
 
 import com.quorum.tessera.base64.Base64Codec;
+import com.quorum.tessera.base64.DecodingException;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.Base64;
 
-public class MessageTest{
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+
+public class MessageTest {
   private PublicKey sender;
   private PublicKey recipient;
-  private byte[] data;
   private Message message;
-  private Base64Codec base64Codec;
+
 
   @Before
-  public void setUp()  {
-
+  public void setUp() {
+    sender = mock(PublicKey.class);
+    recipient = mock(PublicKey.class);
+    message = mock(Message.class);
   }
 
   @Test
   public void testGetSender() {
-   // PublicKey key = sender;
-   // when(message.getSender()).thenReturn(key);
-   // Assert.assertNotNull(message.getSender());
+    PublicKey key = sender;
+    when(message.getSender()).thenReturn(key);
+    Assert.assertNotNull(message.getSender());
+    Assert.assertNotNull(key);
 
     String senderText = "This is for sender";
     byte sender[] = senderText.getBytes();
@@ -41,22 +45,24 @@ public class MessageTest{
 
     assertThat(senderKey).isNotNull();
     assertThat(receiverKey).isNotNull();
-    Message messageObj = new Message(senderKey,receiverKey,data.getBytes());
+    Message messageObj = new Message(senderKey, receiverKey, data.getBytes());
     assertThat(messageObj).isNotNull();
     assertThat(messageObj.getSender()).isNotNull();
     assertThat(messageObj.getSender()).isSameAs(senderKey);
     assertThat(messageObj.getRecipient()).isSameAs(receiverKey);
     assertThat(messageObj.getData()).isEqualTo(data.getBytes());
 
+    assertThat(messageObj.getSender()).doesNotHaveSameClassAs(new String());
+    assertThat(messageObj.getSender()).hasNoNullFieldsOrProperties();
   }
 
   @Test
   public void testGetRecipient() {
-    //PublicKey key = recipient;
-    //when(message.getRecipient()).thenReturn(key);
-    //Message messageObj = new Message(sender,recipient,data);
-    //assertThat(messageObj).isNotNull();
-    //assertThat(messageObj.getRecipient()).isNotNull();
+    PublicKey key = recipient;
+    when(message.getRecipient()).thenReturn(key);
+    Message messageObj = new Message(sender, recipient, "test".getBytes());
+    assertThat(messageObj).isNotNull();
+    assertThat(messageObj.getRecipient()).isNotNull();
 
     String senderText = "This is for sender";
     byte sender[] = senderText.getBytes();
@@ -70,7 +76,7 @@ public class MessageTest{
 
     assertThat(senderKey).isNotNull();
     assertThat(receiverKey).isNotNull();
-    Message messageObject = new Message(senderKey,receiverKey,data.getBytes());
+    Message messageObject = new Message(senderKey, receiverKey, data.getBytes());
     assertThat(messageObject).isNotNull();
     assertThat(messageObject.getSender()).isNotNull();
     assertThat(messageObject.getSender()).isSameAs(senderKey);
@@ -81,9 +87,9 @@ public class MessageTest{
 
   @Test
   public void testGetData() {
-    //Message messageObj = new Message(sender,recipient,data);
-    //assertThat(messageObj).isNotNull();
-    //assertThat(messageObj.getData()).isNotNull();
+    Message messageObj = new Message(sender, recipient, "test".getBytes());
+    assertThat(messageObj).isNotNull();
+    assertThat(messageObj.getData()).isNotNull();
 
     String senderText = "This is for sender";
     byte sender[] = senderText.getBytes();
@@ -95,13 +101,13 @@ public class MessageTest{
     PublicKey senderKey = PublicKey.from(sender);
     PublicKey receiverKey = PublicKey.from(receiver);
 
-    base64Codec = new Base64Codec() {
+    Base64Codec base64Codec = new Base64Codec() {
     };
 
     assertThat(base64Codec).isNotNull();
 
 
-    Message message = new Message(senderKey,receiverKey,data.getBytes());
+    Message message = new Message(senderKey, receiverKey, data.getBytes());
 
     String encodedData = base64Codec.encodeToString(message.getData());
 
@@ -115,8 +121,8 @@ public class MessageTest{
   @Test
   public void testConstructorWithArgs() {
 
-   Message message = new Message(sender,recipient,data);
-    Assert.assertNotNull(message);
+     Message message = new Message(sender,recipient,"test".getBytes());
+     Assert.assertNotNull(message);
 
 
     String senderText = "This is for sender";
@@ -131,12 +137,31 @@ public class MessageTest{
 
     assertThat(senderKey).isNotNull();
     assertThat(receiverKey).isNotNull();
-    Message messageObject = new Message(senderKey,receiverKey,data.getBytes());
+    Message messageObject = new Message(senderKey, receiverKey, data.getBytes());
     assertThat(messageObject).isNotNull();
     assertThat(messageObject.getSender()).isNotNull();
     assertThat(messageObject.getSender()).isSameAs(senderKey);
     assertThat(messageObject.getRecipient()).isSameAs(receiverKey);
     assertThat(messageObject.getData()).isEqualTo(data.getBytes());
-    }
   }
+
+  @Test(expected = DecodingException.class)
+  public void invalidBase64DataThrowsDecodeException() {
+    Base64Codec.create().decode("1");
+  }
+
+  @Test
+  public void decode() {
+    byte[] result = Base64Codec.create().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
+    assertThat(result).isNotEmpty();
+  }
+
+  @Test
+  public void encodeToString() {
+    byte[] data = "Read".getBytes();
+    String expected = Base64.getEncoder().encodeToString(data);
+    String result = Base64Codec.create().encodeToString(data);
+    assertThat(result).isEqualTo(expected);
+  }
+}
 
