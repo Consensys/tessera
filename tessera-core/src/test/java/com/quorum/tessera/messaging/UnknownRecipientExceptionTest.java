@@ -1,7 +1,6 @@
 package com.quorum.tessera.messaging;
 
 import com.quorum.tessera.encryption.PublicKey;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

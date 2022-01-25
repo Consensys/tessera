@@ -2,27 +2,18 @@ package com.quorum.tessera.messaging.internal;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.data.EncryptedMessageDAO;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.Inbox;
 import com.quorum.tessera.messaging.Messaging;
-import junit.framework.TestCase;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mockStatic;
 
 public class MessagingProviderTest {
 
-  @Before
-  @After
+  @Test
   public void clearHolder() {
     MessagingHolder.INSTANCE.store(null);
     assertThat(MessagingHolder.INSTANCE.getMessaging()).isNotPresent();

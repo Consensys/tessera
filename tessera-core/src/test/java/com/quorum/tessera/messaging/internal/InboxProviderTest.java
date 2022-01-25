@@ -3,22 +3,14 @@ package com.quorum.tessera.messaging.internal;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.data.EncryptedMessageDAO;
-
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.messaging.Inbox;
-import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.internal.TransactionManagerProvider;
 import org.junit.*;
-
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.mockito.Mockito.*;
 
 public class InboxProviderTest {
 
-  @Before
-  @After
+  @Test
   public void clearHolder() {
     InboxHolder.INSTANCE.store(null);
     assertThat(InboxHolder.INSTANCE.getInbox()).isNotPresent();
@@ -58,10 +50,6 @@ public class InboxProviderTest {
     assertThat(new InboxProvider()).isNotNull();
   }
 
-  /*@Test
-  public void defaultConstructorForCoverage() {
-    assertThat(new TransactionManagerProvider()).isNotNull();
-  }*/
 }
 
 

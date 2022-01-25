@@ -1,16 +1,10 @@
 package com.quorum.tessera.messaging.internal;
 
 import com.quorum.tessera.data.EncryptedMessageDAO;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.Inbox;
-import com.quorum.tessera.messaging.Messaging;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;

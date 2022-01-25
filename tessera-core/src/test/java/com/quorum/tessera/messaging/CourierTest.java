@@ -5,8 +5,6 @@ import org.junit.Test;
 
 import java.util.ServiceLoader;
 import static org.mockito.Mockito.*;
-
-
 public class CourierTest  {
 
   @Test

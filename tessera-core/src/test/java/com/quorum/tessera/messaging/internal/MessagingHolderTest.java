@@ -2,12 +2,9 @@ package com.quorum.tessera.messaging.internal;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.messaging.*;
-import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,8 +52,6 @@ public class MessagingHolderTest{
     assertThat(messagingImpl).isNotNull();
     Assert.assertNotNull(holder.store(messagingImpl));
 
-
   }
-
 
 }
