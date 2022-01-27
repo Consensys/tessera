@@ -7,6 +7,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -18,33 +20,48 @@ public class MessageIdTest {
     messageId = mock(MessageId.class);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testParseMessageId() {
-    //  final int length = (stringValue == null) ? 0 : stringValue.length();
-   // String test = Mockito.spy(String.class);
-    /*when(anyString()).thenAnswer((Answer<Integer>) invocation -> {
-      if(test != null)
-        return test.length();
-      else
-        return 0;
-    });
-    */
-    /*doAnswer(new Answer<Integer>() {
-      @Override
-      public Integer answer(InvocationOnMock invocation) throws Throwable {
-        if(test != null)
-          return test.length();
-        else
-          return 0;
-      }
-    }).when(test);
+    assertThat(MessageId.parseMessageId("string")).isNotNull();
 
-     */
-    // given(anyString()).willReturn(String.valueOf(0));
+    String stringValue = "sting";
+    int length = (stringValue == null) ? 0 : stringValue.length();
+    if (length == 0 || ((length % 2) != 0)) {
+      throw new IllegalArgumentException(
+        "String representation of a message ID cannot be empty, null, or uneven in length");
+    }
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      int len = (stringValue == null) ? 0 : stringValue.length();
+      if (len== 0 || ((len % 2) != 0)) {
+        throw new IllegalArgumentException(
+          "String representation of a message ID cannot be empty, null, or uneven in length");
+      }
+    });
+
   }
 
   @Test
-  public void testGetValue() {
+  public void testHashCodeAndEquals(){
+    MessageId messageId1 = new MessageId("ok".getBytes());
+    MessageId messageId2 = new MessageId("ok".getBytes());
+
+    assertThat(messageId1.hashCode()).isNotSameAs(messageId2);
+    assertThat(messageId1.equals(messageId2));
+  }
+
+  @Test
+  public void testToString(){
+    MessageId messageId1 = new MessageId("ok".getBytes());
+    assertThat(messageId1.toString()).isNotEmpty();
+
+  }
+
+  @Test
+  public void testGetValue(){
+    MessageId messageId1 = new MessageId("ok".getBytes());
+    assertThat(messageId1.getValue()).isNotNull();
+    assertThat(messageId1.getValue().length > 0);
     byte[] value = new byte[256];
     when(messageId.getValue()).thenReturn(value);
   }
