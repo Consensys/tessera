@@ -18,4 +18,4 @@ COPY --from=extractor /install/enclave-jaxrs/ /tessera
 RUN apk add dumb-init
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["/tessera/bin/tessera"]
+CMD ["/tessera/bin/enclave-jaxrs"]
