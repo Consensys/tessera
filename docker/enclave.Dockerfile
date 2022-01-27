@@ -15,4 +15,7 @@ FROM adoptopenjdk/openjdk11:alpine
 
 COPY --from=extractor /install/enclave-jaxrs/ /tessera
 
-ENTRYPOINT ["/tessera/bin/enclave-jaxrs"]
+RUN apk add dumb-init
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["/tessera/bin/tessera"]
