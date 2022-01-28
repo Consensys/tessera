@@ -10,6 +10,7 @@ module tessera.application {
   requires tessera.enclave.api;
   requires tessera.server.jersey;
   requires tessera.server.api;
+  requires tessera.server.utils;
   requires tessera.context;
   requires tessera.transaction;
   requires tessera.partyinfo;

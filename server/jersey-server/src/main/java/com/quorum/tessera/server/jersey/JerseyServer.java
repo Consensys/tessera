@@ -141,6 +141,16 @@ public class JerseyServer implements TesseraServer {
   }
 
   @Override
+  public URI getUri() {
+    return this.server.getURI();
+  }
+
+  @Override
+  public AppType getAppType() {
+    return type;
+  }
+
+  @Override
   public void stop() {
     LOGGER.info("Stopping Jersey server at {}", uri);
 

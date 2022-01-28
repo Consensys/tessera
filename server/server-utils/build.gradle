@@ -5,6 +5,7 @@ plugins {
 dependencies {
   implementation project(":config")
   implementation project(":security")
+  implementation project(":server:server-api")
   implementation project(":tessera-context")
 
   implementation "org.eclipse.jetty:jetty-unixsocket-common"

@@ -13,9 +13,17 @@ application {
     "-Djnr.ffi.asm.enabled=false",
     "-Djakarta.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
     "-Djakarta.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+    '-Dtessera.home=TESSERA_HOME',
     "--add-opens=org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities",
   ]
   startScripts.enabled = true
+}
+
+startScripts {
+  doLast {
+    unixScript.text = unixScript.text.replace('TESSERA_HOME', '\$APP_HOME')
+    windowsScript.text = windowsScript.text.replace('TESSERA_HOME', '%~dp0..')
+  }
 }
 
 configurations.all {
@@ -40,6 +48,7 @@ dependencies {
 
   implementation project(":security")
   implementation project(":server:server-api")
+  implementation project(":server:server-utils")
   implementation project(":enclave:enclave-api")
   implementation project(":tessera-core")
   implementation project(":cli:cli-api")

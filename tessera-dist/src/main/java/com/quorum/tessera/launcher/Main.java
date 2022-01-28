@@ -11,11 +11,14 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.utils.ServerURIFileWriter;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.json.JsonException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.nio.file.Path;
 import java.security.Security;
 import java.util.*;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -117,8 +120,14 @@ public class Main {
       LOGGER.debug("Created ScheduledServiceFactory");
 
       LOGGER.debug("Creating Launcher");
-      Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
+      final List<TesseraServer> tesseraServers =
+          Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
       LOGGER.debug("Created Launcher");
+
+      final Path path = Path.of(System.getProperty("tessera.home"));
+      LOGGER.debug(String.format("Writing server URI file to: %s", path.toAbsolutePath()));
+      ServerURIFileWriter.writeServerURIsToFile(path, tesseraServers);
+
     } catch (final ConstraintViolationException ex) {
       for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
         System.err.println(
