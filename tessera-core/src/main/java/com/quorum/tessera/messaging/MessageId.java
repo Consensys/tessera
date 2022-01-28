@@ -17,7 +17,6 @@ public class MessageId {
     }
 
     // Iterate the pairs of characters in the string
-    try {
       int index = 0;
       byte[] buffer = new byte[length / 2];
 
@@ -30,9 +29,6 @@ public class MessageId {
         buffer[index] = (byte) ((left << 4) + right);
       }
       return new MessageId(buffer);
-    } catch (Exception ex) {
-      throw new IllegalArgumentException(ex);
-    }
   }
 
   public MessageId(byte[] value) {

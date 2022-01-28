@@ -3,25 +3,15 @@ package com.quorum.tessera.messaging.internal;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
-import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.messaging.MessageId;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -30,7 +20,6 @@ import java.util.stream.Stream;
 
 
 public class InboxImplTest {
-  private static final String SHA_256 = "SHA-256" ;
   private InboxImpl inbox;
   private final EncryptedMessageDAO dao = mock(EncryptedMessageDAO.class);
   private MessageHash messagingHash;
@@ -56,6 +45,17 @@ public class InboxImplTest {
 
     new InboxImpl(dao);
 
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testConstructorWithNoSuchAlgorithmException()   {
+    MockedStatic<MessageDigest> instance = Mockito.mockStatic(MessageDigest.class);
+    try {
+    instance.when(() -> MessageDigest.getInstance("SHA-256")).thenThrow(new NoSuchAlgorithmException());
+    InboxImpl impl = new InboxImpl(dao);
+  }finally {
+    instance.close();
+  }
   }
 
   @Test

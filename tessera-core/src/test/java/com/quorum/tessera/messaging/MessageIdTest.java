@@ -20,27 +20,15 @@ public class MessageIdTest {
     messageId = mock(MessageId.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testParseMessageId() {
-    assertThat(MessageId.parseMessageId("string")).isNotNull();
-
-    String stringValue = "sting";
-    int length = (stringValue == null) ? 0 : stringValue.length();
-    if (length == 0 || ((length % 2) != 0)) {
-      throw new IllegalArgumentException(
-        "String representation of a message ID cannot be empty, null, or uneven in length");
-    }
-
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-      int len = (stringValue == null) ? 0 : stringValue.length();
-      if (len== 0 || ((len % 2) != 0)) {
-        throw new IllegalArgumentException(
-          "String representation of a message ID cannot be empty, null, or uneven in length");
-      }
-    });
-
+    assertThat(MessageId.parseMessageId("string")).isInstanceOf(MessageId.class);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testWithNullParameter(){
+    MessageId.parseMessageId(null);
+  }
   @Test
   public void testHashCodeAndEquals(){
     MessageId messageId1 = new MessageId("ok".getBytes());
