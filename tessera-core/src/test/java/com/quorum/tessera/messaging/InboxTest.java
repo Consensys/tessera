@@ -17,8 +17,8 @@ public class InboxTest {
     when(serviceLoader.findFirst()).thenReturn(Optional.of(inbox));
 
     Inbox result;
-    try (var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
-
+    var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class);
+    try {
       serviceLoaderMockedStatic
         .when(() -> ServiceLoader.load(Inbox.class))
         .thenReturn(serviceLoader);
@@ -27,6 +27,8 @@ public class InboxTest {
 
       serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(Inbox.class));
       serviceLoaderMockedStatic.verifyNoMoreInteractions();
+    }finally {
+      serviceLoaderMockedStatic.close();
     }
     verify(serviceLoader).findFirst();
     verifyNoMoreInteractions(serviceLoader);

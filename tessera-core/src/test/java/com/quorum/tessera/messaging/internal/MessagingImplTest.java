@@ -1,33 +1,24 @@
 package com.quorum.tessera.messaging.internal;
 
-import com.quorum.tessera.base64.Base64Codec;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.data.EncryptedMessage;
 import com.quorum.tessera.data.EncryptedMessageDAO;
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.KeyManager;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.*;
-import com.quorum.tessera.service.Service;
-import junit.framework.TestCase;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 import com.quorum.tessera.messaging.MessageId;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class MessagingImplTest {
@@ -35,20 +26,16 @@ public class MessagingImplTest {
   private Enclave enclave;
   private Courier courier;
   private Inbox inbox;
-  private MessagingImpl messagingImpl;
   private Message message;
   private MessageId messageId;
   private EncodedPayload encodedPayload;
   private EncryptedMessageDAO dao;
-  private final PayloadEncoder payloadEncoder = new PayloadEncoderImpl();
-  private final Base64Codec base64Codec = Base64Codec.create();
 
   @Before
   public void setUp() {
     enclave = mock(Enclave.class);
     courier = mock(Courier.class);
     inbox = mock(Inbox.class);
-    messagingImpl = new MessagingImpl(enclave,courier,inbox);
     message = mock(Message.class);
     messageId = mock(MessageId.class);
     encodedPayload = mock(EncodedPayload.class);
@@ -178,10 +165,50 @@ public class MessagingImplTest {
 
   @Test
   public void testReadSuccess() {
+
+   /* EncryptedMessage encryptedMessage = new EncryptedMessage();
+    encryptedMessage.setContent("testings".getBytes());
+    dao = new EncryptedMessageDAO() {
+      @Override
+      public EncryptedMessage save(EncryptedMessage entity) {
+        return encryptedMessage;
+      }
+
+      @Override
+      public Optional<EncryptedMessage> retrieveByHash(MessageHash hash) {
+        return Optional.of(encryptedMessage);
+      }
+
+      @Override
+      public List<EncryptedMessage> findByHashes(Collection<MessageHash> messageHashes) {
+        return null;
+      }
+
+      @Override
+      public List<MessageHash> retrieveMessageHashes(int offset, int maxResult) {
+        return null;
+      }
+
+      @Override
+      public long messageCount() {
+        return 0;
+      }
+
+      @Override
+      public void delete(MessageHash hash) {
+
+      }
+
+      @Override
+      public boolean upcheck() {
+        return false;
+      }
+    };*/
+
     PublicKey sender = PublicKey.from("sender".getBytes());
     PublicKey receiver  = PublicKey.from("receiver".getBytes());
 
-    Message message = new Message(sender,receiver,"data".getBytes());
+   /* Message message = new Message(sender,receiver,"data".getBytes());
     PayloadEncoder payloadEncoder = new PayloadEncoderImpl() {
       @Override
       public byte[] encode(EncodedPayload payload) {
@@ -280,7 +307,7 @@ public class MessagingImplTest {
       public Status status() {
         return null;
       }
-    };
+    };*/
     inbox = new Inbox() {
       @Override
       public MessageId put(byte[] encoded) {
@@ -289,7 +316,8 @@ public class MessagingImplTest {
 
       @Override
       public byte[] get(MessageId messageId) {
-        return "1234567".getBytes();
+        byte arr[] = {0, 0, 0, 0, 0, 0, 0, 32, 65, -9, -125, 3, 43, 61, 48, -16, -20, -39, 113, -60, -58, -41, 60, -30, 50, -122, 31, 22, 96, -3, -88, -7, -40, 52, -31, -46, -5, 64, -35, 119, 0, 0, 0, 0, 0, 0, 0, 63, -125, 32, -53, -102, 60, -10, -123, 58, -51, 60, 101, 73, 50, 103, 98, -90, -108, 29, 82, 20, -27, 18, -17, -26, 94, 40, 3, -121, 27, 5, 7, -51, 2, -36, -38, -52, -40, 20, -56, 10, -80, -108, 93, 46, 48, -18, 124, 122, 115, -128, 15, 80, 97, 44, 116, -120, 111, 47, -80, -128, -59, -24, -124, 0, 0, 0, 0, 0, 0, 0, 24, 51, 25, -44, -51, -64, -123, -24, 58, 79, 5, 111, -71, 70, 92, -62, -31, -47, 54, -56, -104, -95, 126, -90, 65, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 48, 20, -49, 80, -41, 81, 111, -61, 44, 28, 113, -94, 92, 102, -54, 96, 35, -122, -110, 20, -30, -91, -123, -86, -103, -32, 124, 72, 53, -7, -77, -109, 124, 29, -102, 108, 70, 12, -125, -63, 67, -26, 34, 112, -19, 109, 107, -42, 73, 0, 0, 0, 0, 0, 0, 0, 24, 13, 85, -109, 70, 101, 0, 31, 35, -85, -66, 116, -104, 121, -111, 91, -26, 11, 64, -48, -49, -87, 13, 41, -3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 32, 65, -9, -125, 3, 43, 61, 48, -16, -20, -39, 113, -60, -58, -41, 60, -30, 50, -122, 31, 22, 96, -3, -88, -7, -40, 52, -31, -46, -5, 64, -35, 119, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        return arr;
       }
 
       @Override
@@ -304,7 +332,7 @@ public class MessagingImplTest {
     };
 
     MessagingImpl impl = new MessagingImpl(enclave,courier,inbox);
-    impl.read("test");
+    impl.read("testings");
 
   }
 
@@ -314,4 +342,19 @@ public class MessagingImplTest {
     impl.remove("string");
   }
 
+  static final String SHA_256 = "SHA-256";
+
+  MessageHash hash(byte[] encoded){
+    MessageDigest sha256 = null;
+    try {
+      sha256 = MessageDigest.getInstance(SHA_256);
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    sha256.reset();
+    int newLength = 20;
+    byte[] array = sha256.digest(encoded);
+    byte[] truncatedArray = Arrays.copyOf(array, newLength);
+    return new MessageHash(truncatedArray);
+  }
 }
