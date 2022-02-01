@@ -55,7 +55,7 @@ public class ServerURIFileWriter {
       Files.write(
           Path.of(dirPath.toAbsolutePath() + "/" + fileName), uriList, Charset.defaultCharset());
     } catch (final Exception e) {
-      LOGGER.warn(String.format("Error writing %s file", fileName), e);
+      LOGGER.debug(String.format("Error writing %s file", fileName), e);
     }
   }
 }

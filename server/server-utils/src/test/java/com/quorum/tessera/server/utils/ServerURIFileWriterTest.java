@@ -1,6 +1,7 @@
 package com.quorum.tessera.server.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -97,6 +98,32 @@ public class ServerURIFileWriterTest {
 
     assertThat(getFileLines(Path.of(directory.getPath() + "/" + fileName)))
         .contains(String.format("%s=%s", AppType.P2P, p2pServerURI));
+  }
+
+  @Test
+  public void readOnlyPathShouldNotThrowException() {
+    final TesseraServer p2pServer = mock(TesseraServer.class);
+
+    final String p2pServerURI = "http://p2p";
+
+    when(p2pServer.getAppType()).thenReturn(AppType.P2P);
+    when(p2pServer.getUri()).thenReturn(URI.create(p2pServerURI));
+
+    final List<TesseraServer> serverList = List.of(p2pServer);
+
+    directory.setReadOnly();
+
+    assertThat(directory.exists()).isTrue();
+    assertThat(directory.canWrite()).isFalse();
+    assertThat(directory.isDirectory()).isTrue();
+    assertThat(directory.list().length).isEqualTo(0);
+
+    final Path path = directory.toPath();
+
+    assertThatCode(() -> ServerURIFileWriter.writeServerURIsToFile(path, serverList))
+        .doesNotThrowAnyException();
+
+    assertThat(directory.list().length).isEqualTo(0);
   }
 
   private List<String> getFileNames(final File[] files) {
