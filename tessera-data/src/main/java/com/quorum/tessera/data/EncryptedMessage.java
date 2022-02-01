@@ -87,24 +87,6 @@ public class EncryptedMessage implements Serializable {
     this.timestamp = timestamp;
   }
 
-  /*
-  public byte[] getFrom() {
-    return from;
-  }
-
-  public void setFrom(byte[] from) {
-    this.from = from;
-  }
-
-  public byte[] getTo() {
-    return to;
-  }
-
-  public void setTo(byte[] to) {
-    this.to = to;
-  }
-  */
-
   @Override
   public int hashCode() {
     return 47 * 3 + Objects.hashCode(this.hash);

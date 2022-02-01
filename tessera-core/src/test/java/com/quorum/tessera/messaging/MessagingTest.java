@@ -1,11 +1,11 @@
 package com.quorum.tessera.messaging;
 
-import org.junit.Test;
-import java.util.Optional;
-import java.util.ServiceLoader;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+import java.util.ServiceLoader;
+import org.junit.Test;
 
 public class MessagingTest {
 
@@ -19,8 +19,8 @@ public class MessagingTest {
     try (var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
 
       serviceLoaderMockedStatic
-        .when(() -> ServiceLoader.load(Messaging.class))
-        .thenReturn(serviceLoader);
+          .when(() -> ServiceLoader.load(Messaging.class))
+          .thenReturn(serviceLoader);
 
       result = Messaging.create();
 
@@ -30,6 +30,5 @@ public class MessagingTest {
     verify(serviceLoader).findFirst();
     verifyNoMoreInteractions(serviceLoader);
     assertThat(result).isNotNull().isSameAs(messaging);
-
   }
 }

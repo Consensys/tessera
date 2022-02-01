@@ -1,20 +1,17 @@
 package com.quorum.tessera.messaging;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.base64.DecodingException;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-
+import java.util.Base64;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Base64;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 
 public class MessageTest {
   private PublicKey sender;
@@ -62,7 +59,6 @@ public class MessageTest {
     assertThat(messageObj.getSender()).doesNotHaveSameClassAs(new String());
     assertThat(messageObj.getSender()).hasNoNullFieldsOrProperties();
     assertThat(messageObj.toString()).isNotEmpty();
-
   }
 
   @Test
@@ -95,7 +91,6 @@ public class MessageTest {
     assertThat(messageObject.getSender()).isSameAs(senderKey);
     assertThat(messageObject.getRecipient()).isSameAs(receiverKey);
     assertThat(messageObject.getData()).isEqualTo(data.getBytes());
-
   }
 
   @Test
@@ -117,8 +112,7 @@ public class MessageTest {
     final PublicKey senderKey = PublicKey.from(sender);
     final PublicKey receiverKey = PublicKey.from(receiver);
 
-    Base64Codec base64Codec = new Base64Codec() {
-    };
+    Base64Codec base64Codec = new Base64Codec() {};
 
     assertThat(base64Codec).isNotNull();
     Message message = new Message(senderKey, receiverKey, data.getBytes());
@@ -130,7 +124,7 @@ public class MessageTest {
   @Test
   public void testConstructorWithArgs() {
 
-    Message message = new Message(sender,recipient,"test".getBytes());
+    Message message = new Message(sender, recipient, "test".getBytes());
     Assert.assertNotNull(message);
     String senderText = "This is for sender";
     byte sender[] = senderText.getBytes();
@@ -196,4 +190,3 @@ public class MessageTest {
     assertThat(encodedReceiver).isBase64();
   }
 }
-

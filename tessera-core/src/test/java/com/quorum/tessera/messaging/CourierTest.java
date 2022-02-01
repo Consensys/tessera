@@ -1,11 +1,12 @@
 package com.quorum.tessera.messaging;
 
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+import java.util.ServiceLoader;
 import org.junit.Test;
 
-import java.util.ServiceLoader;
-import static org.mockito.Mockito.*;
-public class CourierTest  {
+public class CourierTest {
 
   @Test
   public void testCreate() {
@@ -19,11 +20,12 @@ public class CourierTest  {
       var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class);
 
       serviceLoaderMockedStatic
-        .when(() -> ServiceLoader.load(Courier.class))
-        .thenReturn(serviceLoader);
+          .when(() -> ServiceLoader.load(Courier.class))
+          .thenReturn(serviceLoader);
 
       serviceLoaderUtilMockedStatic
-        .when(() -> ServiceLoaderUtil.loadSingle(ServiceLoader.load(Courier.class))).thenReturn(courier);
+          .when(() -> ServiceLoaderUtil.loadSingle(ServiceLoader.load(Courier.class)))
+          .thenReturn(courier);
 
       result = Courier.create();
     }

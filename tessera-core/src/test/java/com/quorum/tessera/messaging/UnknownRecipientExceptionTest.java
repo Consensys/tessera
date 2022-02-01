@@ -1,11 +1,11 @@
 package com.quorum.tessera.messaging;
 
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
 
 public class UnknownRecipientExceptionTest {
 
@@ -19,14 +19,14 @@ public class UnknownRecipientExceptionTest {
   }
 
   @Test
-  public void testGetPublicKey(){
+  public void testGetPublicKey() {
     UnknownRecipientException unknownRecipientException = new UnknownRecipientException(publicKey);
     Assert.assertNotNull(unknownRecipientException);
     Assert.assertNotNull(unknownRecipientException.getPublicKey());
   }
 
   @Test
-  public void testUnknownRecipientExceptionWithArgs(){
+  public void testUnknownRecipientExceptionWithArgs() {
     UnknownRecipientException unknownRecipientException = new UnknownRecipientException(publicKey);
     Assert.assertNotNull(unknownRecipientException);
   }

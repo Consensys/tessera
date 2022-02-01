@@ -1,12 +1,13 @@
 package com.quorum.tessera.messaging.internal;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.data.EncryptedMessageDAO;
 import com.quorum.tessera.messaging.Inbox;
 import org.junit.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class InboxProviderTest {
 
@@ -20,8 +21,7 @@ public class InboxProviderTest {
   public void provider() {
 
     try (var mockedStaticConfigFactory = mockStatic(ConfigFactory.class);
-         var mockedStaticEncryptedMessageDAO = mockStatic(EncryptedMessageDAO.class))
-         {
+        var mockedStaticEncryptedMessageDAO = mockStatic(EncryptedMessageDAO.class)) {
 
       ConfigFactory configFactory = mock(ConfigFactory.class);
       Config config = mock(Config.class);
@@ -29,18 +29,18 @@ public class InboxProviderTest {
       mockedStaticConfigFactory.when(ConfigFactory::create).thenReturn(configFactory);
 
       mockedStaticEncryptedMessageDAO
-        .when(EncryptedMessageDAO::create)
-        .thenReturn(mock(EncryptedMessageDAO.class));
+          .when(EncryptedMessageDAO::create)
+          .thenReturn(mock(EncryptedMessageDAO.class));
 
-           Inbox inbox = InboxProvider.provider();
-           assertThat(inbox).isNotNull();
+      Inbox inbox = InboxProvider.provider();
+      assertThat(inbox).isNotNull();
 
-           assertThat(InboxProvider.provider())
-             .describedAs("Second invocation should return same instance")
-             .isSameAs(inbox);
+      assertThat(InboxProvider.provider())
+          .describedAs("Second invocation should return same instance")
+          .isSameAs(inbox);
 
-           mockedStaticEncryptedMessageDAO.verify(EncryptedMessageDAO::create);
-           mockedStaticEncryptedMessageDAO.verifyNoMoreInteractions();
+      mockedStaticEncryptedMessageDAO.verify(EncryptedMessageDAO::create);
+      mockedStaticEncryptedMessageDAO.verifyNoMoreInteractions();
     }
   }
 
@@ -48,8 +48,4 @@ public class InboxProviderTest {
   public void defaultConstructorForCoverage() {
     assertThat(new InboxProvider()).isNotNull();
   }
-
 }
-
-
-

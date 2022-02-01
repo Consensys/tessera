@@ -1,10 +1,10 @@
 package com.quorum.tessera.messaging;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
+import org.junit.Before;
+import org.junit.Test;
 
 public class MessageIdTest {
   MessageId messageId;
@@ -20,11 +20,12 @@ public class MessageIdTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testWithNullParameter(){
+  public void testWithNullParameter() {
     MessageId.parseMessageId(null);
   }
+
   @Test
-  public void testHashCodeAndEquals(){
+  public void testHashCodeAndEquals() {
     MessageId messageId1 = new MessageId("ok".getBytes());
     MessageId messageId2 = new MessageId("ok".getBytes());
     assertThat(messageId1.hashCode()).isNotSameAs(messageId2);
@@ -32,13 +33,13 @@ public class MessageIdTest {
   }
 
   @Test
-  public void testToString(){
+  public void testToString() {
     MessageId messageId1 = new MessageId("ok".getBytes());
     assertThat(messageId1.toString()).isNotEmpty();
   }
 
   @Test
-  public void testGetValue(){
+  public void testGetValue() {
     MessageId messageId1 = new MessageId("ok".getBytes());
     assertThat(messageId1.getValue()).isNotNull();
     assertThat(messageId1.getValue().length > 0);
