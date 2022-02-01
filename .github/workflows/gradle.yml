@@ -8,6 +8,8 @@ on:
 env:
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
   DIST_TAR: tessera-dist/build/distributions/tessera-*.tar
+  TESSERA_DOCKER_IMAGE: quorumengineering/tessera
+  QUORUM_DOCKER_IMAGE: quorumengineering/quorum
 jobs:
   build:
     name: Build and upload binaries
@@ -56,13 +58,6 @@ jobs:
       with:
         name: kalium-dist
         path: /home/runner/work/tessera/tessera/encryption/encryption-kalium/build/distributions/
-#    - name: Send slack notification
-#      uses: homoluctus/slatify@v3.0.0
-#      if: always()
-#      with:
-#        type: ${{job.status}}
-#        job_name: Build and upload binaries
-#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   checkdependencies:
     name: Check dependencies for any security advisories
@@ -78,13 +73,6 @@ jobs:
         check-latest: true
     - name: Execute gradle dependencyCheckAnalyze task
       run: ./gradlew dependencyCheckAnalyze -x test
-#    - name: Send slack notification
-#      uses: homoluctus/slatify@v3.0.0
-#      if: always()
-#      with:
-#        type: ${{job.status}}
-#        job_name: Check dependencies for any security advisories
-#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
     name: Unit tests
@@ -100,13 +88,6 @@ jobs:
         check-latest: true
     - name: Execute gradle test
       run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc --info
-#    - name: Send slack notification
-#      uses: homoluctus/slatify@v3.0.0
-#      if: always()
-#      with:
-#        type: ${{job.status}}
-#        job_name: Unit tests
-#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   itest:
     name: Integration tests
@@ -166,13 +147,6 @@ jobs:
       with:
        name: itest-logs
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-#    - name: Send slack notification
-#      uses: homoluctus/slatify@v3.0.0
-#      if: always()
-#      with:
-#        type: ${{job.status}}
-#        job_name: Integration tests
-#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   remote_enclave_itest:
     name: Remote enclave integration tests
@@ -232,13 +206,6 @@ jobs:
         with:
           name: remote_enclave_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-#      - name: Send slack notification
-#        uses: homoluctus/slatify@v3.0.0
-#        if: always()
-#        with:
-#          type: ${{job.status}}
-#          job_name: Remote enclave integration tests
-#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   cucumber_itest:
     name: Cucumber itests
@@ -298,13 +265,6 @@ jobs:
         with:
           name: cucumber_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-#      - name: Send slack notification
-#        uses: homoluctus/slatify@v3.0.0
-#        if: always()
-#        with:
-#          type: ${{job.status}}
-#          job_name: Cucumber itests
-#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
     name: Key vault integration tests
@@ -373,12 +333,6 @@ jobs:
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-#      - uses: homoluctus/slatify@v3.0.0
-#        if: always()
-#        with:
-#          type: ${{job.status}}
-#          job_name: Key vault integration tests
-#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   recovery_itest:
     name: Recovery integration tests
@@ -438,13 +392,6 @@ jobs:
         with:
           name: recovery-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-#      - name: Send slack notification
-#        uses: homoluctus/slatify@v3.0.0
-#        if: always()
-#        with:
-#          type: ${{job.status}}
-#          job_name: Recovery integration tests
-#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   build_image:
     name: Build develop Docker image
@@ -463,10 +410,10 @@ jobs:
       - name: Get current date-time (RFC 3339 standard)
         id: date
         run: echo "::set-output name=now::$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-      - name: Build image as portable tar
+      - name: Build Docker image as portable tar
         uses: docker/build-push-action@v2
         with:
-          tags: ${{ secrets.DOCKER_REPO }}:develop
+          tags: ${{ env.TESSERA_DOCKER_IMAGE }}:develop
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -476,7 +423,7 @@ jobs:
           # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
           context: .
           outputs: type=docker,dest=/tmp/tessera-develop-image.tar
-      - name: Upload artifact
+      - name: upload-artifact portable Docker image
         uses: actions/upload-artifact@v2
         with:
           name: tessera-develop-image
@@ -495,7 +442,7 @@ jobs:
           distribution: 'adopt'
           java-version: 14
           check-latest: true
-      - name: Download image artifact
+      - name: download-artifact portable Docker image
         uses: actions/download-artifact@v2
         with:
           name: tessera-develop-image
@@ -509,32 +456,24 @@ jobs:
       - name: Get version of Quorum to use
         id: quorumver
         run: |
-          tagversion=`cat version.txt | cut -d'-' -f1`
-          echo "$tagversion" > version.txt
-          VERSION=${tagversion%.*}
-          RESP_CODE=$(docker manifest inspect quorumengineering/quorum:$VERSION> /dev/null ; echo $?)
+          # 1.2.3-SNAPSHOT --> 1.2
+          QUORUM_MINOR_VERSION=$(cat version.txt | cut -d '-' -f 1 | cut -d '.' -f 1,2) 
+          RESP_CODE=$(docker manifest inspect $QUORUM_DOCKER_IMAGE:$QUORUM_MINOR_VERSION> /dev/null ; echo $?)
           if [ ! $RESP_CODE -eq 0 ]; then
-            echo "no quorum image found for $VERSION"
+            echo "no quorum image found for $QUORUM_MINOR_VERSION"
             VERSION=latest
           fi
-          echo "using version $VERSION"
-          echo ::set-output name=version::$VERSION
+          echo "using version $QUORUM_MINOR_VERSION"
+          echo ::set-output name=version::$QUORUM_MINOR_VERSION
       - name: Execute acceptance tests
         run:
-          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_quorum_docker_image='{name="quorumengineering/quorum:${{ steps.quorumver.outputs.version }}",local=false}' quorumengineering/acctests:latest -c "./mvnw --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
+          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_tessera_docker_image='{name="${{ env.TESSERA_DOCKER_IMAGE }}:develop",local=true}' -e TF_VAR_quorum_docker_image='{name="${{ env.QUORUM_DOCKER_IMAGE }}:${{ steps.quorumver.outputs.version }}",local=false}' quorumengineering/acctests:latest -c "./mvnw --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
       - name: Upload Gauge report
         uses: actions/upload-artifact@v2
         if: always()
         with:
           name: gauge-reports
           path: /tmp/acctests/gauge
-#      - name: Send slack notification
-#        uses: homoluctus/slatify@v3.0.0
-#        if: always()
-#        with:
-#          type: ${{job.status}}
-#          job_name: Quorum acceptance tests
-#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   push_docker_develop:
     name: Push develop image to DockerHub
@@ -544,7 +483,7 @@ jobs:
     needs: [build_image, atest]
     runs-on: ubuntu-latest
     steps:
-      - name: Download image artifact
+      - name: download-artifact portable Docker image
         uses: actions/download-artifact@v2
         with:
           name: tessera-develop-image
@@ -562,4 +501,4 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
       - name: Push image
         run : |
-          docker push ${{ secrets.DOCKER_REPO }}:develop
+          docker push ${TESSERA_DOCKER_IMAGE}:develop
