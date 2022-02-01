@@ -25,13 +25,4 @@ public class NoSuchMessageExceptionTest{
     Assert.assertNotNull(noSuchMessageException.getMessageId());
     Assert.assertNotNull(noSuchMessageException);
   }
-
-  @Test
-  public void testGetMessageId() {
-    String testData = "this is test";
-    MessageId messageId = new MessageId(testData.getBytes());
-    NoSuchMessageException noSuchMessageException = new NoSuchMessageException(messageId);
-    Assert.assertNotNull(noSuchMessageException.getMessageId());
-    Assert.assertNotNull(noSuchMessageException);
-  }
 }

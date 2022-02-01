@@ -26,7 +26,6 @@ public class CourierTest  {
         .when(() -> ServiceLoaderUtil.loadSingle(ServiceLoader.load(Courier.class))).thenReturn(courier);
 
       result = Courier.create();
-
     }
   }
 }

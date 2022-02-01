@@ -16,7 +16,6 @@ public class InboxProviderTest {
     assertThat(InboxHolder.INSTANCE.getInbox()).isNotPresent();
   }
 
-
   @Test
   public void provider() {
 

@@ -112,7 +112,6 @@ public class MessageTest {
     byte sender[] = senderText.getBytes();
     String receiverText = "This is for receiver";
     byte receiver[] = receiverText.getBytes();
-
     String data = "this is message";
 
     final PublicKey senderKey = PublicKey.from(sender);
@@ -122,26 +121,17 @@ public class MessageTest {
     };
 
     assertThat(base64Codec).isNotNull();
-
-
     Message message = new Message(senderKey, receiverKey, data.getBytes());
-
     String encodedData = base64Codec.encodeToString(message.getData());
-
     byte output[] = base64Codec.decode(encodedData);
-
     assertThat(encodedData.equals(new String(output)));
-
   }
-
 
   @Test
   public void testConstructorWithArgs() {
 
-     Message message = new Message(sender,recipient,"test".getBytes());
-     Assert.assertNotNull(message);
-
-
+    Message message = new Message(sender,recipient,"test".getBytes());
+    Assert.assertNotNull(message);
     String senderText = "This is for sender";
     byte sender[] = senderText.getBytes();
     String receiverText = "This is for receiver";

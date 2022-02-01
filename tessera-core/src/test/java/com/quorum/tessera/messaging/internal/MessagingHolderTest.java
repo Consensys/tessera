@@ -29,17 +29,14 @@ public class MessagingHolderTest{
 
   @Test
   public void testGetMessaging() {
-
     assertThat(MessagingHolder.INSTANCE).isNotNull();
     Optional<Messaging> optionalMessaging =  Optional.ofNullable(messaging);
     when(messagingHolder.getMessaging()).thenReturn(optionalMessaging);
     MessagingHolder holder =  MessagingHolder.INSTANCE;
     assertThat(messagingHolder.getMessaging()).isNotNull();
     assertThat(holder.getMessaging()).isNotNull();
-
     Assert.assertTrue(holder.getMessaging().isPresent());
     assertThat(holder.getMessaging().get()).isNotNull();
-
   }
 
   @Test
@@ -51,7 +48,6 @@ public class MessagingHolderTest{
     assertThat(holder.getMessaging()).isNotNull();
     assertThat(messagingImpl).isNotNull();
     Assert.assertNotNull(holder.store(messagingImpl));
-
   }
 
 }

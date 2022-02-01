@@ -35,7 +35,6 @@ public class InboxHolderTest {
     InboxHolder holder =  InboxHolder.INSTANCE.INSTANCE;
     assertThat(inboxHolder.getInbox()).isNotNull();
     assertThat(holder.getInbox()).isNotNull();
-
   }
 
   @Test

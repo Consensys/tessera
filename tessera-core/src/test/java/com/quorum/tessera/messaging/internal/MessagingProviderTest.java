@@ -19,7 +19,6 @@ public class MessagingProviderTest {
     assertThat(MessagingHolder.INSTANCE.getMessaging()).isNotPresent();
   }
 
-
   @Test
   public void provider() {
 

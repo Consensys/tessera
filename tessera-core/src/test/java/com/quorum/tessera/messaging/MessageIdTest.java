@@ -1,15 +1,9 @@
 package com.quorum.tessera.messaging;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 public class MessageIdTest {
@@ -33,7 +27,6 @@ public class MessageIdTest {
   public void testHashCodeAndEquals(){
     MessageId messageId1 = new MessageId("ok".getBytes());
     MessageId messageId2 = new MessageId("ok".getBytes());
-
     assertThat(messageId1.hashCode()).isNotSameAs(messageId2);
     assertThat(messageId1.equals(messageId2));
   }
@@ -42,7 +35,6 @@ public class MessageIdTest {
   public void testToString(){
     MessageId messageId1 = new MessageId("ok".getBytes());
     assertThat(messageId1.toString()).isNotEmpty();
-
   }
 
   @Test
