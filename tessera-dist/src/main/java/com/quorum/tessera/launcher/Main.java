@@ -124,10 +124,12 @@ public class Main {
           Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
       LOGGER.debug("Created Launcher");
 
-      final Path path = Path.of(System.getProperty("tessera.home"));
-      LOGGER.debug(String.format("Writing server URI file to: %s", path.toAbsolutePath()));
-      ServerURIFileWriter.writeServerURIsToFile(path, tesseraServers);
-
+      final String tesseraHome = System.getProperty("tessera.home");
+      if (tesseraHome != null) {
+        final Path path = Path.of(tesseraHome);
+        LOGGER.debug(String.format("Writing server URI file to: %s", path.toAbsolutePath()));
+        ServerURIFileWriter.writeServerURIsToFile(path, tesseraServers);
+      }
     } catch (final ConstraintViolationException ex) {
       for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
         System.err.println(
