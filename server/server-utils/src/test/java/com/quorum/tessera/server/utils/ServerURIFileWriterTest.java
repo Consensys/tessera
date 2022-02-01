@@ -29,15 +29,25 @@ public class ServerURIFileWriterTest {
 
   @Test
   public void writeAllServersToOutputPath() throws IOException {
+    final TesseraServer adminServer = mock(TesseraServer.class);
+    final TesseraServer enclaveServer = mock(TesseraServer.class);
     final TesseraServer p2pServer = mock(TesseraServer.class);
     final TesseraServer q2tServer = mock(TesseraServer.class);
     final TesseraServer thirdPartyServer = mock(TesseraServer.class);
 
+    final String adminServerURI = "http://admin";
+    final String enclaveServerURI = "http://enclave";
     final String p2pServerURI = "http://p2p";
     final String q2tServerURI = "http://q2t";
     final String thirdPartyServerURI = "http://thirdparty";
 
     final String fileName = "tessera.uris";
+
+    when(adminServer.getAppType()).thenReturn(AppType.ADMIN);
+    when(adminServer.getUri()).thenReturn(URI.create(adminServerURI));
+
+    when(enclaveServer.getAppType()).thenReturn(AppType.ENCLAVE);
+    when(enclaveServer.getUri()).thenReturn(URI.create(enclaveServerURI));
 
     when(p2pServer.getAppType()).thenReturn(AppType.P2P);
     when(p2pServer.getUri()).thenReturn(URI.create(p2pServerURI));
@@ -48,7 +58,8 @@ public class ServerURIFileWriterTest {
     when(thirdPartyServer.getAppType()).thenReturn(AppType.THIRD_PARTY);
     when(thirdPartyServer.getUri()).thenReturn(URI.create(thirdPartyServerURI));
 
-    final List<TesseraServer> serverList = List.of(p2pServer, q2tServer, thirdPartyServer);
+    final List<TesseraServer> serverList =
+        List.of(adminServer, enclaveServer, p2pServer, q2tServer, thirdPartyServer);
 
     final Path path = directory.toPath();
     ServerURIFileWriter.writeServerURIsToFile(path, serverList);
@@ -61,43 +72,14 @@ public class ServerURIFileWriterTest {
 
     final List<String> fileLines = getFileLines(Path.of(directory.getPath() + "/" + fileName));
 
-    assertThat(fileLines.size()).isEqualTo(4);
+    assertThat(fileLines.size()).isEqualTo(6);
 
+    assertThat(fileLines).contains(String.format("%s=%s", AppType.ADMIN, adminServerURI));
+    assertThat(fileLines).contains(String.format("%s=%s", AppType.ENCLAVE, enclaveServerURI));
     assertThat(fileLines).contains(String.format("%s=%s", AppType.P2P, p2pServerURI));
     assertThat(fileLines).contains(String.format("%s=%s", AppType.Q2T, q2tServerURI));
     assertThat(fileLines)
         .contains(String.format("%s=%s", AppType.THIRD_PARTY, thirdPartyServerURI));
-  }
-
-  @Test
-  public void writeOnlyExpectedServersToOutputPath() throws IOException {
-    final TesseraServer p2pServer = mock(TesseraServer.class);
-    final TesseraServer enclaveServer = mock(TesseraServer.class);
-
-    final String p2pServerURI = "http://p2p";
-    final String enclaveServerURI = "http://enclave";
-
-    final String fileName = "tessera.uris";
-
-    when(p2pServer.getAppType()).thenReturn(AppType.P2P);
-    when(p2pServer.getUri()).thenReturn(URI.create(p2pServerURI));
-
-    when(enclaveServer.getAppType()).thenReturn(AppType.ENCLAVE);
-    when(enclaveServer.getUri()).thenReturn(URI.create(enclaveServerURI));
-
-    final List<TesseraServer> serverList = List.of(p2pServer);
-
-    final Path path = directory.toPath();
-    ServerURIFileWriter.writeServerURIsToFile(path, serverList);
-
-    assertThat(directory.exists()).isTrue();
-    assertThat(directory.isDirectory()).isTrue();
-    assertThat(directory.list().length).isEqualTo(1);
-
-    assertThat(getFileNames(directory.listFiles())).contains(fileName);
-
-    assertThat(getFileLines(Path.of(directory.getPath() + "/" + fileName)))
-        .contains(String.format("%s=%s", AppType.P2P, p2pServerURI));
   }
 
   @Test

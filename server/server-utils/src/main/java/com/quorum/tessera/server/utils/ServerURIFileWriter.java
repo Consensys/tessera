@@ -1,6 +1,5 @@
 package com.quorum.tessera.server.utils;
 
-import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.server.TesseraServer;
 import java.io.File;
 import java.nio.charset.Charset;
@@ -19,12 +18,7 @@ public class ServerURIFileWriter {
       final Path outputServerURIPath, final List<TesseraServer> servers) {
     final List<TesseraServer> serverList =
         servers.stream()
-            .filter(
-                tesseraServer ->
-                    tesseraServer.getAppType() != null
-                        && (tesseraServer.getAppType() == AppType.Q2T
-                            || tesseraServer.getAppType() == AppType.P2P
-                            || tesseraServer.getAppType() == AppType.THIRD_PARTY))
+            .filter(tesseraServer -> tesseraServer.getAppType() != null)
             .collect(Collectors.toList());
 
     writeURIFile(outputServerURIPath, serverList);
@@ -40,8 +34,7 @@ public class ServerURIFileWriter {
         tesseraServer -> {
           uriList.add(
               String.format(
-                  "%s=%s",
-                  tesseraServer.getAppType().toString(), tesseraServer.getUri().toString()));
+                  "%s=%s", tesseraServer.getAppType().toString(), getURIOrEmpty(tesseraServer)));
         });
 
     final File file = new File(dirPath.toFile(), fileName);
@@ -56,6 +49,14 @@ public class ServerURIFileWriter {
           Path.of(dirPath.toAbsolutePath() + "/" + fileName), uriList, Charset.defaultCharset());
     } catch (final Exception e) {
       LOGGER.debug(String.format("Error writing %s file", fileName), e);
+    }
+  }
+
+  private static String getURIOrEmpty(final TesseraServer tesseraServer) {
+    try {
+      return tesseraServer.getUri().toString();
+    } catch (final NullPointerException e) {
+      return "";
     }
   }
 }

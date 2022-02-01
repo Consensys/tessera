@@ -1,0 +1,48 @@
+{
+  "useWhiteList": false,
+  "jdbc": {
+    "username": "sa",
+    "password": "",
+    "url": "jdbc:h2:./tdata/data/database",
+    "autoCreateTables": true
+  },
+  "serverConfigs":[
+    {
+      "app":"ThirdParty",
+      "enabled": true,
+      "serverAddress": "http://localhost:9081",
+      "communicationType" : "REST"
+    },
+    {
+      "app":"Q2T",
+      "enabled": true,
+      "serverAddress":"http://localhost:9082",
+      "communicationType" : "REST"
+    },
+    {
+      "app":"P2P",
+      "enabled": true,
+      "serverAddress":"http://localhost:9083",
+      "sslConfig": {
+        "tls": "OFF"
+      },
+      "communicationType" : "REST"
+    }
+  ],
+  "peer": [
+    {
+      "url": "http://localhost:9001",
+      "url": "http://localhost:9002"
+    }
+  ],
+  "keys": {
+    "passwords": [],
+    "keyData": [
+      {
+        "privateKeyPath": "./tdata/keys/key1.key",
+        "publicKeyPath": "./tdata/keys/key1.pub"
+      }
+    ]
+  },
+  "alwaysSendTo": []
+}
