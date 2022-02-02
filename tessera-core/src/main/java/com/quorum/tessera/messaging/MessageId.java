@@ -17,18 +17,18 @@ public class MessageId {
     }
 
     // Iterate the pairs of characters in the string
-      int index = 0;
-      byte[] buffer = new byte[length / 2];
+    int index = 0;
+    byte[] buffer = new byte[length / 2];
 
-      for (CharacterIterator it = new StringCharacterIterator(stringValue);
-          it.current() != CharacterIterator.DONE;
-          it.next(), ++index) {
-        final int radix = 16;
-        final int left = Character.digit(it.current(), radix);
-        final int right = Character.digit(it.next(), radix);
-        buffer[index] = (byte) ((left << 4) + right);
-      }
-      return new MessageId(buffer);
+    for (CharacterIterator it = new StringCharacterIterator(stringValue);
+        it.current() != CharacterIterator.DONE;
+        it.next(), ++index) {
+      final int radix = 16;
+      final int left = Character.digit(it.current(), radix);
+      final int right = Character.digit(it.next(), radix);
+      buffer[index] = (byte) ((left << 4) + right);
+    }
+    return new MessageId(buffer);
   }
 
   public MessageId(byte[] value) {
