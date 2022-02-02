@@ -31,7 +31,7 @@ public class EncryptedMessageDAOTest {
     properties.put("jakarta.persistence.jdbc.user", "junit");
     properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
-      "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINEST");
@@ -56,8 +56,8 @@ public class EncryptedMessageDAOTest {
       when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(EncryptedMessageDAO.class)));
 
       mockedServiceLoader
-        .when(() -> ServiceLoader.load(EncryptedMessageDAO.class))
-        .thenReturn(serviceLoader);
+          .when(() -> ServiceLoader.load(EncryptedMessageDAO.class))
+          .thenReturn(serviceLoader);
 
       EncryptedMessageDAO.create();
 
@@ -84,10 +84,8 @@ public class EncryptedMessageDAOTest {
     when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
     when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
 
-    EncryptedMessageDAO encryptedMessageDAO =
-      new EncryptedMessageDAOImpl(mockEntityManagerFactory);
+    EncryptedMessageDAO encryptedMessageDAO = new EncryptedMessageDAOImpl(mockEntityManagerFactory);
 
     assertThat(encryptedMessageDAO.upcheck()).isFalse();
   }
-
 }
