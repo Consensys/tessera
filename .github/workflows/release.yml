@@ -229,3 +229,18 @@ jobs:
           file: docker/tessera.hashicorp.Dockerfile
           # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
           context: .
+      - name: Build and push standalone enclave images
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ${{ secrets.DOCKER_REPO }}:enclave-latest
+            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.full-ver }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
+          push: true
+          file: docker/enclave.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
