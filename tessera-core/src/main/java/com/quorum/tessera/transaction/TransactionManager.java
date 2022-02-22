@@ -16,6 +16,8 @@ public interface TransactionManager {
 
   void delete(MessageHash messageHash);
 
+  void deleteAll(PublicKey key);
+
   MessageHash storePayload(EncodedPayload transactionPayload);
 
   ReceiveResponse receive(ReceiveRequest request);

@@ -1,5 +1,7 @@
 package com.quorum.tessera.data;
 
+import com.quorum.tessera.encryption.PublicKey;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +84,11 @@ public interface EncryptedTransactionDAO {
    */
   boolean upcheck();
 
+  void deleteAll(PublicKey publicKey);
+
   static EncryptedTransactionDAO create() {
     return ServiceLoader.load(EncryptedTransactionDAO.class).findFirst().get();
   }
+
+
 }

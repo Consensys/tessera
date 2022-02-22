@@ -9,7 +9,11 @@ import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.TxHash;
+import com.quorum.tessera.encryption.PublicKey;
 import jakarta.persistence.*;
+
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -654,6 +658,140 @@ public class EncryptedTransactionDAOTest {
         new EncryptedTransactionDAOImpl(mockEntityManagerFactory);
 
     assertThat(encryptedTransactionDAO.upcheck()).isFalse();
+  }
+
+  @Test
+  public void deleteAllRemovesFromSenderTransactionsFromDb() {
+
+    PublicKey senderkey = PublicKey.from("SENDERKEY".getBytes(StandardCharsets.UTF_8));
+    List<PublicKey> receiverkeys = new ArrayList<>();
+    receiverkeys.add(PublicKey.from("RECEIVERKEY".getBytes(StandardCharsets.UTF_8)));
+    EncodedPayload payload = buildPayLoadFor(senderkey, receiverkeys);
+    final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    // put a transaction in the database
+    final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+    encryptedTransaction.setPayload(payload);
+
+    encryptedTransaction.setHash(messageHash);
+
+    entityManager.getTransaction().begin();
+    entityManager.persist(encryptedTransaction);
+    entityManager.getTransaction().commit();
+
+    Query countQuery =
+      entityManager.createQuery(
+        "select count(t) from EncryptedTransaction t where t.hash = :hash");
+    Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    assertThat(result).isEqualTo(1L);
+
+    encryptedTransactionDAO.deleteAll(senderkey);
+
+    // check it is not longer in the database
+    Long result2 = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    assertThat(result2).isZero();
+
+
+  }
+
+  @Test
+  public void deleteAllRemovesFromReceipientTransactionsFromDb() {
+
+    PublicKey senderkey = PublicKey.from("SENDERKEY".getBytes(StandardCharsets.UTF_8));
+    List<PublicKey> receiverkeys = new ArrayList<>();
+    PublicKey receipientKey = PublicKey.from("RECEIVERKEY".getBytes(StandardCharsets.UTF_8));
+    receiverkeys.add(receipientKey);
+    EncodedPayload payload = buildPayLoadFor(senderkey, receiverkeys);
+    final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    // put a transaction in the database
+    final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+    encryptedTransaction.setPayload(payload);
+
+    encryptedTransaction.setHash(messageHash);
+
+    entityManager.getTransaction().begin();
+    entityManager.persist(encryptedTransaction);
+    entityManager.getTransaction().commit();
+
+    Query countQuery =
+      entityManager.createQuery(
+        "select count(t) from EncryptedTransaction t where t.hash = :hash");
+    Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    assertThat(result).isEqualTo(1L);
+
+    encryptedTransactionDAO.deleteAll(receipientKey);
+
+    // check it is not longer in the database
+    Long result2 = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    assertThat(result2).isZero();
+  }
+
+
+  @Test
+  public void deleteAllRemovesFromSenderAndReceipientTransactionsFromDb() {
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+    for (int i = 0; i < 10; i++) {
+
+      List<PublicKey> receiverkeys = new ArrayList<>();
+
+      for (int j = i; j >= 0 ; j--) {
+        receiverkeys.add(PublicKey.from(("RECEIVERKEY"+j).getBytes(StandardCharsets.UTF_8)));
+      }
+
+      EncodedPayload payload = buildPayLoadFor(PublicKey.from(("SENDERKEY"+i).getBytes(StandardCharsets.UTF_8)), receiverkeys);
+      final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+      final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+      encryptedTransaction.setPayload(payload);
+      encryptedTransaction.setHash(messageHash);
+      entityManager.getTransaction().begin();
+      entityManager.persist(encryptedTransaction);
+      entityManager.getTransaction().commit();
+
+    }
+
+    Query countQuery =
+      entityManager.createQuery(
+        "select count(t) from EncryptedTransaction t");
+    Long result = (Long) countQuery.getSingleResult();
+    assertThat(result).isEqualTo(10L);
+
+    encryptedTransactionDAO.deleteAll(PublicKey.from("SENDERKEY5".getBytes()));
+
+    // check it is not longer in the database
+    Long result2 = (Long) countQuery.getSingleResult();
+    assertThat(result2).isEqualTo(9);
+
+    encryptedTransactionDAO.deleteAll(PublicKey.from("RECEIVERKEY5".getBytes()));
+
+    // check it is not longer in the database
+    Long result3 = (Long) countQuery.getSingleResult();
+    assertThat(result3).isEqualTo(5);
+
+    encryptedTransactionDAO.deleteAll(PublicKey.from("RECEIVERKEY0".getBytes()));
+
+    // check it is not longer in the database
+    Long result4 = (Long) countQuery.getSingleResult();
+    assertThat(result4).isEqualTo(0);
+
+  }
+
+  private EncodedPayload buildPayLoadFor(PublicKey senderkey, List<PublicKey> receiverkeys) {
+    return EncodedPayload.Builder.create()
+      .withSenderKey(senderkey)
+      .withCipherText("cipherText".getBytes())
+      .withCipherTextNonce("cipherTextNonce".getBytes())
+      .withRecipientBox("recipientBox".getBytes())
+      .withRecipientNonce("recipientNonce".getBytes())
+      .withPrivacyFlag(3)
+      .withAffectedContractTransactions(Map.of(new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="), "transaction".getBytes()))
+      .withExecHash("execHash".getBytes())
+      .withRecipientKeys(receiverkeys)
+      .build();
   }
 
   @Test

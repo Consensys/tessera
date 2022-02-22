@@ -340,6 +340,12 @@ public class TransactionManagerImpl implements TransactionManager {
   }
 
   @Override
+  public void deleteAll(PublicKey publicKey) {
+    LOGGER.info("Received request to delete message with hash {}", publicKey);
+    this.encryptedTransactionDAO.deleteAll(publicKey);
+  }
+
+  @Override
   public ReceiveResponse receive(ReceiveRequest request) {
 
     final MessageHash hash = request.getTransactionHash();

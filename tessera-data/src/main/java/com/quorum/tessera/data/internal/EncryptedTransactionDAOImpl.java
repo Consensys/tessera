@@ -4,6 +4,7 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerTemplate;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.encryption.PublicKey;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
@@ -109,6 +110,23 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
           entityManager.remove(message);
           return message;
         });
+  }
+
+  @Override
+  public void deleteAll(final PublicKey publicKey) {
+
+    LOGGER.info("Deleting transaction with hash {}", publicKey);
+
+    entityManagerTemplate.execute(
+      entityManager -> {
+        final List<EncryptedTransaction> messages =
+          entityManager
+            .createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
+            .getResultList();
+
+        messages.stream().filter(msg-> publicKey.equals(msg.getPayload().getSenderKey()) || msg.getPayload().getRecipientKeys().contains(publicKey)).forEach(msg-> entityManager.remove(msg));
+        return messages;
+      });
   }
 
   @Override

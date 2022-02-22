@@ -16,6 +16,7 @@ import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Callable;
 import org.junit.After;
@@ -440,6 +441,13 @@ public class TransactionManagerTest {
     transactionManager.delete(messageHash);
 
     verify(encryptedTransactionDAO).delete(messageHash);
+  }
+
+  @Test
+  public void testDeleteAllDeletesTransactions() {
+    PublicKey pk = PublicKey.from("test".getBytes(StandardCharsets.UTF_8));
+    transactionManager.deleteAll(pk);
+    verify(encryptedTransactionDAO, times(1)).deleteAll(pk);
   }
 
   @Test

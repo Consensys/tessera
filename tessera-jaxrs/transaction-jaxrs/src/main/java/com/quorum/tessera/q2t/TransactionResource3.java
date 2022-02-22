@@ -430,6 +430,34 @@ public class TransactionResource3 {
     return Response.noContent().build();
   }
 
+
+  @Operation(
+    summary = "/deleteAll/{publicKey}",
+    operationId = "deleteAll",
+    description = "delete All transactions for a Public key from database")
+  @ApiResponse(responseCode = "204", description = "delete successful")
+  @DELETE
+  @Path("/deleteAll/{publicKey}")
+  public Response deleteAll(
+    @Parameter(
+      description = "Public key used in the transaction as a sender or receiver",
+      schema = @Schema(format = "base64"))
+    @PathParam("hash")
+    final String publicKey) {
+    LOGGER.debug("Received delete key request");
+
+    PublicKey pk = PublicKey.from(base64Decoder.decode(publicKey));
+    try {
+
+      transactionManager.deleteAll(pk);
+
+    }catch (Exception e){
+      return Response.serverError().build();
+    }
+    return Response.noContent().build();
+  }
+
+
   @Operation(
       summary = "/transaction/{hash}/isSender",
       description = "check if the server was the sender of a transaction",

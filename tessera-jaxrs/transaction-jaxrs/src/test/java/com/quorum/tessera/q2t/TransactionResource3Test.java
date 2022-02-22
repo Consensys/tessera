@@ -15,8 +15,11 @@ import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.core.Response;
+
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -632,6 +635,44 @@ public class TransactionResource3Test {
     assertThat(response.getStatus()).isEqualTo(204);
 
     verify(transactionManager).delete(any(MessageHash.class));
+  }
+
+  @Test
+  public void test_deleteAll_callsTransManagerToDeleteAllTransactions(){
+    String pK = "defaultPublicKeyForTesting";
+    String publicKey = Base64.getEncoder().encodeToString(pK.getBytes(StandardCharsets.UTF_8));
+    doNothing().when(transactionManager).deleteAll(any(PublicKey.class));
+    Response response = transactionResource.deleteAll(publicKey);
+    assertThat(response.getStatus() == 204);
+    verify(transactionManager,times(1)).deleteAll(any(PublicKey.class));
+  }
+
+  @Test
+  public void test_deleteAll_SendsCorrectException(){
+    String pK = "defaultPublicKeyForTesting";
+    String publicKey = Base64.getEncoder().encodeToString(pK.getBytes(StandardCharsets.UTF_8));
+    doThrow(new RuntimeException("Dummy")).when(transactionManager).deleteAll(any(PublicKey.class));
+    Response response = transactionResource.deleteAll(publicKey);
+    assertThat(response.getStatus() == 500);
+    verify(transactionManager,times(1)).deleteAll(any(PublicKey.class));
+  }
+
+  @Test
+  public void test_deleteAll_CorrectlyCreatesPublicKey(){
+    String pK = "defaultPublicKeyForTesting";
+    String publicKey = Base64.getEncoder().encodeToString(pK.getBytes(StandardCharsets.UTF_8));
+    PublicKey expected = PublicKey.from(pK.getBytes());
+
+    doAnswer(invocation -> {
+      PublicKey actual = invocation.getArgument(0);
+      Assert.assertEquals(expected,actual);
+      return null;
+    }).when(transactionManager).deleteAll(any(PublicKey.class));
+
+
+    transactionResource.deleteAll(publicKey);
+
+    verify(transactionManager,times(1)).deleteAll(expected);
   }
 
   @Test
