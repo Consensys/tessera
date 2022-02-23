@@ -457,7 +457,7 @@ jobs:
         id: quorumver
         run: |
           # 1.2.3-SNAPSHOT --> 1.2
-          QUORUM_MINOR_VERSION=$(cat version.txt | cut -d '-' -f 1 | cut -d '.' -f 1,2) 
+          QUORUM_MINOR_VERSION=$(cat version.txt | cut -d '-' -f 1 | cut -d '.' -f 1,2)
           RESP_CODE=$(docker manifest inspect $QUORUM_DOCKER_IMAGE:$QUORUM_MINOR_VERSION> /dev/null ; echo $?)
           if [ ! $RESP_CODE -eq 0 ]; then
             echo "no quorum image found for $QUORUM_MINOR_VERSION"
