@@ -13,7 +13,7 @@ module tessera.security {
   uses com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 
   provides com.quorum.tessera.ssl.context.ClientSSLContextFactory with
-    com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
+      com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
   provides com.quorum.tessera.ssl.context.ServerSSLContextFactory with
-    com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
+      com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
 }

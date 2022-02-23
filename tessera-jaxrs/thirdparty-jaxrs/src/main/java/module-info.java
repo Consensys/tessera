@@ -17,10 +17,10 @@ module tessera.thirdparty.jaxrs {
   exports com.quorum.tessera.thirdparty.messaging;
 
   opens com.quorum.tessera.thirdparty.messaging to
-    org.eclipse.persistence.moxy;
+      org.eclipse.persistence.moxy;
 
   provides com.quorum.tessera.config.apps.TesseraApp with
-    com.quorum.tessera.thirdparty.ThirdPartyRestApp;
+      com.quorum.tessera.thirdparty.ThirdPartyRestApp;
   provides com.quorum.tessera.messaging.Courier with
-    com.quorum.tessera.thirdparty.messaging.CourierProvider;
+      com.quorum.tessera.thirdparty.messaging.CourierProvider;
 }

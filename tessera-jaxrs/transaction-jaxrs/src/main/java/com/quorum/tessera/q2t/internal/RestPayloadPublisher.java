@@ -44,21 +44,21 @@ public class RestPayloadPublisher implements PayloadPublisher {
     final NodeInfo remoteNodeInfo = discovery.getRemoteNodeInfo(recipientKey);
     final Set<String> supportedApiVersions = remoteNodeInfo.supportedApiVersions();
     final EncodedPayloadCodec preferredCodec =
-      EncodedPayloadCodec.getPreferredCodec(supportedApiVersions);
+        EncodedPayloadCodec.getPreferredCodec(supportedApiVersions);
     final PayloadEncoder payloadEncoder = PayloadEncoder.create(preferredCodec);
 
     if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()
-      && !supportedApiVersions.contains(EnhancedPrivacyVersion.API_VERSION_2)) {
+        && !supportedApiVersions.contains(EnhancedPrivacyVersion.API_VERSION_2)) {
       throw new EnhancedPrivacyNotSupportedException(
-        "Transactions with enhanced privacy is not currently supported on recipient "
-          + recipientKey.encodeToBase64());
+          "Transactions with enhanced privacy is not currently supported on recipient "
+              + recipientKey.encodeToBase64());
     }
 
     if (PrivacyMode.MANDATORY_RECIPIENTS == payload.getPrivacyMode()
-      && !supportedApiVersions.contains(MandatoryRecipientsVersion.API_VERSION_4)) {
+        && !supportedApiVersions.contains(MandatoryRecipientsVersion.API_VERSION_4)) {
       throw new MandatoryRecipientsNotSupportedException(
-        "Transactions with mandatory recipients are not currently supported on recipient "
-          + recipientKey.encodeToBase64());
+          "Transactions with mandatory recipients are not currently supported on recipient "
+              + recipientKey.encodeToBase64());
     }
 
     final String targetUrl = remoteNodeInfo.getUrl();
@@ -67,14 +67,14 @@ public class RestPayloadPublisher implements PayloadPublisher {
     final byte[] encoded = payloadEncoder.encode(payload);
 
     try (Response response =
-           client
-             .target(targetUrl)
-             .path("/push")
-             .request()
-             .post(Entity.entity(encoded, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
+        client
+            .target(targetUrl)
+            .path("/push")
+            .request()
+            .post(Entity.entity(encoded, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
       if (Response.Status.OK.getStatusCode() != response.getStatus()
-        && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
+          && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
         throw new PublishPayloadException("Unable to push payload to recipient url " + targetUrl);
       }
 

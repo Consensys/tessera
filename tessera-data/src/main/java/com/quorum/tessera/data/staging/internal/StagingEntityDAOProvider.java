@@ -27,21 +27,21 @@ public class StagingEntityDAOProvider {
     properties.put("jakarta.persistence.nonJtaDataSource", dataSource);
 
     properties.put(
-      "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
 
     properties.put(
-      "jakarta.persistence.schema-generation.database.action",
-      config.getJdbcConfig().isAutoCreateTables() ? "drop-and-create" : "none");
+        "jakarta.persistence.schema-generation.database.action",
+        config.getJdbcConfig().isAutoCreateTables() ? "drop-and-create" : "none");
 
     properties.put(
-      "eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
+        "eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
 
     LOGGER.debug("Creating EntityManagerFactory from {}", properties);
     final EntityManagerFactory entityManagerFactory =
-      Persistence.createEntityManagerFactory("tessera-recover", properties);
+        Persistence.createEntityManagerFactory("tessera-recover", properties);
     LOGGER.debug("Created EntityManagerFactory from {}", properties);
 
     StagingEntityDAO stagingEntityDAO = new StagingEntityDAOImpl(entityManagerFactory);

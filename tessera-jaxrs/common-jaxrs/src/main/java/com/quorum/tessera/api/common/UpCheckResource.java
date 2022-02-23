@@ -31,19 +31,19 @@ public class UpCheckResource {
    * @return a string stating the application is running
    */
   @Operation(
-    summary = "/upcheck",
-    operationId = "upcheck",
-    description = "simple operation to check the server is up")
+      summary = "/upcheck",
+      operationId = "upcheck",
+      description = "simple operation to check the server is up")
   @ApiResponse(
-    responseCode = "200",
-    description = "upcheck response",
-    content =
-    @Content(
-      mediaType = MediaType.TEXT_PLAIN,
-      schema = @Schema(type = "string"),
-      examples = {
-        @ExampleObject(name = UPCHECK_RESPONSE_IS_UP, value = UPCHECK_RESPONSE_IS_UP)
-      }))
+      responseCode = "200",
+      description = "upcheck response",
+      content =
+          @Content(
+              mediaType = MediaType.TEXT_PLAIN,
+              schema = @Schema(type = "string"),
+              examples = {
+                @ExampleObject(name = UPCHECK_RESPONSE_IS_UP, value = UPCHECK_RESPONSE_IS_UP)
+              }))
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   public Response upCheck() {
