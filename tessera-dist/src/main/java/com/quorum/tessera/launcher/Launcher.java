@@ -46,9 +46,9 @@ public enum Launcher {
                             .orElseThrow(
                                 () ->
                                     new IllegalStateException(
-                                        "Cant create app for " + conf.getApp()));
+                                        "Can't create app for " + conf.getApp()));
 
-                    LOGGER.debug("Created APP {} from {}", app, conf);
+                    LOGGER.debug("Created app {} from {}", app, conf);
                     return TesseraServerFactory.create(conf.getCommunicationType())
                         .createServer(conf, Set.of(app));
                   })
@@ -93,7 +93,7 @@ public enum Launcher {
               .orElseThrow(
                   () ->
                       new IllegalStateException(
-                          "Cant create app for " + recoveryP2PServer.getApp()));
+                          "Can't create app for " + recoveryP2PServer.getApp()));
 
       final TesseraServer recoveryServer =
           TesseraServerFactory.create(recoveryP2PServer.getCommunicationType())
