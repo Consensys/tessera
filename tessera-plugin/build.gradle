@@ -1,0 +1,28 @@
+plugins {
+  id "java-library"
+}
+
+dependencies {
+  implementation group: 'org.pf4j', name: 'pf4j', version: "3.6.0"
+  annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "3.6.0")
+}
+
+//test {
+//        doFirst {
+//            jvmArgs = [
+//                    '--add-module','java.ws.rs',
+//            ]
+//           // classpath = files()
+//        }
+//
+//}
+
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "swagger.annotations",
+//        ]
+//        classpath = files()
+//    }
+//}

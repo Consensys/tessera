@@ -45,6 +45,7 @@ dependencies {
   implementation project(":cli:cli-api")
   implementation project(":cli:config-cli")
   implementation project(":tessera-partyinfo")
+  implementation project(":tessera-plugin")
   implementation project(":tessera-jaxrs:sync-jaxrs")
   implementation project(":tessera-jaxrs:transaction-jaxrs")
   implementation project(":tessera-jaxrs:thirdparty-jaxrs")

@@ -35,6 +35,9 @@ allprojects {
 
     dependencies {
       constraints {
+
+        implementation "org.pf4j:pf4j:3.6.0"
+
         api "org.slf4j:slf4j-api:$slf4jVersion"
         runtimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
         runtimeOnly "org.slf4j:jul-to-slf4j:$slf4jVersion"
