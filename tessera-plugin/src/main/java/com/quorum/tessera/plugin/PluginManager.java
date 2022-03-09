@@ -6,7 +6,7 @@ import org.pf4j.DefaultPluginManager;
 public class PluginManager implements Service {
 
   @Override public void start() {
-    DefaultPluginManager pluginManager = new DefaultPluginManager();
+    final DefaultPluginManager pluginManager = new DefaultPluginManager();
     pluginManager.loadPlugins();
     pluginManager.startPlugins();
   }

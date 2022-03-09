@@ -53,6 +53,23 @@ public interface Enclave extends Service {
       PrivacyMetadata privacyMetadata);
 
   /**
+   * Encrypts a message using the specified sender and a list of recipients. Returns a {@link
+   * EncodedPayload} which contains all the encrypted information, including the recipients and
+   * their encrypted master keys.
+   *
+   * @param message the message to be encrypted
+   * @param senderPublicKey the public key which this enclave manages
+   * @param recipientPublicKeys the recipients to encrypt this message for
+   * @return the encrypted information, represented by an {@link EncodedPayload}
+   */
+  default EncodedPayload encryptPayload(
+    byte[] message,
+    PublicKey senderPublicKey,
+    List<PublicKey> recipientPublicKeys) {
+    return encryptPayload(message, senderPublicKey, recipientPublicKeys, PrivacyMetadata.Builder.forStandardPrivate().build());
+  };
+
+  /**
    * Decrypts a {@link RawTransaction} so that it can be re-encrypted into a {@link EncodedPayload}
    * with the given recipient list
    *

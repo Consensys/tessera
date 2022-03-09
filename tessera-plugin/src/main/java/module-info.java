@@ -1,5 +1,4 @@
 module tessera.plugin {
-  requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.config;
   requires tessera.enclave.api;

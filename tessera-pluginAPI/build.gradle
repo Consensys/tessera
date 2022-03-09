@@ -6,8 +6,6 @@ dependencies {
 
   implementation project(":shared")
 
-  implementation group: 'org.pf4j', name: 'pf4j', version: "3.6.0"
-  annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "3.6.0")
 }
 
 //test {
