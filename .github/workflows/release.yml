@@ -1,8 +1,12 @@
 name: Tessera Release Build
 
 on:
-  repository_dispatch:
-    types: [release]
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: "(WARNING: WILL TRIGGER A SONATYPE/DOCKER RELEASE) Release version - checked against version.txt"
+        required: true
+        type: string
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -10,9 +14,44 @@ env:
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GPG_EXECUTABLE: ${{ secrets.GPG_EXECUTABLE }}
   GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
+  TESSERA_DOCKER_IMAGE_NAME: quorumengineering/tessera
 
 jobs:
-  checkdependencies:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      full-version: ${{ steps.version.outputs.full-version }}
+      minor-version: ${{ steps.version.outputs.minor-version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get release version
+        id: version
+        run: |
+          # 1.2.3-SNAPSHOT --> 1.2.3
+          FULL_VERSION=$(cat version.txt | cut -d '-' -f 1)
+          
+          # 1.2.3 --> 1.2
+          MINOR_VERSION=$(echo $FULL_VERSION | cut -d '.' -f 1,2)
+          
+          echo "full-version=${FULL_VERSION}"
+          echo "minor-version=${MINOR_VERSION}"
+          
+          echo "::set-output name=full-version::$FULL_VERSION"
+          echo "::set-output name=minor-version::$MINOR_VERSION"
+      - name: Check release version
+        env:
+          USER_VERSION: ${{ github.event.inputs.release-version }}
+          TAG_VERSION: ${{ steps.version.outputs.full-version }}
+        run: |
+          # simple sanity check to help prevent accidentally releasing the wrong branch
+          if [ $USER_VERSION = $TAG_VERSION ]
+          then
+            exit 0
+          fi
+          echo "user-provided version ($USER_VERSION) does not match version.txt ($TAG_VERSION), exiting"
+          exit 1
+  check-dependencies:
+    needs: [ check-version ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,12 +59,9 @@ jobs:
         with:
           java-version: 11
       - run: ./gradlew dependencyCheckAnalyze -x test
-  release_sonatype:
-    needs: checkdependencies
+  release-sonatype:
+    needs: [ check-dependencies, check-version ]
     runs-on: ubuntu-latest
-    outputs:
-      full-ver: ${{ steps.release.outputs.full-ver }}
-      minor-ver: ${{ steps.release.outputs.minor-ver }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -34,29 +70,33 @@ jobs:
           java-version: 11
       - name: Release
         id: release
+        env:
+          TAG_NAME: tessera-${{ needs.check-version.outputs.full-version }}
+          FULL_VERSION: ${{ needs.check-version.outputs.full-version }}
+          MINOR_VERSION: ${{ needs.check-version.outputs.minor-version }}
         run: |
+          echo "Releasing $FULL_VERSION"
+
           git config user.name "quorumbot"
           now=`date +%Y%m%d%H%M%S`
-          tagversion=`cat version.txt | cut -d'-' -f1`
-          tagname="tessera-$tagversion"
-          echo "Releasing $tagname"
-          echo "$tagversion" > version.txt
+
+          echo "Creating tag  $TAG_NAME"
+          echo "$FULL_VERSION" > version.txt
           git add version.txt
-          git commit -m "Change to release version $tagversion"
-          git tag -a $tagname -m "Release tessera $tagversion"
+          git commit -m "Change to release version $FULL_VERSION"
+          git tag -a $TAG_NAME -m "Release tessera $FULL_VERSION"
           git push --tags
 
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
           pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
+          
           ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
+
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
 
-          minor_version=${tagversion%.*}
-          echo ::set-output name=full-ver::$tagversion
-          echo ::set-output name=minor-ver::$minor_version
           echo ::set-output name=branch-name::release-$now
       - name: Create PR to update development version
         uses: peter-evans/create-pull-request@v3
@@ -89,8 +129,8 @@ jobs:
           name: hashicorp-key-vault-dists
           path: key-vault/hashicorp-key-vault/build/distributions/
 
-  release_docker:
-    needs: release_sonatype
+  release-docker:
+    needs: [check-version, release-sonatype]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -133,9 +173,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:latest
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:latest
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:${{ needs.check-version.outputs.minor-version }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:${{ needs.check-version.outputs.full-version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -148,9 +188,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:azure-latest
-            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:azure-latest
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:azure-${{ needs.check-version.outputs.minor-version }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:azure-${{ needs.check-version.outputs.full-version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -163,9 +203,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:aws-latest
-            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:aws-latest
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:aws-${{ needs.check-version.outputs.minor-version }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:aws-${{ needs.check-version.outputs.full-version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -178,14 +218,29 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:hashicorp-latest
-            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:hashicorp-latest
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:hashicorp-${{ needs.check-version.outputs.minor-version }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:hashicorp-${{ needs.check-version.outputs.full-version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.date.outputs.now }}
           push: true
           file: docker/tessera.hashicorp.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
+      - name: Build and push standalone enclave images
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ${{ secrets.DOCKER_REPO }}:enclave-latest
+            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.full-ver }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
+          push: true
+          file: docker/enclave.Dockerfile
           # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
           context: .
