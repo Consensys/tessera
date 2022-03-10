@@ -1,4 +1,4 @@
-package com.quorum.tessera.pluginAPI.P2P;
+package com.quorum.tessera.pluginAPI.p2p;
 
 import com.quorum.tessera.pluginAPI.TesseraPluginService;
 
@@ -9,7 +9,6 @@ public interface P2PPluginService extends TesseraPluginService {
                                   final String senderPublicKey,
                                   final List<String> recipientPublicKeys);
 
-  String[] getURLForRecipient(String recipientPublicKey);
+  String getURLForRecipient(String recipientPublicKey);
 
-  registerRPCEndpoint(java.lang.String namespace, java.lang.String functionName, java.util.function.Function<PluginRpcRequest, T> function))
 }

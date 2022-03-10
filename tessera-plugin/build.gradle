@@ -5,6 +5,10 @@ plugins {
 dependencies {
 
   implementation project(":shared")
+  implementation project(":tessera-pluginAPI")
+  implementation project(":enclave:enclave-api")
+  implementation project(":encryption:encryption-api")
+  implementation project(":tessera-partyinfo")
 
   implementation group: 'org.pf4j', name: 'pf4j', version: "3.6.0"
   annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "3.6.0")
