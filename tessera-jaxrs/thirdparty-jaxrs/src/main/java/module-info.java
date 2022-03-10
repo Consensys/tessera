@@ -1,5 +1,6 @@
 module tessera.thirdparty.jaxrs {
   requires jakarta.json;
+  requires org.pf4j;
   requires jakarta.ws.rs;
   requires tessera.config;
   requires tessera.shared;

@@ -4,6 +4,8 @@ plugins {
 }
 
 dependencies {
+  implementation group: 'org.pf4j', name: 'pf4j', version: "3.6.0"
+  annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "3.6.0")
   implementation project(":config")
   implementation project(":tessera-core")
   implementation project(":tessera-partyinfo")
