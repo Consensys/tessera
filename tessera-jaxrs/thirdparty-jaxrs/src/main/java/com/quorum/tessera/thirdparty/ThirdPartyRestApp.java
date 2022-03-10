@@ -38,7 +38,8 @@ public class ThirdPartyRestApp extends TesseraRestApplication
     final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
     final KeyResource keyResource = new KeyResource();
     final UpCheckResource upCheckResource = new UpCheckResource();
-    return Set.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource);
+    final PluginResource pluginResource = new PluginResourceImpl();
+    return Set.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource, pluginResource);
   }
 
   @Override
