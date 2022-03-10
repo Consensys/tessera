@@ -1,5 +1,7 @@
 package com.quorum.tessera.thirdparty;
 
+import org.pf4j.Extension;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
