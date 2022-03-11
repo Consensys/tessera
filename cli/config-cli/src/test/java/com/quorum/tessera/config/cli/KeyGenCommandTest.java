@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
@@ -18,8 +19,13 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.junit.MockitoJUnitRunner;
 import picocli.CommandLine;
 
+@RunWith(MockitoJUnitRunner.class)
 public class KeyGenCommandTest {
 
   private KeyGeneratorFactory keyGeneratorFactory;
@@ -35,6 +41,8 @@ public class KeyGenCommandTest {
   private KeyGenerator keyGenerator;
 
   private CliExecutionExceptionHandler executionExceptionHandler;
+  private CommandLine.IParameterExceptionHandler parameterExceptionHandler;
+  @Captor protected ArgumentCaptor<CommandLine.ParameterException> parameterExceptionArgumentCaptor;
 
   private CommandLine commandLine;
 
@@ -55,9 +63,11 @@ public class KeyGenCommandTest {
     keyGenerator = mock(KeyGenerator.class);
 
     executionExceptionHandler = new CliExecutionExceptionHandler();
+    parameterExceptionHandler = mock(CLIExceptionCapturer.class);
 
     commandLine = new CommandLine(keyGenCommand);
     commandLine.setExecutionExceptionHandler(executionExceptionHandler);
+    commandLine.setParameterExceptionHandler(parameterExceptionHandler);
   }
 
   @After
@@ -258,18 +268,14 @@ public class KeyGenCommandTest {
   @Test
   public void noConfigFromKeyGenFileUpdateOptions() throws Exception {
 
-    int exitCode = commandLine.execute("--configout=bogus");
-    assertThat(exitCode).isEqualTo(executionExceptionHandler.getExitCode());
-    assertThat(executionExceptionHandler.getExceptions()).hasSize(1);
+    // Missing required argument is a parameterException not an executionException
+    commandLine.execute("--configout=bogus");
 
-    CliException cliException =
-        executionExceptionHandler.getExceptions().stream()
-            .filter(CliException.class::isInstance)
-            .findFirst()
-            .map(CliException.class::cast)
-            .get();
-
-    assertThat(cliException).hasMessage("Missing required argument(s): --configfile=<config>");
+    verify(parameterExceptionHandler)
+        .handleParseException(parameterExceptionArgumentCaptor.capture(), any());
+    CommandLine.ParameterException parameterException = parameterExceptionArgumentCaptor.getValue();
+    assertThat(parameterException)
+        .hasMessageContaining("Missing required argument(s): --config-file=<config>");
   }
 
   @Test
@@ -370,8 +376,6 @@ public class KeyGenCommandTest {
 
   @Test
   public void hashicorpNoKeyOutDefinedRaisesCliException() throws Exception {
-    when(keyGeneratorFactory.create(any(), any())).thenReturn(mock(KeyGenerator.class));
-
     CommandLine commandLine = new CommandLine(keyGenCommand);
     commandLine.setExecutionExceptionHandler(executionExceptionHandler);
 
@@ -393,8 +397,6 @@ public class KeyGenCommandTest {
 
   @Test
   public void hashicorpNoKeyOutDefinedRaisesCliExceptionEmptyList() throws Exception {
-    when(keyGeneratorFactory.create(any(), any())).thenReturn(mock(KeyGenerator.class));
-
     CommandLine commandLine = new CommandLine(keyGenCommand);
     commandLine.setExecutionExceptionHandler(executionExceptionHandler);
 
