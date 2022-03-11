@@ -271,9 +271,11 @@ public class KeyGenCommandTest {
     // Missing required argument is a parameterException not an executionException
     commandLine.execute("--configout=bogus");
 
-    verify(parameterExceptionHandler).handleParseException(parameterExceptionArgumentCaptor.capture(), any());
+    verify(parameterExceptionHandler)
+        .handleParseException(parameterExceptionArgumentCaptor.capture(), any());
     CommandLine.ParameterException parameterException = parameterExceptionArgumentCaptor.getValue();
-    assertThat(parameterException).hasMessageContaining("Missing required argument(s): --config-file=<config>");
+    assertThat(parameterException)
+        .hasMessageContaining("Missing required argument(s): --config-file=<config>");
   }
 
   @Test
