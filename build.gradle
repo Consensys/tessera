@@ -18,8 +18,8 @@ ext {
   slf4jVersion = "1.7.32"
   logbackVersion = "1.2.10"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.12.6";
-  jacksonDatabindVersion = "2.12.6";
+  jacksonVersion = "2.13.2";
+  jacksonDatabindVersion = "2.13.2.2";
 }
 
 allprojects {
@@ -208,6 +208,7 @@ subprojects {
     exclude group: "jakarta.servlet"// TODO: when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
+    exclude module: "jackson-jaxrs-json-provider"
 
     resolutionStrategy.capabilitiesResolution.all {
       selectHighestVersion()
