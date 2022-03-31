@@ -18,7 +18,8 @@ ext {
   slf4jVersion = "1.7.32"
   logbackVersion = "1.2.10"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.12.4";
+  jacksonVersion = "2.12.6";
+  jacksonDatabindVersion = "2.12.6";
 }
 
 allprojects {
