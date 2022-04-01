@@ -4,4 +4,10 @@ plugins {
 
 dependencies {
   api "io.swagger.core.v3:swagger-core-jakarta"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
