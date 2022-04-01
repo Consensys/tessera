@@ -15,7 +15,12 @@ dependencies {
   implementation project(":encryption:encryption-api")
 
   // specify jackson-databind version explicitly in here to override transitive dependency
-  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+  constraints {
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion" {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+
+  }
 
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
 
