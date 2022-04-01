@@ -19,6 +19,10 @@ dependencies {
   implementation project(":tessera-data")
   implementation project(":tessera-context")
   implementation project(":tessera-recover")
+
+  // specify jackson-databind version explicitly in here to override transitive dependency
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+
   implementation "org.apache.commons:commons-lang3"
 
   implementation "jakarta.validation:jakarta.validation-api"
@@ -26,16 +30,7 @@ dependencies {
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  implementation "org.glassfish:jakarta.json"
-  testImplementation "org.glassfish:jakarta.json"
-
   api "jakarta.inject:jakarta.inject-api"
-
-  testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
-  testImplementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
-  testImplementation "org.glassfish.jersey.media:jersey-media-json-processing"
-  testImplementation "org.glassfish.jersey.media:jersey-media-moxy"
-  testImplementation "org.glassfish.jersey.inject:jersey-hk2"
 
   compileOnly project(':tessera-jaxrs:openapi:common')
 }
