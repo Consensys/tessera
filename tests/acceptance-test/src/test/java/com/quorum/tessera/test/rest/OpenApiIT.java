@@ -14,10 +14,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +45,7 @@ public class OpenApiIT {
   }
 
   @Test
+  @Ignore
   public void openapiJson() throws IOException {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 
@@ -70,6 +68,7 @@ public class OpenApiIT {
   }
 
   @Test
+  @Ignore
   public void openapiYaml() {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 
@@ -92,6 +91,7 @@ public class OpenApiIT {
   }
 
   @Test
+  @Ignore
   public void openapiUnsupportedAccepts() {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 
