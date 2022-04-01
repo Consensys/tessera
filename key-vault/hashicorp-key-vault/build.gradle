@@ -44,6 +44,12 @@ dependencies {
   implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+        because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
 
 

@@ -49,6 +49,12 @@ dependencies {
 
   implementation "org.glassfish:jakarta.json"
 
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
+
 }
 
 publishing {

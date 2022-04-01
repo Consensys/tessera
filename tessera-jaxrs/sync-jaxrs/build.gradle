@@ -1,5 +1,4 @@
 plugins {
-  id "io.swagger.core.v3.swagger-gradle-plugin"
   id "java-library"
 }
 
@@ -13,18 +12,12 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation project(":tessera-jaxrs:jaxrs-client")
   implementation project(':tessera-jaxrs:partyinfo-model')
-  implementation "io.swagger.core.v3:swagger-annotations-jakarta"
+  api "io.swagger.core.v3:swagger-annotations-jakarta"
   implementation project(":tessera-core")
   implementation project(":tessera-partyinfo")
   implementation project(":tessera-data")
   implementation project(":tessera-context")
   implementation project(":tessera-recover")
-
-  constraints {
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
-      because 'databind less than 2.13.2.2 has a bug'
-    }
-  }
 
   implementation "org.apache.commons:commons-lang3"
 
@@ -36,6 +29,12 @@ dependencies {
   api "jakarta.inject:jakarta.inject-api"
 
   compileOnly project(':tessera-jaxrs:openapi:common')
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
 
 jar {
@@ -50,26 +49,5 @@ jar {
 
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
-resolve {
-  classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
-  //buildClasspath = classpath
-  outputDir = file(generatedResources)
-  outputFileName = "openapi.p2p"
-  outputFormat = "JSONANDYAML"
-  prettyPrint = "TRUE"
-  openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-p2p.yaml")
-  resourcePackages = [
-    "com.quorum.tessera.api.common",
-    "com.quorum.tessera.p2p",
-    "com.quorum.tessera.thirdparty",
-    "com.quorum.tessera.q2t"
-  ]
-  modelConverterClasses = [
-    "com.quorum.tessera.openapi.FullyQualifiedNameResolver"
-  ]
-  filterClass = "com.quorum.tessera.openapi.P2POperationsFilter"
-}
-
 sourceSets.main.output.dir(generatedResources)
 
-jar.dependsOn(resolve)
