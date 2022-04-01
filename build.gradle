@@ -160,6 +160,11 @@ allprojects {
         testImplementation "org.apache.tuweni:tuweni-rlp:2.0.0"
         testImplementation "org.apache.tuweni:tuweni-bytes:2.0.0"
 
+        constraints {
+          implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+            because 'databind less than 2.13.2.2 has a bug'
+          }
+        }
       }
     }
   }
