@@ -11,12 +11,12 @@ plugins {
 }
 
 ext {
-  jettyVersion = "11.0.6"
+  jettyVersion = "11.0.8"
   eclipselinkVersion = "3.0.2"
-  swaggerVersion = "2.1.9"
-  jerseyVersion = "3.0.3"
-  slf4jVersion = "1.7.32"
-  logbackVersion = "1.2.10"
+  swaggerVersion = "2.1.13"
+  jerseyVersion = "3.0.4"
+  slf4jVersion = "1.7.36"
+  logbackVersion = "1.2.11"
   hk2Version = "3.0.2"
   jacksonVersion = "2.13.2";
   jacksonDatabindVersion = "2.13.2.2";
