@@ -50,4 +50,3 @@ jar {
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 sourceSets.main.output.dir(generatedResources)
-
