@@ -49,47 +49,7 @@ public class PushIT {
         .invoke();
   }
 
-  // TODO: Remove test or generate message rather than using fixtures.
-  // This test breaks since changing  test key pairs to be generated.
-  @org.junit.Ignore
-  @Test
-  public void storePayloadFromAnotherNode() {
-
-    final Response pushReponse =
-        party
-            .getRestClient()
-            .target(party.getP2PUri())
-            .path(PUSH_PATH)
-            .request()
-            .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
-
-    assertThat(pushReponse).isNotNull();
-    assertThat(pushReponse.getStatus()).isEqualTo(201);
-
-    // retrieve that tx
-
-    final Response retrieveResponse =
-        party
-            .getRestClient()
-            .target(party.getQ2TUri())
-            .path("/transaction/" + ENCODED_HASH)
-            .request()
-            .buildGet()
-            .invoke();
-
-    assertThat(retrieveResponse).isNotNull();
-    assertThat(retrieveResponse.getStatus()).isEqualTo(200);
-
-    final String result = retrieveResponse.readEntity(String.class);
-    final Reader reader = new StringReader(result);
-    final JsonObject jsonResult = Json.createReader(reader).readObject();
-    assertThat(jsonResult).containsKeys("payload");
-    assertThat(jsonResult.getString("payload")).isEqualTo("Zm9v");
-  }
-
-  // TODO: There needs to be a protocol change/ammendment
-  // as 500 gives us false positives. We cant discriminate between error types
-  @Ignore
+  @Ignore ("Needs a protocol change as 500 gives us false positives. We can't discriminate between error types")
   @Test
   public void storeCorruptedPayloadFails() {
 
@@ -105,7 +65,6 @@ public class PushIT {
             .post(Entity.entity(badPayload, APPLICATION_OCTET_STREAM));
 
     assertThat(pushReponse).isNotNull();
-    // TODO: should be 400?
     assertThat(pushReponse.getStatus()).isEqualTo(500);
   }
 }
