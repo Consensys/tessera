@@ -74,7 +74,6 @@ public class MultipleKeyNodeIT {
         .isEqualTo(200);
 
     final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);
-    // TODO: Verify payload
     assertThat(result).isNotNull();
   }
 
