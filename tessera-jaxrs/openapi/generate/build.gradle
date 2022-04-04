@@ -1,7 +1,3 @@
-plugins {
-  id "io.swagger.core.v3.swagger-gradle-plugin"
-}
-
 dependencies {
   compileOnly project(":tessera-jaxrs:common-jaxrs")
   compileOnly project(":tessera-jaxrs:sync-jaxrs")
@@ -19,24 +15,4 @@ dependencies {
 
   compileOnly "io.swagger.core.v3:swagger-core-jakarta"
   compileOnly "org.glassfish:jakarta.json"
-}
-
-resolve {
-
-  classpath = sourceSets.main.compileClasspath
-  outputDir = file("${project.buildDir}/generated-resources/openapi")
-  outputFormat = 'JSONANDYAML'
-  prettyPrint = true
-  openApiFile = file("${project.projectDir}/src/main/resources/openapi-base.yaml")
-  modelConverterClasses = [
-    'com.quorum.tessera.openapi.FullyQualifiedNameResolver'
-  ]
-  //jersey.config.server.tracing
-  //  scannerClass = "io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner"
-
-}
-
-// exists to have a self-documenting task name when called from CI/CD
-task generateOpenApiDoc {
-  dependsOn resolve
 }
