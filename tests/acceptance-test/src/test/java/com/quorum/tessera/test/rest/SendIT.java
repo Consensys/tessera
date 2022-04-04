@@ -21,9 +21,8 @@ import suite.ExecutionContext;
 /**
  * Scenarios tested:
  *
- * <p>- 1 sender, 1 private for - 1 sender, 2 private for -
- * - 0 sender, 1 private for - 1 sender, 0 private for - no payload - sending when it isn't json -
- * sending to an unknown recipient </p>
+ * <p>- 1 sender, 1 private for - 1 sender, 2 private for - - 0 sender, 1 private for - 1 sender, 0
+ * private for - no payload - sending when it isn't json - sending to an unknown recipient
  */
 public class SendIT {
 
