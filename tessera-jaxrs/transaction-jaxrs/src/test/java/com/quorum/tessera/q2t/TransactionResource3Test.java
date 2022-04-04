@@ -664,13 +664,4 @@ public class TransactionResource3Test {
     assertThat(response.getEntity()).isEqualTo("BASE64ENCODEKEY");
     verify(transactionManager).getParticipants(any(MessageHash.class));
   }
-
-  // TODO: Ensure this is in integration tests
-  //    @Test
-  //    public void validationReceiveIsRawMustBeBoolean() {
-  //
-  //        Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw",
-  // "bogus").request().get();
-  //        assertThat(response.getStatus()).isEqualTo(400);
-  //    }
 }
