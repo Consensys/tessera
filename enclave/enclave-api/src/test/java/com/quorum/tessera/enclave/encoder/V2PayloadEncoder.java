@@ -106,7 +106,6 @@ public class V2PayloadEncoder implements BinaryEncoder {
 
     // this means there are no recipients in the payload (which we receive when we are a
     // participant)
-    // TODO - not sure this is right
     if (!buffer.hasRemaining()) {
 
       return V2EncodedPayload.Builder.create()
