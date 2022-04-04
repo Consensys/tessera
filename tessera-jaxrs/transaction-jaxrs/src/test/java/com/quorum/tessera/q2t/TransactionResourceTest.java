@@ -584,12 +584,4 @@ public class TransactionResourceTest {
     assertThat(response.getEntity()).isEqualTo("Delete successful");
     verify(transactionManager).delete(any(MessageHash.class));
   }
-
-  /*
-  @Test
-  public void validationReceiveIsRawMustBeBoolean() {
-      Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw", "bogus").request().get();
-      assertThat(response.getStatus()).isEqualTo(400);
-  }
-  */
 }
