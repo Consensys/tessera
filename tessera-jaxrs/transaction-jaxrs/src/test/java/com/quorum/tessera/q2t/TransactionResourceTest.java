@@ -587,38 +587,6 @@ public class TransactionResourceTest {
 
   /*
   @Test
-  public void validationSendPayloadCannotBeNullOrEmpty() {
-
-      Collection<Entity> nullAndEmpty =
-              List.of(
-                      Entity.entity(null, MediaType.APPLICATION_OCTET_STREAM_TYPE),
-                      Entity.entity(new byte[0], MediaType.APPLICATION_OCTET_STREAM_TYPE));
-
-      Map<String, Collection<Entity>> pathToEntityMapping =
-              Stream.of("sendsignedtx", "sendraw").collect(Collectors.toMap(s -> s, s -> nullAndEmpty));
-
-      pathToEntityMapping.entrySet().stream()
-              .forEach(
-                      e -> {
-                          e.getValue()
-                                  .forEach(
-                                          entity -> {
-                                              Response response =
-                                                      jersey.target(e.getKey())
-                                                              .request()
-                                                              .post(
-                                                                      Entity.entity(
-                                                                              null,
-                                                                              MediaType
-                                                                                      .APPLICATION_OCTET_STREAM_TYPE));
-                                              assertThat(response.getStatus()).isEqualTo(400);
-                                          });
-                      });
-  }
-  */
-
-  /*
-  @Test
   public void validationReceiveIsRawMustBeBoolean() {
       Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw", "bogus").request().get();
       assertThat(response.getStatus()).isEqualTo(400);
