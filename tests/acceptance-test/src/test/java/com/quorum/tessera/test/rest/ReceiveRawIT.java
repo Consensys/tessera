@@ -13,8 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 import suite.NodeAlias;
 
-import java.util.Base64;
-
 public class ReceiveRawIT {
 
   private static final String RECEIVE_PATH = "/receiveraw";
@@ -190,30 +188,5 @@ public class ReceiveRawIT {
 
     final String result = response.readEntity(String.class);
     assertThat(result).isEqualTo("Message with hash invalidhashvalue was not found");
-  }
-
-  @Test
-  public void testValidations () {
-
-    assertThat(partyOne.getRestClient().target("receiveraw").request().header("c11n-key", null).get().getStatus())
-      .describedAs("key header cannot be null")
-      .isEqualTo(400);
-
-    assertThat(partyOne.getRestClient().target("receiveraw").request().get().getStatus()).isEqualTo(400);
-
-    assertThat(partyOne.getRestClient().target("receiveraw").request().header("c11n-key", "notbase64").get().getStatus())
-      .describedAs("key header must be valid base64")
-      .isEqualTo(400);
-
-    String validBase64Encoded = Base64.getEncoder().encodeToString("VALIDKEY".getBytes());
-    assertThat(
-      partyOne.getRestClient().target("receiveraw")
-        .request()
-        .header("c11n-key", validBase64Encoded)
-        .header("c11n-to", "notbase64")
-        .get()
-        .getStatus())
-      .describedAs("to header must be valid base64")
-      .isEqualTo(400);
   }
 }
