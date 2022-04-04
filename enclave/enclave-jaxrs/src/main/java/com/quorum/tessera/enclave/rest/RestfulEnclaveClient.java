@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class RestfulEnclaveClient implements EnclaveClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveClient.class);
+  public static final int TIMEOUT = 2;
 
   private final Client client;
 
@@ -323,8 +324,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             });
 
     try {
-      // TODO: 2 seconds is arguably a long time
-      return outcome.get(2, TimeUnit.SECONDS);
+      return outcome.get(TIMEOUT, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException ex) {
       LOGGER.trace(null, ex);
       return Status.STOPPED;
