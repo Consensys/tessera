@@ -204,7 +204,7 @@ subprojects {
     exclude module: "jetty-servlet-api"
     exclude group: "io.swagger.core.v3", module: "swagger-models"
     exclude group: "io.swagger.core.v3", module: "swagger-annotations"
-    exclude group: "jakarta.servlet"// TODO: when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
+    exclude group: "jakarta.servlet" // when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
 

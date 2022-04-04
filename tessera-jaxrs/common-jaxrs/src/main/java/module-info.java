@@ -3,6 +3,7 @@ module tessera.common.jaxrs {
   requires jakarta.validation;
   requires jakarta.ws.rs;
   requires jakarta.xml.bind;
+  requires io.swagger.v3.oas.annotations;
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.config;
@@ -14,10 +15,10 @@ module tessera.common.jaxrs {
   requires tessera.data;
   requires tessera.partyinfo;
   requires jakarta.json;
+
+  // Change for jakarta.servlet when jetty sort out the module name
   // requires jakarta.servlet;
-  // TODO: CHange for jakarta.servlet when jetty sort out the module name
   requires jetty.servlet.api;
-  requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.api;
   exports com.quorum.tessera.api.common;
