@@ -45,7 +45,6 @@ public class OpenApiIT {
   }
 
   @Test
-  @Ignore
   public void openapiJson() throws IOException {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 
@@ -68,7 +67,6 @@ public class OpenApiIT {
   }
 
   @Test
-  @Ignore
   public void openapiYaml() {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 
@@ -91,7 +89,6 @@ public class OpenApiIT {
   }
 
   @Test
-  @Ignore
   public void openapiUnsupportedAccepts() {
     final List<URI> allUris = List.of(node.getQ2TUri(), node.getP2PUri());
 

@@ -14,27 +14,27 @@ dependencies {
   implementation project(":shared")
   implementation project(":encryption:encryption-api")
 
-  constraints {
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
-      because 'databind less than 2.13.2.2 has a bug'
-    }
-  }
-
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-
   implementation "jakarta.validation:jakarta.validation-api"
-
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
-  implementation "org.apache.commons:commons-lang3"
   implementation "jakarta.persistence:jakarta.persistence-api"
-  testImplementation project(":server:jersey-server")
   api "jakarta.inject:jakarta.inject-api"
+
+  implementation "org.apache.commons:commons-lang3"
+
+  testImplementation project(":server:jersey-server")
   api "org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api"
 
   implementation "io.swagger.core.v3:swagger-annotations-jakarta"
   implementation "io.swagger.core.v3:swagger-core-jakarta"
   implementation "io.swagger.parser.v3:swagger-parser-v3"
   implementation "io.swagger.core.v3:swagger-jaxrs2-jakarta"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
 
 test {
