@@ -31,7 +31,6 @@ dependencies {
   implementation "org.springframework:spring-orm:$springVersion"
   testImplementation "org.springframework:spring-test:$springVersion"
   implementation("org.springframework:spring-core:$springVersion")
-  implementation "org.springframework:spring-beans:$springVersion"
   implementation "org.springframework:spring-context:$springVersion"
   implementation "org.springframework:spring-web:$springVersion"
 
