@@ -23,7 +23,6 @@ public class ResendManagerImpl implements ResendManager {
     this.payloadDigest = payloadDigest;
   }
 
-  // TODO: synchronize based on messagehash, so different message don't lock each other
   public synchronized void acceptOwnMessage(final EncodedPayload payload) {
     // check the payload can be decrypted to ensure it isn't rubbish being sent to us
     final byte[] newDecrypted;

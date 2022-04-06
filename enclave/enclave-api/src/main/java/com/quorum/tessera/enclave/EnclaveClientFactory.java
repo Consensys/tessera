@@ -13,7 +13,6 @@ public interface EnclaveClientFactory<T extends EnclaveClient> {
   T create(Config config);
 
   static EnclaveClientFactory create() {
-    // TODO: return the stream and let the caller deal with it
     return ServiceLoader.load(EnclaveClientFactory.class).findFirst().get();
   }
 }

@@ -75,8 +75,6 @@ public class TesseraCommand implements Callable<CliResult> {
 
   @CommandLine.Unmatched public List<String> unmatchedEntries;
 
-  // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides
-
   @Override
   public CliResult call() throws Exception {
     // we can't use required=true in the params for @Option as this also applies the requirement to

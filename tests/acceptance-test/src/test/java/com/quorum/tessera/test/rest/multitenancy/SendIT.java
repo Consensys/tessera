@@ -28,9 +28,8 @@ import suite.NodeAlias;
 /**
  * Scenarios tested:
  *
- * <p>- 1 sender, 1 private for - 1 sender, 2 private for - TODO: 1 sender, 2 private for, 1 is down
- * - 0 sender, 1 private for - 1 sender, 0 private for - no payload - sending when it isn't json -
- * sending to an unknown recipient - TODO: send using an unknown sender key
+ * <p>- 1 sender, 1 private for - 1 sender, 2 private for - 0 sender, 1 private for - 1 sender, 0
+ * private for - no payload - sending when it isn't json - sending to an unknown recipient
  */
 public class SendIT {
 
@@ -123,8 +122,6 @@ public class SendIT {
             .request()
             .post(Entity.entity(sendRequest, MIME_TYPE_JSON_2_1));
 
-    //
-
     final SendResponse result = response.readEntity(SendResponse.class);
     assertThat(result.getKey()).isNotNull().isNotBlank();
     assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
@@ -191,8 +188,6 @@ public class SendIT {
             .request()
             .post(Entity.entity(sendRequest, MIME_TYPE_JSON_2_1));
 
-    //
-
     final SendResponse result = response.readEntity(SendResponse.class);
     assertThat(result.getKey()).isNotNull().isNotBlank();
     assertThat(result.getManagedParties()).containsExactlyInAnyOrder(recipientPublicKeys);
@@ -255,7 +250,6 @@ public class SendIT {
             .request()
             .post(Entity.entity(sendRequest, MIME_TYPE_JSON_2_1));
 
-    //
     final SendResponse result = response.readEntity(SendResponse.class);
     assertThat(result.getKey()).isNotNull().isNotBlank();
     assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
@@ -432,9 +426,9 @@ public class SendIT {
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
-  /** Quorum sends transaction with unknown public key */
+  /** Quorum sends transaction to unknown public key */
   @Test
-  public void sendUnknownPublicKey() {
+  public void sendToUnknownPublicKey() {
 
     Party sendingParty = partyHelper.getParties().findAny().get();
     byte[] transactionData = utils.createTransactionData();
