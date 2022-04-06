@@ -35,6 +35,12 @@ dependencies {
   implementation("com.azure:azure-core:1.19.0")
 
   testImplementation "org.glassfish:jakarta.json"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
 
 publishing {

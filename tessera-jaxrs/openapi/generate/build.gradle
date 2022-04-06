@@ -22,7 +22,6 @@ dependencies {
 }
 
 resolve {
-
   classpath = sourceSets.main.compileClasspath
   outputDir = file("${project.buildDir}/generated-resources/openapi")
   outputFormat = 'JSONANDYAML'
@@ -31,9 +30,6 @@ resolve {
   modelConverterClasses = [
     'com.quorum.tessera.openapi.FullyQualifiedNameResolver'
   ]
-  //jersey.config.server.tracing
-  //  scannerClass = "io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner"
-
 }
 
 // exists to have a self-documenting task name when called from CI/CD
