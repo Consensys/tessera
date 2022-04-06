@@ -31,7 +31,6 @@ dependencies {
   implementation "org.springframework:spring-orm:$springVersion"
   testImplementation "org.springframework:spring-test:$springVersion"
   implementation("org.springframework:spring-core:$springVersion")
-  implementation "org.springframework:spring-beans:$springVersion"
   implementation "org.springframework:spring-context:$springVersion"
   implementation "org.springframework:spring-web:$springVersion"
 
@@ -44,6 +43,12 @@ dependencies {
   implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 }
 
 

@@ -7,18 +7,19 @@ plugins {
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
   id "org.javamodularity.moduleplugin" version "1.8.8"
   id 'org.ec4j.editorconfig' version '0.0.3'
-  id "io.swagger.core.v3.swagger-gradle-plugin" version "2.1.9" apply false
+  id "io.swagger.core.v3.swagger-gradle-plugin" version "2.2.0" apply false
 }
 
 ext {
-  jettyVersion = "11.0.6"
+  jettyVersion = "11.0.8"
   eclipselinkVersion = "3.0.2"
-  swaggerVersion = "2.1.9"
-  jerseyVersion = "3.0.3"
-  slf4jVersion = "1.7.32"
-  logbackVersion = "1.2.10"
+  swaggerVersion = "2.1.13"
+  jerseyVersion = "3.0.4"
+  slf4jVersion = "1.7.36"
+  logbackVersion = "1.2.11"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.12.4";
+  jacksonVersion = "2.13.2";
+  jacksonDatabindVersion = "2.13.2.2";
 }
 
 allprojects {
@@ -158,7 +159,6 @@ allprojects {
 
         testImplementation "org.apache.tuweni:tuweni-rlp:2.0.0"
         testImplementation "org.apache.tuweni:tuweni-bytes:2.0.0"
-
       }
     }
   }
@@ -207,6 +207,7 @@ subprojects {
     exclude group: "jakarta.servlet" // when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
+    exclude module: "jackson-jaxrs-json-provider"
 
     resolutionStrategy.capabilitiesResolution.all {
       selectHighestVersion()

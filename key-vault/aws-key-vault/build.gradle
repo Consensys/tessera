@@ -43,11 +43,17 @@ dependencies {
   implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
 
   implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
   implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
   implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   implementation "org.glassfish:jakarta.json"
+
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
 
 }
 
