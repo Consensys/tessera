@@ -45,6 +45,12 @@ dependencies {
 
   compileOnly project(':tessera-jaxrs:openapi:common')
 
+  constraints {
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
+      because 'databind less than 2.13.2.2 has a bug'
+    }
+  }
+
 }
 
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
