@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
 
-// TODO(cjh) just used for swagger generation - should be used in the actual jaxrs methods
 public class GetPartyInfoResponse {
 
   @Schema(description = "server's url")

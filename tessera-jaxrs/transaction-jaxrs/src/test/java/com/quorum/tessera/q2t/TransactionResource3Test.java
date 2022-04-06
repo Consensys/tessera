@@ -664,44 +664,4 @@ public class TransactionResource3Test {
     assertThat(response.getEntity()).isEqualTo("BASE64ENCODEKEY");
     verify(transactionManager).getParticipants(any(MessageHash.class));
   }
-
-  // TODO: Ensure this is in integration tests
-  //    @Test
-  //    public void validationSendPayloadCannotBeNullOrEmpty() {
-  //
-  //        Collection<Entity> nullAndEmpty =
-  //                List.of(
-  //                        Entity.entity(null, "application/vnd.tessera-2.1+json"),
-  //                        Entity.entity(new byte[0], "application/vnd.tessera-2.1+json"));
-  //
-  //        Map<String, Collection<Entity>> pathToEntityMapping = Map.of("sendsignedtx",
-  // nullAndEmpty);
-  //
-  //        pathToEntityMapping.entrySet().stream()
-  //                .forEach(
-  //                        e ->
-  //                                e.getValue()
-  //                                        .forEach(
-  //                                                entity -> {
-  //                                                    Response response =
-  //                                                            jersey.target(e.getKey())
-  //                                                                    .request()
-  //                                                                    .post(
-  //                                                                            Entity.entity(
-  //                                                                                    null,
-  //
-  // "application/vnd.tessera-2.1+json"));
-  //
-  // assertThat(response.getStatus()).isEqualTo(400);
-  //                                                }));
-  //    }
-
-  // TODO: Ensure this is in integration tests
-  //    @Test
-  //    public void validationReceiveIsRawMustBeBoolean() {
-  //
-  //        Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw",
-  // "bogus").request().get();
-  //        assertThat(response.getStatus()).isEqualTo(400);
-  //    }
 }

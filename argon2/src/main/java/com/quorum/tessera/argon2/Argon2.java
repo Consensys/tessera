@@ -24,7 +24,6 @@ public interface Argon2 {
    */
   ArgonResult hash(char[] password, byte[] salt);
 
-  // TODO: move into factory and return the stream itself
   static Argon2 create() {
     return ServiceLoader.load(Argon2.class).findFirst().get();
   }
