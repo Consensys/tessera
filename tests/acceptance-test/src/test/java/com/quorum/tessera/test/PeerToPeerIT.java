@@ -92,18 +92,17 @@ public class PeerToPeerIT {
   }
 
   /*
-  If the sending node has an invalid key we 200 as the secondary key
-  should no be validated.
-
+  If the sending node has an invalid key, we 200 as the secondary key
+  should not be validated.
    */
   @Test
-  public void malicousNodeHasInvalidKey() throws Exception {
+  public void maliciousNodeHasInvalidKey() throws Exception {
 
-    Party hihjackedParty = partyHelper.findByAlias(NodeAlias.B);
+    Party highjackedParty = partyHelper.findByAlias(NodeAlias.B);
 
     PublicKey bogusKey = PublicKey.from("BADKEY".getBytes());
 
-    ServerConfig serverConfig = hihjackedParty.getConfig().getP2PServerConfig();
+    ServerConfig serverConfig = highjackedParty.getConfig().getP2PServerConfig();
 
     Recipient recipient = Recipient.of(bogusKey, serverConfig.getServerUri().toString());
 
@@ -135,7 +134,7 @@ public class PeerToPeerIT {
   A good node with valid key has a bad recipient in its party info
    */
   @Test
-  public void benevolentNodeBecomesPosessedAndSendsInvalidKeyInRecipientList() throws Exception {
+  public void benevolentNodeBecomesPossessedAndSendsInvalidKeyInRecipientList() throws Exception {
 
     Party partyB = partyHelper.findByAlias(NodeAlias.B);
 
@@ -238,7 +237,7 @@ public class PeerToPeerIT {
   }
 
   @Test
-  public void benevolentNodeBecomesPosessedAndTriesToSendInavludUrlAndKeyCombo() throws Exception {
+  public void benevolentNodeBecomesPossessedAndTriesToSendInvalidUrlAndKeyCombo() throws Exception {
 
     Party partyB = partyHelper.findByAlias(NodeAlias.B);
 
