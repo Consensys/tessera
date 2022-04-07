@@ -85,8 +85,6 @@ public class KeyGenCommand implements Callable<CliResult> {
 
   @Override
   public CliResult call() throws IOException {
-    // TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in
-    // KeyGenFileUpdateOptions
     if (Objects.nonNull(fileUpdateOptions) && Objects.isNull(fileUpdateOptions.getConfig())) {
       throw new CliException("Missing required argument(s): --configfile=<config>");
     }

@@ -5,9 +5,8 @@ import java.util.Optional;
 
 public interface KeyVaultConfigConverter {
 
-  /*
-  TODO: Remove these when AzureKeyVaultConfig is removed
-   */
+  // AzureKeyVaultConfig is deprecated
+  @Deprecated
   static DefaultKeyVaultConfig convert(AzureKeyVaultConfig azureKeyVaultConfig) {
     DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
     config.setKeyVaultType(azureKeyVaultConfig.getKeyVaultType());
@@ -15,9 +14,8 @@ public interface KeyVaultConfigConverter {
     return config;
   }
 
-  /*
-  TODO: Remove these when HashicorpKeyVaultConfig is removed
-   */
+  // HashicorpKeyVaultConfig is deprecated
+  @Deprecated
   static DefaultKeyVaultConfig convert(HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
     DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
     config.setKeyVaultType(hashicorpKeyVaultConfig.getKeyVaultType());

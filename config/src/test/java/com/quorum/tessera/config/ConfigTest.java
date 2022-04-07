@@ -61,7 +61,6 @@ public class ConfigTest {
     assertThat(config.getP2PServerConfig()).isNull();
   }
 
-  // TODO: Ensure that version read from jar file works
   @Test
   public void version() {
     Config config = new Config();
