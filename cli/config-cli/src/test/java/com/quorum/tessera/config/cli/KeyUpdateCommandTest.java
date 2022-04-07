@@ -23,7 +23,6 @@ import java.util.Base64;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class KeyUpdateCommandTest {
@@ -52,23 +51,6 @@ public class KeyUpdateCommandTest {
   @After
   public void onTeardown() {
     verifyNoMoreInteractions(keyEncryptorFactory, keyEncryptor, passwordReader);
-  }
-
-  // Argon Option tests
-  // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. I think
-  // defaults will only be
-  //  set when creating a command line object and calling parseArgs or execute
-  @Ignore
-  @Test
-  public void noArgonOptionsGivenHasDefaults() throws Exception {
-    //        final CommandLine commandLine = new DefaultParser().parse(options, new String[] {});
-    //
-    //        final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);
-    //
-    //        assertThat(argonOptions.getAlgorithm()).isEqualTo("i");
-    //        assertThat(argonOptions.getParallelism()).isEqualTo(4);
-    //        assertThat(argonOptions.getMemory()).isEqualTo(1048576);
-    //        assertThat(argonOptions.getIterations()).isEqualTo(10);
   }
 
   @Test
@@ -147,21 +129,6 @@ public class KeyUpdateCommandTest {
     final List<char[]> passwords = command.passwords();
 
     assertThat(passwords).isNotNull().isEmpty();
-  }
-
-  // key file tests
-  // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. required
-  // fields can be tested
-  //  when creating a command line object and calling parseArgs or execute
-  @Ignore
-  @Test
-  public void noPrivateKeyGivenThrowsError() {
-    //        final Throwable throwable = catchThrowable(() ->
-    // KeyUpdateParser.privateKeyPath(commandLine));
-    //
-    //        assertThat(throwable)
-    //            .isInstanceOf(IllegalArgumentException.class)
-    //            .hasMessage("Private key path cannot be null when updating key password");
   }
 
   @Test
