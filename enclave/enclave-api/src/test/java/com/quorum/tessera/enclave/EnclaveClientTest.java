@@ -17,7 +17,7 @@ public class EnclaveClientTest {
 
   @Before
   public void onSetUp() {
-    this.enclaveClient = mock(EnclaveClient.class); // TODO: not have this as a mock
+    this.enclaveClient = mock(EnclaveClient.class);
 
     doCallRealMethod().when(enclaveClient).validateEnclaveStatus();
   }

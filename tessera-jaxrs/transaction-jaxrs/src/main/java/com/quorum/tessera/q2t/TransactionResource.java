@@ -64,8 +64,7 @@ public class TransactionResource {
   }
 
   // hide this operation from swagger generation; the /send operation is overloaded and must be
-  // documented in a single
-  // place
+  // documented in a single place
   @Hidden
   @POST
   @Path("send")
@@ -147,8 +146,7 @@ public class TransactionResource {
   }
 
   // hide this operation from swagger generation; the /sendsignedtx operation is overloaded and must
-  // be documented in
-  // a single place
+  // be documented in a single place
   @Hidden
   @POST
   @Path("sendsignedtx")
@@ -194,7 +192,6 @@ public class TransactionResource {
             .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8))
             .build();
 
-    // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
     return Response.status(Response.Status.OK)
         .entity(encodedTransactionHash)
         .location(location)
@@ -202,8 +199,7 @@ public class TransactionResource {
   }
 
   // hide this operation from swagger generation; the /sendsignedtx operation is overloaded and must
-  // be documented in
-  // a single place
+  // be documented in a single place
   @Hidden
   @POST
   @Path("sendsignedtx")
@@ -358,7 +354,6 @@ public class TransactionResource {
             .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8))
             .build();
 
-    // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
     return Response.status(Response.Status.OK)
         .entity(encodedTransactionHash)
         .location(location)
@@ -366,8 +361,7 @@ public class TransactionResource {
   }
 
   // hide this operation from swagger generation; the /transaction/{hash} operation is overloaded
-  // and must be
-  // documented in a single place
+  // and must be documented in a single place
   @Hidden
   @GET
   @Path("/transaction/{hash}")

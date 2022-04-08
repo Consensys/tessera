@@ -57,8 +57,6 @@ public class KeyUpdateCommand implements Callable<CliResult> {
   @CommandLine.Option(names = "--keys.keyData.config.data.aopts.parallelism", defaultValue = "4")
   public Integer parallelism;
 
-  // TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password
-  // file
   @CommandLine.Option(names = {"--keys.passwords"})
   public String password;
 
@@ -76,8 +74,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
   private KeyEncryptorFactory keyEncryptorFactory;
 
-  // TODO(cjh) is package-private for migrated apache commons CLI tests
-  KeyEncryptor keyEncryptor;
+  protected KeyEncryptor keyEncryptor;
 
   private PasswordReader passwordReader;
 

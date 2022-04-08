@@ -59,7 +59,6 @@ public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
     }
   }
 
-  // TODO - Package private for testing, refactor so this can be made private
   char[] getServerKeyStorePassword(SslConfig sslConfig) {
     return getPreferredPassword(
         sslConfig.getServerKeyStorePassword(),
@@ -67,7 +66,6 @@ public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
         EnvironmentVariables.SERVER_KEYSTORE_PWD);
   }
 
-  // TODO - Package private for testing, refactor so this can be made private
   char[] getServerTrustStorePassword(SslConfig sslConfig) {
     return getPreferredPassword(
         sslConfig.getServerTrustStorePassword(),

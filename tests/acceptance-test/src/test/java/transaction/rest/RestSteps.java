@@ -234,7 +234,7 @@ public class RestSteps implements En {
     Then(
         "an invalid request error is raised",
         () -> {
-          // TODO: asserted in preceding step
+          // asserted in preceding step
         });
   }
 
