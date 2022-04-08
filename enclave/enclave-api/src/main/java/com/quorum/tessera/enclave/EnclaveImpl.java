@@ -67,7 +67,6 @@ public class EnclaveImpl implements Enclave {
       Map<TxHash, EncodedPayload> affectedContractTransactions, byte[] cipherText) {
     Map<TxHash, byte[]> affectedContractTransactionHashes = new HashMap<>();
     for (final Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
-      // TODO - remove extra logs
       LOGGER.info("Calculating hash for TxKey {}", entry.getKey().encodeToBase64());
       affectedContractTransactionHashes.put(
           entry.getKey(), computeAffectedContractTransactionHash(cipherText, entry.getValue()));
@@ -205,9 +204,7 @@ public class EnclaveImpl implements Enclave {
 
     final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(sender);
 
-    // TODO NL - check if it makes sense to compute a shared key from the public and private parts
-    // of the same key
-    SharedKey sharedKey = encryptor.computeSharedKey(sender, privateKey);
+    final SharedKey sharedKey = encryptor.computeSharedKey(sender, privateKey);
     final byte[] encryptedMasterKey =
         encryptor.sealAfterPrecomputation(masterKey.getKeyBytes(), nonce, sharedKey);
 

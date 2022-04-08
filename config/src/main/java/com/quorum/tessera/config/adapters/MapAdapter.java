@@ -18,7 +18,7 @@ public class MapAdapter extends XmlAdapter<ConfigProperties, Map<String, String>
     if (configProperties == null) return null;
 
     Map<String, String> outcome = new LinkedHashMap<>();
-    // TODO : Find out why we have a org.w3c.dom.Element rarher than jakarta.xml.bind.JAXBElement
+    // Need to convert from org.w3c.dom.Element to jakarta.xml.bind.JAXBElement
     for (Object element : configProperties.getProperties()) {
 
       //  outcome.put(element.getName(), element.getValue());

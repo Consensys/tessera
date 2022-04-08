@@ -270,32 +270,6 @@ public class OverrideUtilTest {
     assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
   }
 
-  // TODO: Need to support oerrides in config module
-  @Ignore
-  @Test
-  public void definePrivateAndPublicKeyWithOverridesOnly() throws Exception {
-
-    Config config = OverrideUtil.createInstance(Config.class);
-
-    OverrideUtil.setValue(config, "keys[0].keyData.publicKey", "PUBLICKEY");
-    OverrideUtil.setValue(config, "keys[0].keyData.privateKey", "PRIVATEKEY");
-    // UNmarshlling to COnfig to
-    try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
-      JaxbUtil.marshalWithNoValidation(config, bout);
-      Config result =
-          JaxbUtil.unmarshal(new ByteArrayInputStream(bout.toByteArray()), Config.class);
-      assertThat(result.getKeys()).isNotNull();
-
-      KeyConfiguration keyConfig = result.getKeys();
-
-      assertThat(keyConfig.getKeyData()).hasSize(1);
-
-      assertThat(keyConfig.getKeyData().get(0).getPrivateKey()).isEqualTo("PRIVATEKEY");
-
-      assertThat(keyConfig.getKeyData().get(0).getPublicKey()).isEqualTo("PUBLICKEY");
-    }
-  }
-
   @Test
   public void defineAlwaysSendToWithOverridesOnly() throws Exception {
 

@@ -516,7 +516,6 @@ public class AzureStepDefs implements En {
         });
   }
 
-  // TODO(cjh) abstract out so can be shared by all vault ITs
   private void startTessera(List<String> args, List<String> jvmArgs, Path verifyConfig)
       throws Exception {
     LOGGER.info("Starting: {}", String.join(" ", args));

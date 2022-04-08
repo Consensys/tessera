@@ -52,7 +52,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
                 .map(String::toCharArray)
                 .collect(Collectors.toList()));
       } catch (final IOException ex) {
-        // dont do anything, if any keys are locked validation will complain that
+        // don't do anything, if any keys are locked validation will complain that
         // locked keys were provided without passwords
         System.err.println("Could not read the password file");
       }
@@ -69,7 +69,6 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             });
 
     // decrypt the keys, either using provided passwords or read from CLI
-
     EncryptorConfig encryptorConfig =
         Optional.ofNullable(config.getEncryptor())
             .orElse(
@@ -88,9 +87,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
                     keyNumber, keyConfiguration.getKeyData().get(keyNumber), keyEncryptor));
   }
 
-  // TODO: make private
-  // @VisibleForTesting
-  public void getSingleKeyPassword(
+  protected void getSingleKeyPassword(
       final int keyNumber, final KeyData keyPair, final KeyEncryptor keyEncryptor) {
 
     final boolean isInline = KeyDataUtil.isInline(keyPair);

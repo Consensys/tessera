@@ -2,7 +2,6 @@ package com.quorum.tessera.p2p.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-// TODO(cjh) just used for swagger generation - should be used in the actual jaxrs methods
 public class Key {
   @Schema(description = "known public key of peer", format = "base64")
   private String key;

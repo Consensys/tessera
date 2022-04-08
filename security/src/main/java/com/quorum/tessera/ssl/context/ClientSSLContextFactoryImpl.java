@@ -59,7 +59,6 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
     }
   }
 
-  // TODO - Package private for testing, refactor so this can be made private
   char[] getClientKeyStorePassword(SslConfig sslConfig) {
     return getPreferredPassword(
         sslConfig.getClientKeyStorePassword(),
@@ -67,7 +66,6 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
         EnvironmentVariables.CLIENT_KEYSTORE_PWD);
   }
 
-  // TODO - Package private for testing, refactor so this can be made private
   char[] getClientTrustStorePassword(SslConfig sslConfig) {
     return getPreferredPassword(
         sslConfig.getClientTrustStorePassword(),

@@ -8,7 +8,6 @@ public interface EnvironmentVariableProviderFactory {
   EnvironmentVariableProvider create();
 
   static EnvironmentVariableProviderFactory load() {
-    // TODO: return the stream and let the caller deal with it
     return ServiceLoader.load(EnvironmentVariableProviderFactory.class).findFirst().get();
   }
 }

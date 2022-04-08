@@ -57,7 +57,6 @@ public class ServiceLoaderInjectionResolver implements JustInTimeInjectionResolv
               .map(Named::value)
               .orElse(type.getName());
 
-      // TODO: We should be able to support directly
       Class<? extends Annotation> scope = Singleton.class;
 
       ConstantActiveDescriptor constantActiveDescriptor =
