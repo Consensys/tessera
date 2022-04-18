@@ -50,6 +50,7 @@ dependencies {
   implementation project(":tessera-jaxrs:thirdparty-jaxrs")
   implementation project(":enclave:enclave-jaxrs")
   implementation project(":tessera-recover")
+  implementation project(":server:server-utils")
   implementation project(":server:jersey-server")
   implementation project(":server:jaxrs-client-unixsocket")
   implementation("org.glassfish.jersey.media:jersey-media-json-processing") {

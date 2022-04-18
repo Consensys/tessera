@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.xml.bind.annotation.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,6 +56,8 @@ public class Config extends ConfigItem {
   @XmlElement private EncryptorConfig encryptor;
 
   @XmlTransient private boolean recoveryMode;
+
+  @XmlTransient private Path outputServerURIPath;
 
   @XmlElement(name = "mode")
   private ClientMode clientMode = ClientMode.TESSERA;
@@ -192,6 +195,14 @@ public class Config extends ConfigItem {
 
   public void setRecoveryMode(boolean recoveryMode) {
     this.recoveryMode = recoveryMode;
+  }
+
+  public void setOutputServerURIPath(final Path outputServerURIPath) {
+    this.outputServerURIPath = outputServerURIPath;
+  }
+
+  public Path getOutputServerURIPath() {
+    return outputServerURIPath;
   }
 
   public ClientMode getClientMode() {
