@@ -110,6 +110,12 @@ jobs:
         with:
           name: tessera-dists
           path: tessera-dist/build/distributions/
+      - name: Upload enclave dists
+        uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: enclave-dists
+          path: enclave/enclave-jaxrs/build/distributions/
       - name: Upload azure-key-vault dists
         uses: actions/upload-artifact@v2
         if: success()
@@ -140,6 +146,11 @@ jobs:
         with:
           name: tessera-dists
           path: tessera-dist/build/distributions/
+      - name: Download enclave dists
+        uses: actions/download-artifact@v2
+        with:
+          name: enclave-dists
+          path: enclave/enclave-jaxrs/build/distributions/
       - name: Download azure-key-vault dists
         uses: actions/download-artifact@v2
         if: success()
@@ -233,9 +244,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:enclave-latest
-            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ secrets.DOCKER_REPO }}:enclave-${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-latest
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.release_sonatype.outputs.full-ver }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
