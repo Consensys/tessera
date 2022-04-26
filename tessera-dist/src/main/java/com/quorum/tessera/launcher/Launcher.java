@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public enum Launcher {
   NORMAL {
     @Override
-    public void launchServer(Config config) throws Exception {
+    public List<TesseraServer> launchServer(final Config config) throws Exception {
       LOGGER.debug("Creating servers");
       config
           .getServerConfigs()
@@ -74,12 +74,14 @@ public enum Launcher {
         LOGGER.debug("Started server {}", ts);
       }
       LOGGER.debug("Created servers");
+
+      return servers;
     }
   },
 
   RECOVERY {
     @Override
-    public void launchServer(Config config) throws Exception {
+    public List<TesseraServer> launchServer(final Config config) throws Exception {
 
       final ServerConfig recoveryP2PServer = config.getP2PServerConfig();
 
@@ -120,14 +122,16 @@ public enum Launcher {
       final int exitCode = Recovery.create().recover();
 
       System.exit(exitCode);
+
+      return Collections.emptyList();
     }
   };
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Launcher.class);
 
-  public abstract void launchServer(Config config) throws Exception;
+  public abstract List<TesseraServer> launchServer(final Config config) throws Exception;
 
-  public static Launcher create(boolean isRecoveryMode) {
+  public static Launcher create(final boolean isRecoveryMode) {
     if (isRecoveryMode) {
       return Launcher.RECOVERY;
     }

@@ -5,6 +5,7 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.PidFileMixin;
+import com.quorum.tessera.cli.parsers.ServerURIOutputMixin;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectException;
 import jakarta.validation.ConstraintViolation;
@@ -71,6 +72,8 @@ public class TesseraCommand implements Callable<CliResult> {
       description = "Start Tessera in recovery mode")
   private boolean recover;
 
+  @CommandLine.Mixin private ServerURIOutputMixin serverURIOutputPath;
+
   @CommandLine.Mixin public DebugOptions debugOptions;
 
   @CommandLine.Unmatched public List<String> unmatchedEntries;
@@ -124,6 +127,7 @@ public class TesseraCommand implements Callable<CliResult> {
     keyPasswordResolver.resolveKeyPasswords(config);
 
     pidFileMixin.createPidFile();
+    serverURIOutputPath.updateConfig(config);
 
     return new CliResult(0, false, config);
   }
