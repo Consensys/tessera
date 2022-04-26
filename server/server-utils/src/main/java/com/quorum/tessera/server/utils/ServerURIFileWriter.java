@@ -30,7 +30,7 @@ public class ServerURIFileWriter {
         tesseraServer ->
             uriList.add(
                 String.format(
-                    "%s=%s", tesseraServer.getAppType().toString(), getURIOrEmpty(tesseraServer))));
+                    "%s=%s", tesseraServer.getAppType().toString(), getUriOrEmpty(tesseraServer))));
 
     final File file = new File(dirPath.toFile(), fileName);
     file.deleteOnExit();
@@ -47,7 +47,7 @@ public class ServerURIFileWriter {
     }
   }
 
-  private static String getURIOrEmpty(final TesseraServer tesseraServer) {
+  private static String getUriOrEmpty(final TesseraServer tesseraServer) {
     try {
       return tesseraServer.getUri().toString();
     } catch (final NullPointerException e) {
