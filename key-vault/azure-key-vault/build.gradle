@@ -17,13 +17,16 @@ configurations.all {
   exclude group: "jakarta.json"
 }
 
-dependencies {
-  implementation platform('io.projectreactor:reactor-bom:2020.0.10')
+def nettyVersion = "4.1.76.Final"
 
-  // define dependencies without versions
+dependencies {
+  // set version of nearly all netty modules this way
+  implementation platform('io.projectreactor:reactor-bom:2020.0.18')
   implementation 'io.projectreactor.netty:reactor-netty'
   implementation 'io.projectreactor.netty:reactor-netty-core'
   implementation 'io.projectreactor.netty:reactor-netty-http'
+  // set the versions of any that are still causing dependency check issues
+  implementation "io.netty:netty-transport-native-kqueue:$nettyVersion"
 
   implementation project(":config")
   implementation project(":key-vault:key-vault-api")
