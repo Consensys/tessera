@@ -18,6 +18,11 @@ RUN mkdir /install/tessera-plus-vault && cp -a /install/hashicorp-key-vault/. /i
 # Create executable image
 FROM adoptopenjdk/openjdk11:alpine
 
+RUN apt-get update && apt-get install -y \
+  wget \
+  netcat \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --from=extractor /install/tessera-plus-vault/ /tessera
 
 ENTRYPOINT ["/tessera/bin/tessera"]
