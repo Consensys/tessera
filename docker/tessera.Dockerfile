@@ -13,6 +13,11 @@ RUN mkdir /install/tessera && tar xvf $(find . -name tessera-*.tar 2>/dev/null) 
 # Create executable image
 FROM adoptopenjdk/openjdk11:debianslim
 
+RUN apt-get update && apt-get install -y \
+  wget \
+  netcat \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --from=extractor /install/tessera/ /tessera
 
 ENTRYPOINT ["/tessera/bin/tessera"]
