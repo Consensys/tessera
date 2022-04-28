@@ -13,6 +13,11 @@ RUN mkdir /install/enclave-jaxrs && tar xvf $(find . -name enclave-jaxrs-*.tar 2
 # Create executable image
 FROM adoptopenjdk/openjdk11:alpine
 
+RUN apt-get update && apt-get install -y \
+  wget \
+  netcat \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --from=extractor /install/enclave-jaxrs/ /tessera
 
 ENTRYPOINT ["/tessera/bin/enclave-jaxrs"]
