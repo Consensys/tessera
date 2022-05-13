@@ -11,7 +11,7 @@ RUN mkdir /install
 RUN mkdir /install/enclave-jaxrs && tar xvf $(find . -name enclave-jaxrs-*.tar 2>/dev/null) -C /install/enclave-jaxrs --strip-components 1
 
 # Create executable image
-FROM adoptopenjdk/openjdk11:alpine
+FROM adoptopenjdk/openjdk11:debianslim
 
 RUN apt-get update && apt-get install -y \
   wget \
