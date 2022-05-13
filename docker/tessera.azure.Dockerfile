@@ -16,7 +16,7 @@ RUN mkdir /install/azure-key-vault && tar xvf $(find . -name azure-key-vault-*.t
 RUN mkdir /install/tessera-plus-vault && cp -a /install/azure-key-vault/. /install/tessera-plus-vault/ && cp -a /install/tessera/. /install/tessera-plus-vault/
 
 # Create executable image
-FROM adoptopenjdk/openjdk11:alpine
+FROM adoptopenjdk/openjdk11:debianslim
 
 RUN apt-get update && apt-get install -y \
   wget \
