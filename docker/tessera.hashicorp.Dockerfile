@@ -16,7 +16,7 @@ RUN mkdir /install/hashicorp-key-vault && tar xvf $(find . -name hashicorp-key-v
 RUN mkdir /install/tessera-plus-vault && cp -a /install/hashicorp-key-vault/. /install/tessera-plus-vault/ && cp -a /install/tessera/. /install/tessera-plus-vault/
 
 # Create executable image
-FROM adoptopenjdk/openjdk11:alpine
+FROM adoptopenjdk/openjdk11:debianslim
 
 RUN apt-get update && apt-get install -y \
   wget \
