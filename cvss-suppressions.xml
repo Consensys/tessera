@@ -1,3 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+        <suppress>
+            <notes><![CDATA[
+        file name: partyinfo-model.jar (project :tessera-jaxrs:partyinfo-model).
+   Suppress CVE-2020-36460, a vulnerability with the Rust crate 'model' that incorrectly triggers due to a combination of the 'partyinfo-model' module's name and the current development version '22.1.2-SNAPSHOT'.
+   This should be able to be removed once we progress past 22.1.2.
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.consensys\.quorum\.tessera/partyinfo\-model@.*$</packageUrl>
+        <cpe>cpe:/a:model_project:model</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: partyinfo-model.jar (project :tessera-jaxrs:partyinfo-model)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.consensys\.quorum\.tessera/partyinfo\-model@.*$</packageUrl>
+        <cve>CVE-2020-36460</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: h2-2.1.212.jar (pkg:maven/com.h2database/h2@2.1.212, cpe:2.3:a:h2database:h2:2.1.212:*:*:*:*:*:*:*) : CVE-2018-14335
+   this CVE is fixed in 2.1.212 but the dependency check is false positive
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
+        <cve>CVE-2018-14335</cve>
+    </suppress>
 </suppressions>
