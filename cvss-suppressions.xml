@@ -5,7 +5,7 @@
    file name: h2-2.1.212.jar (pkg:maven/com.h2database/h2@2.1.212, cpe:2.3:a:h2database:h2:2.1.212:*:*:*:*:*:*:*) : CVE-2018-14335
    this CVE is fixed in 2.1.212 but the dependency check is false positive
    ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.h2database</packageUrl>
+        <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
         <cve>CVE-2018-14335</cve>
     </suppress>
 </suppressions>
