@@ -3,7 +3,7 @@ plugins {
   id "application"
 }
 
-def nettyVersion = "4.1.76.Final"
+def nettyVersion = "4.1.46.Final"
 
 dependencyCheck {
   failBuildOnCVSS = 11
@@ -27,7 +27,7 @@ dependencies {
   implementation("software.amazon.awssdk:apache-client:2.10.25")
 
 
-  implementation("org.apache.httpcomponents:httpclient:4.5.13")
+  implementation("org.apache.httpcomponents:httpclient:4.5.9")
 
   implementation project(":key-vault:key-vault-api")
 
