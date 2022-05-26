@@ -39,7 +39,13 @@ public class ServerUtils {
 
     if (serverConfig.isSsl()) {
       HttpConfiguration https = new HttpConfiguration();
-      https.addCustomizer(new SecureRequestCustomizer());
+
+      // set SNI flags to false since updating to jetty version 11.0.6 the default behaviour has
+      // changed
+      final SecureRequestCustomizer customizer = new SecureRequestCustomizer();
+      customizer.setSniRequired(false);
+      customizer.setSniHostCheck(false);
+      https.addCustomizer(customizer);
 
       SSLContext sslContext =
           ServerSSLContextFactory.create().from(uri.toString(), serverConfig.getSslConfig());
