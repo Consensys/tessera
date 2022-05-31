@@ -5,6 +5,7 @@ import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Optional;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -39,7 +40,17 @@ public class ServerUtils {
 
     if (serverConfig.isSsl()) {
       HttpConfiguration https = new HttpConfiguration();
-      https.addCustomizer(new SecureRequestCustomizer());
+      final SecureRequestCustomizer customizer = new SecureRequestCustomizer();
+
+      Optional.ofNullable(serverConfig.getProperties().get("sniRequired"))
+        .map(Boolean::valueOf)
+        .ifPresent(customizer::setSniRequired);
+
+      Optional.ofNullable(serverConfig.getProperties().get("sniHostCheck"))
+        .map(Boolean::valueOf)
+        .ifPresent(customizer::setSniHostCheck);
+
+      https.addCustomizer(customizer);
 
       SSLContext sslContext =
           ServerSSLContextFactory.create().from(uri.toString(), serverConfig.getSslConfig());
