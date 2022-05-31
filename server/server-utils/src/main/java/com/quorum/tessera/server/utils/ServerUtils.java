@@ -43,12 +43,12 @@ public class ServerUtils {
       final SecureRequestCustomizer customizer = new SecureRequestCustomizer();
 
       Optional.ofNullable(serverConfig.getProperties().get("sniRequired"))
-        .map(Boolean::valueOf)
-        .ifPresent(customizer::setSniRequired);
+          .map(Boolean::valueOf)
+          .ifPresent(customizer::setSniRequired);
 
       Optional.ofNullable(serverConfig.getProperties().get("sniHostCheck"))
-        .map(Boolean::valueOf)
-        .ifPresent(customizer::setSniHostCheck);
+          .map(Boolean::valueOf)
+          .ifPresent(customizer::setSniHostCheck);
 
       https.addCustomizer(customizer);
 
