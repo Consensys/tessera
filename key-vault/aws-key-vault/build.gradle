@@ -3,7 +3,7 @@ plugins {
   id "application"
 }
 
-def nettyVersion = "4.1.46.Final"
+//def nettyVersion = "4.1.76.Final"
 
 dependencyCheck {
   failBuildOnCVSS = 11
@@ -21,26 +21,21 @@ configurations.all {
 
 dependencies {
   implementation project(":config")
-
-  implementation("software.amazon.awssdk:secretsmanager:2.10.25")
-
-  implementation("software.amazon.awssdk:apache-client:2.10.25")
-
-
-  implementation("org.apache.httpcomponents:httpclient:4.5.9")
-
   implementation project(":key-vault:key-vault-api")
 
-  //   compile "io.netty:netty:"+ nettyVersion
-  implementation "io.netty:netty-handler:$nettyVersion"
-  implementation "io.netty:netty-common:$nettyVersion"
-  implementation "io.netty:netty-buffer:$nettyVersion"
-  implementation "io.netty:netty-transport:$nettyVersion"
-  implementation "io.netty:netty-codec:$nettyVersion"
-  implementation "io.netty:netty-codec-http:$nettyVersion"
-  implementation "io.netty:netty-codec-http2:$nettyVersion"
-  implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
-  implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
+  implementation("software.amazon.awssdk:secretsmanager:2.17.204")
+  implementation("software.amazon.awssdk:apache-client:2.17.204")
+
+  //  the aws dependencies often introduce CVE vulnerabilities - keep this code block here as a guide for if netty causes problems and an aws patch isn't available
+  //  implementation "io.netty:netty-handler:$nettyVersion"
+  //  implementation "io.netty:netty-common:$nettyVersion"
+  //  implementation "io.netty:netty-buffer:$nettyVersion"
+  //  implementation "io.netty:netty-transport:$nettyVersion"
+  //  implementation "io.netty:netty-codec:$nettyVersion"
+  //  implementation "io.netty:netty-codec-http:$nettyVersion"
+  //  implementation "io.netty:netty-codec-http2:$nettyVersion"
+  //  implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
+  //  implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
 
   implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
   implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
