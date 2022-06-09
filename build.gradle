@@ -11,7 +11,7 @@ plugins {
 }
 
 ext {
-  jettyVersion = "11.0.8"
+  jettyVersion = "11.0.9"
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.1.13"
   jerseyVersion = "3.0.4"
@@ -157,8 +157,8 @@ allprojects {
 
         implementation "net.java.dev.jna:jna:5.10.0"
 
-        testImplementation "org.apache.tuweni:tuweni-rlp:2.0.0"
-        testImplementation "org.apache.tuweni:tuweni-bytes:2.0.0"
+        testImplementation "org.apache.tuweni:tuweni-rlp:2.2.0"
+        testImplementation "org.apache.tuweni:tuweni-bytes:2.2.0"
       }
     }
   }
