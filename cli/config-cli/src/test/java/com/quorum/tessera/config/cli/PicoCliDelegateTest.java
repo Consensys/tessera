@@ -10,10 +10,11 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.key.generation.GeneratedKeyPair;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import jakarta.validation.ConstraintViolationException;
@@ -269,8 +270,12 @@ public class PicoCliDelegateTest {
   @Test
   public void keygen() throws Exception {
 
-    FilesystemKeyPair keypair = mock(FilesystemKeyPair.class);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    ConfigKeyPair ckp = mock(ConfigKeyPair.class);
+    when(ckp.getPublicKey()).thenReturn("mypub");
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(ckp);
+
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     CliResult result = cliDelegate.execute("-keygen", "-filename", UUID.randomUUID().toString());
 
@@ -284,8 +289,12 @@ public class PicoCliDelegateTest {
 
   @Test
   public void keygenThenExit() throws Exception {
-    FilesystemKeyPair keypair = mock(FilesystemKeyPair.class);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    ConfigKeyPair ckp = mock(ConfigKeyPair.class);
+    when(ckp.getPublicKey()).thenReturn("mypub");
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(ckp);
+
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     final CliResult result = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
 
@@ -315,7 +324,8 @@ public class PicoCliDelegateTest {
     KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
     FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    GeneratedKeyPair gkp = new GeneratedKeyPair(keypair, "SOMEDATA");
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
     Map<String, Object> params = new HashMap<>();
@@ -376,7 +386,8 @@ public class PicoCliDelegateTest {
     KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
     FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    GeneratedKeyPair gkp = new GeneratedKeyPair(keypair, "SOMEDATA");
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
     Map<String, Object> params = new HashMap<>();
@@ -444,7 +455,8 @@ public class PicoCliDelegateTest {
     KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
     FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    GeneratedKeyPair gkp = new GeneratedKeyPair(keypair, "SOMEDATA");
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
     Map<String, Object> params = new HashMap<>();
@@ -726,8 +738,12 @@ public class PicoCliDelegateTest {
   @Test
   public void suppressStartupForKeygenOption() throws Exception {
 
-    when(keyGenerator.generate(anyString(), eq(null), eq(null)))
-        .thenReturn(mock(DirectKeyPair.class));
+    ConfigKeyPair ckp = mock(ConfigKeyPair.class);
+    when(ckp.getPublicKey()).thenReturn("mypub");
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(ckp);
+
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     final CliResult cliResult = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
 
@@ -746,7 +762,8 @@ public class PicoCliDelegateTest {
     Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
     FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
-    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+    GeneratedKeyPair gkp = new GeneratedKeyPair(keypair, "SOMEDATA");
+    when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(gkp);
 
     final Path configFile = Paths.get(getClass().getResource("/sample-config.json").toURI());
 

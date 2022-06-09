@@ -17,8 +17,6 @@ configurations.all {
   exclude group: "jakarta.json"
 }
 
-//def nettyVersion = "4.1.76.Final"
-
 dependencies {
   implementation project(":config")
   implementation project(":key-vault:key-vault-api")

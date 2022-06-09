@@ -46,7 +46,7 @@ public class AWSSecretManagerKeyGeneratorTest {
     final String pubVaultId = vaultId + "Pub";
     final String privVaultId = vaultId + "Key";
 
-    final AWSKeyPair result = awsSecretManagerKeyGenerator.generate(vaultId, null, null);
+    final GeneratedKeyPair result = awsSecretManagerKeyGenerator.generate(vaultId, null, null);
 
     final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
 
@@ -66,10 +66,11 @@ public class AWSSecretManagerKeyGeneratorTest {
 
     verifyNoMoreInteractions(keyVaultService);
 
-    final AWSKeyPair expected = new AWSKeyPair(pubVaultId, privVaultId);
+    final AWSKeyPair kp = new AWSKeyPair(pubVaultId, privVaultId);
+    final GeneratedKeyPair expected = new GeneratedKeyPair(kp, pub.encodeToBase64());
 
-    assertThat(result).isExactlyInstanceOf(AWSKeyPair.class);
-    assertThat(result).isEqualToComparingFieldByField(expected);
+    assertThat(result).isExactlyInstanceOf(GeneratedKeyPair.class);
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test

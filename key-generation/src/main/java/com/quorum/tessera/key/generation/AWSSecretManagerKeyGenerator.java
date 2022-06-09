@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.Key;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +28,7 @@ public class AWSSecretManagerKeyGenerator implements KeyGenerator {
   }
 
   @Override
-  public AWSKeyPair generate(
+  public GeneratedKeyPair generate(
       String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
     final KeyPair keys = this.encryptor.generateNewKeys();
 
@@ -53,12 +54,15 @@ public class AWSSecretManagerKeyGenerator implements KeyGenerator {
     saveKeyInSecretManager(publicId.toString(), keys.getPublicKey());
     saveKeyInSecretManager(privateId.toString(), keys.getPrivateKey());
 
-    return new AWSKeyPair(publicId.toString(), privateId.toString());
+    AWSKeyPair keyPair = new AWSKeyPair(publicId.toString(), privateId.toString());
+
+    return new GeneratedKeyPair(keyPair, keys.getPublicKey().encodeToBase64());
   }
 
-  private void saveKeyInSecretManager(String id, Key key) {
-    keyVaultService.setSecret(Map.of("secretName", id, "secret", key.encodeToBase64()));
+  private SetSecretResponse saveKeyInSecretManager(String id, Key key) {
+    SetSecretResponse resp =
+        keyVaultService.setSecret(Map.of("secretName", id, "secret", key.encodeToBase64()));
     LOGGER.debug("Key {} saved to vault with id {}", key.encodeToBase64(), id);
-    LOGGER.info("Key saved to vault with id {}", id);
+    return resp;
   }
 }
