@@ -248,6 +248,9 @@ subprojects {
   dependencyCheck {
     failBuildOnCVSS = 0
     suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
+    analyzers {
+      assemblyEnabled = false
+    }
   }
 
   jacoco {
