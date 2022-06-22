@@ -11,6 +11,7 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ public class AzureVaultKeyGeneratorTest {
   private final String privStr = "private";
   private final PublicKey pub = PublicKey.from(pubStr.getBytes());
   private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
+  private final String pubVersion = "pubVersion";
+  private final String privVersion = "privVersion";
 
   private Encryptor encryptor;
   private KeyVaultService keyVaultService;
@@ -35,8 +38,11 @@ public class AzureVaultKeyGeneratorTest {
     this.keyVaultService = mock(KeyVaultService.class);
 
     final KeyPair keyPair = new KeyPair(pub, priv);
-
     when(encryptor.generateNewKeys()).thenReturn(keyPair);
+
+    final SetSecretResponse setRespPub = new SetSecretResponse(Map.of("version", pubVersion));
+    final SetSecretResponse setRespPriv = new SetSecretResponse(Map.of("version", privVersion));
+    when(keyVaultService.setSecret(anyMap())).thenReturn(setRespPub, setRespPriv);
 
     azureVaultKeyGenerator = new AzureVaultKeyGenerator(encryptor, keyVaultService);
   }
@@ -47,7 +53,7 @@ public class AzureVaultKeyGeneratorTest {
     final String pubVaultId = vaultId + "Pub";
     final String privVaultId = vaultId + "Key";
 
-    final AzureVaultKeyPair result = azureVaultKeyGenerator.generate(vaultId, null, null);
+    final GeneratedKeyPair result = azureVaultKeyGenerator.generate(vaultId, null, null);
 
     final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
 
@@ -68,9 +74,11 @@ public class AzureVaultKeyGeneratorTest {
 
     verifyNoMoreInteractions(keyVaultService);
 
-    final AzureVaultKeyPair expected = new AzureVaultKeyPair(pubVaultId, privVaultId, null, null);
+    final AzureVaultKeyPair kp =
+        new AzureVaultKeyPair(pubVaultId, privVaultId, pubVersion, privVersion);
+    final GeneratedKeyPair expected = new GeneratedKeyPair(kp, pub.encodeToBase64());
 
-    assertThat(result).isEqualToComparingFieldByFieldRecursively(expected);
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
   }
 
   @Test

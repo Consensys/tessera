@@ -3,6 +3,7 @@ package com.quorum.tessera.key.vault.hashicorp;
 import static java.util.function.Predicate.not;
 
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,7 +67,7 @@ public class HashicorpKeyVaultService implements KeyVaultService {
   }
 
   @Override
-  public Object setSecret(Map<String, String> hashicorpSetSecretData) {
+  public SetSecretResponse setSecret(Map<String, String> hashicorpSetSecretData) {
 
     String secretName = hashicorpSetSecretData.get(SECRET_NAME_KEY);
     String secretEngineName = hashicorpSetSecretData.get(SECRET_ENGINE_NAME_KEY);
@@ -84,7 +85,9 @@ public class HashicorpKeyVaultService implements KeyVaultService {
         vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
             vaultOperations, secretEngineName);
     try {
-      return keyValueOperations.put(secretName, nameValuePairs);
+      Versioned.Metadata metadata = keyValueOperations.put(secretName, nameValuePairs);
+      return new SetSecretResponse(
+          Map.of("version", String.valueOf(metadata.getVersion().getVersion())));
     } catch (NullPointerException ex) {
       throw new HashicorpVaultException(
           "Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");

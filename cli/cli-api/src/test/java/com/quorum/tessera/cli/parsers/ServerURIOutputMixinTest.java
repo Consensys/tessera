@@ -32,4 +32,12 @@ public class ServerURIOutputMixinTest {
     serverURIOutputMixin.updateConfig(null, config);
     assertThat(config.getOutputServerURIPath()).isNull();
   }
+
+  @Test
+  public void defaultDoNothing() {
+    final Config config = new Config();
+    assertThat(config.getOutputServerURIPath()).isNull();
+    serverURIOutputMixin.updateConfig(config);
+    assertThat(config.getOutputServerURIPath()).isNull();
+  }
 }

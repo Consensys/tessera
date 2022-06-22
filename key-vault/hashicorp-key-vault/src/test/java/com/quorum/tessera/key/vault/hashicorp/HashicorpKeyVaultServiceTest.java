@@ -1,9 +1,9 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
@@ -175,10 +175,15 @@ public class HashicorpKeyVaultServiceTest {
             vaultOperations, "engine"))
         .thenReturn(vaultVersionedKeyValueTemplate);
 
-    Object result = keyVaultService.setSecret(setSecretData);
+    Versioned.Version version = mock(Versioned.Version.class);
+    when(version.getVersion()).thenReturn(22);
 
-    assertThat(result).isInstanceOf(Versioned.Metadata.class);
-    assertThat(result).isEqualTo(metadata);
+    when(metadata.getVersion()).thenReturn(version);
+
+    SetSecretResponse result = keyVaultService.setSecret(setSecretData);
+
+    assertThat(result.getProperties()).size().isEqualTo(1);
+    assertThat(result.getProperties()).contains(entry("version", "22"));
 
     verify(vaultVersionedKeyValueTemplateFactory)
         .createVaultVersionedKeyValueTemplate(vaultOperations, "engine");

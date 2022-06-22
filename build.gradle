@@ -1,7 +1,7 @@
 import java.time.Duration
 
 plugins {
-  id "org.owasp.dependencycheck" version "7.0.4.1"
+  id "org.owasp.dependencycheck" version "7.1.0.1"
   id 'jacoco'
   id 'com.diffplug.gradle.spotless' version '3.25.0'
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
@@ -248,6 +248,9 @@ subprojects {
   dependencyCheck {
     failBuildOnCVSS = 0
     suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
+    analyzers {
+      assemblyEnabled = false
+    }
   }
 
   jacoco {

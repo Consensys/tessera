@@ -46,7 +46,7 @@ public class FileKeyGenerator implements KeyGenerator {
   }
 
   @Override
-  public FilesystemKeyPair generate(
+  public GeneratedKeyPair generate(
       final String filename,
       final ArgonOptions encryptionOptions,
       final KeyVaultOptions keyVaultOptions) {
@@ -108,14 +108,14 @@ public class FileKeyGenerator implements KeyGenerator {
     IOCallback.execute(
         () -> Files.write(privateKeyPath, privateKeyJson.getBytes(UTF_8), CREATE_NEW));
 
-    LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
-    LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
+    LOGGER.debug("Saved public key to {}", publicKeyPath.toAbsolutePath());
+    LOGGER.debug("Saved private key to {}", privateKeyPath.toAbsolutePath());
 
     final FilesystemKeyPair keyPair =
         new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
 
     keyPair.withPassword(password);
 
-    return keyPair;
+    return new GeneratedKeyPair(keyPair, publicKeyBase64);
   }
 }

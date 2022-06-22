@@ -5,9 +5,11 @@ import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
   }
 
   @Override
-  public HashicorpVaultKeyPair generate(
+  public GeneratedKeyPair generate(
       String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
     Objects.requireNonNull(filename);
     Objects.requireNonNull(
@@ -46,21 +48,29 @@ public class HashicorpVaultKeyGenerator implements KeyGenerator {
     setSecretData.put("secretName", filename);
     setSecretData.put("secretEngineName", keyVaultOptions.getSecretEngineName());
 
-    keyVaultService.setSecret(setSecretData);
+    SetSecretResponse resp = keyVaultService.setSecret(setSecretData);
+    Integer version =
+        Optional.ofNullable(resp)
+            .map(r -> r.getProperty("version"))
+            .map(Integer::valueOf)
+            .orElse(0);
 
-    LOGGER.info(
+    LOGGER.debug(
         "Key saved to vault secret engine {} with name {} and id {}",
         keyVaultOptions.getSecretEngineName(),
         filename,
         pubId);
 
-    LOGGER.info(
+    LOGGER.debug(
         "Key saved to vault secret engine {} with name {} and id {}",
         keyVaultOptions.getSecretEngineName(),
         filename,
         privId);
 
-    return new HashicorpVaultKeyPair(
-        pubId, privId, keyVaultOptions.getSecretEngineName(), filename, null);
+    HashicorpVaultKeyPair keyPair =
+        new HashicorpVaultKeyPair(
+            pubId, privId, keyVaultOptions.getSecretEngineName(), filename, version);
+
+    return new GeneratedKeyPair(keyPair, keys.getPublicKey().encodeToBase64());
   }
 }
