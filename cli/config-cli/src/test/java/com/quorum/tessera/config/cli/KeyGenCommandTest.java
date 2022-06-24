@@ -7,18 +7,22 @@ import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
+import com.quorum.tessera.key.generation.GeneratedKeyPair;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import jakarta.validation.ConstraintViolationException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -28,22 +32,17 @@ import picocli.CommandLine;
 @RunWith(MockitoJUnitRunner.class)
 public class KeyGenCommandTest {
 
+  @Rule public SystemOutRule systemOutOutput = new SystemOutRule().enableLog();
+
+  @Captor protected ArgumentCaptor<CommandLine.ParameterException> parameterExceptionArgumentCaptor;
   private KeyGeneratorFactory keyGeneratorFactory;
-
   private ConfigFileUpdaterWriter configFileUpdaterWriter;
-
   private PasswordFileUpdaterWriter passwordFileUpdaterWriter;
-
   private KeyDataMarshaller keyDataMarshaller;
-
   private KeyGenCommand keyGenCommand;
-
   private KeyGenerator keyGenerator;
-
   private CliExecutionExceptionHandler executionExceptionHandler;
   private CommandLine.IParameterExceptionHandler parameterExceptionHandler;
-  @Captor protected ArgumentCaptor<CommandLine.ParameterException> parameterExceptionArgumentCaptor;
-
   private CommandLine commandLine;
 
   @Before
@@ -81,9 +80,10 @@ public class KeyGenCommandTest {
 
   @Test
   public void noArgsProvided() throws Exception {
-
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
-    when(keyGenerator.generate("", null, null)).thenReturn(configKeyPair);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate("", null, null)).thenReturn(gkp);
 
     when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
         .thenReturn(keyGenerator);
@@ -103,7 +103,6 @@ public class KeyGenCommandTest {
     assertThat(result.getConfig()).isNotPresent();
     assertThat(result.getStatus()).isEqualTo(0);
 
-    verify(keyDataMarshaller).marshal(configKeyPair);
     verify(keyGeneratorFactory).create(refEq(null), any(EncryptorConfig.class));
 
     verify(keyGenerator).generate("", null, null);
@@ -111,11 +110,12 @@ public class KeyGenCommandTest {
 
   @Test
   public void updateNoOutputFileDefined() {
-
     String filename = "";
 
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
-    when(keyGenerator.generate(filename, null, null)).thenReturn(configKeyPair);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate(filename, null, null)).thenReturn(gkp);
 
     when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
         .thenReturn(keyGenerator);
@@ -149,9 +149,11 @@ public class KeyGenCommandTest {
     String filename = "";
 
     char[] password = "I LOVE SPARROWS".toCharArray();
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
     when(configKeyPair.getPassword()).thenReturn(password);
-    when(keyGenerator.generate(filename, null, null)).thenReturn(configKeyPair);
+    when(keyGenerator.generate(filename, null, null)).thenReturn(gkp);
 
     when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
         .thenReturn(keyGenerator);
@@ -189,8 +191,10 @@ public class KeyGenCommandTest {
 
     List<String> optionVariations = List.of("--keyout", "-filename");
 
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
-    when(keyGenerator.generate("myfile", null, null)).thenReturn(configKeyPair);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate("myfile", null, null)).thenReturn(gkp);
     when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
         .thenReturn(keyGenerator);
 
@@ -214,7 +218,6 @@ public class KeyGenCommandTest {
       assertThat(result.getStatus()).isEqualTo(0);
     }
 
-    verify(keyDataMarshaller, times(optionVariations.size())).marshal(configKeyPair);
     verify(keyGeneratorFactory, times(optionVariations.size()))
         .create(refEq(null), any(EncryptorConfig.class));
 
@@ -226,11 +229,13 @@ public class KeyGenCommandTest {
 
     List<String> optionVariations = List.of("--keyout", "-filename");
     List<String> valueVariations = List.of("myfile", "myotherfile", "yetanother");
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
 
     valueVariations.forEach(
         filename -> {
-          when(keyGenerator.generate(filename, null, null)).thenReturn(configKeyPair);
+          when(keyGenerator.generate(filename, null, null)).thenReturn(gkp);
         });
 
     when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
@@ -254,8 +259,6 @@ public class KeyGenCommandTest {
       assertThat(result.getConfig()).isNotPresent();
     }
 
-    verify(keyDataMarshaller, times(optionVariations.size() * valueVariations.size()))
-        .marshal(configKeyPair);
     verify(keyGeneratorFactory, times(optionVariations.size()))
         .create(refEq(null), any(EncryptorConfig.class));
 
@@ -312,8 +315,10 @@ public class KeyGenCommandTest {
   @Test
   public void vaultUrlProvidedOnCommandLine() {
 
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
     ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
-    when(keyGenerator.generate("", null, null)).thenReturn(configKeyPair);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate("", null, null)).thenReturn(gkp);
 
     when(keyGeneratorFactory.create(any(AzureKeyVaultConfig.class), any(EncryptorConfig.class)))
         .thenReturn(keyGenerator);
@@ -326,13 +331,17 @@ public class KeyGenCommandTest {
     assertThat(executionExceptionHandler.getExceptions()).isEmpty();
     verify(keyGenerator).generate("", null, null);
     verify(keyGeneratorFactory).create(any(AzureKeyVaultConfig.class), any(EncryptorConfig.class));
-    verify(keyDataMarshaller).marshal(configKeyPair);
   }
 
   @Test
   public void onlyConfigWithKeysProvided() throws Exception {
     // given
     when(keyGeneratorFactory.create(eq(null), any(EncryptorConfig.class))).thenReturn(keyGenerator);
+
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
+    ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate("", null, null)).thenReturn(gkp);
 
     CommandLine commandLine = new CommandLine(keyGenCommand);
 
@@ -345,18 +354,9 @@ public class KeyGenCommandTest {
 
     commandLine.registerConverter(Config.class, configConverter);
 
-    int exceptionExitCode = 999;
-    List<Exception> exceptions = new ArrayList<>();
-    commandLine.setExecutionExceptionHandler(
-        (ex, cmd, parseResult) -> {
-          exceptions.add(ex);
-          return exceptionExitCode;
-        });
-
     int exitCode = commandLine.execute("--configfile=myconfig.file");
 
     assertThat(exitCode).isZero();
-    assertThat(exceptions).isEmpty();
     verify(configConverter).convert("myconfig.file");
 
     CliResult result = commandLine.getExecutionResult();
@@ -369,7 +369,7 @@ public class KeyGenCommandTest {
 
     verify(configFileUpdaterWriter).updateAndWriteToCLI(anyList(), eq(null), any(Config.class));
 
-    verify(keyDataMarshaller).marshal(null);
+    verify(keyDataMarshaller).marshal(configKeyPair);
 
     verify(keyGenerator).generate("", null, null);
   }
@@ -418,7 +418,14 @@ public class KeyGenCommandTest {
 
   @Test
   public void hashicorpKeyOutDefinedRaises() throws Exception {
-    when(keyGeneratorFactory.create(any(), any())).thenReturn(mock(KeyGenerator.class));
+    when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+    String keyout = "key.out";
+
+    GeneratedKeyPair gkp = mock(GeneratedKeyPair.class);
+    ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+    when(gkp.getConfigKeyPair()).thenReturn(configKeyPair);
+    when(keyGenerator.generate(keyout, null, null)).thenReturn(gkp);
 
     Config config = mock(Config.class);
     KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
@@ -428,12 +435,11 @@ public class KeyGenCommandTest {
     CommandLine commandLine = new CommandLine(keyGenCommand);
     commandLine.setExecutionExceptionHandler(executionExceptionHandler);
     commandLine.registerConverter(Config.class, value -> config);
-    String keyout = "key.out";
     int result =
         commandLine.execute(
             "--vault.type=HASHICORP",
             "--vault.url=someurl",
-            "--configfile=".concat(keyout),
+            "--configfile=".concat("myconfig.json"),
             "--keyout=".concat(keyout));
 
     executionExceptionHandler.getExceptions().forEach(Throwable::printStackTrace);
@@ -442,6 +448,7 @@ public class KeyGenCommandTest {
     assertThat(result).isZero();
 
     verify(keyGeneratorFactory).create(any(), any());
+    verify(keyGenerator).generate(keyout, null, null);
     verify(configFileUpdaterWriter).updateAndWriteToCLI(anyList(), any(), refEq(config));
     verify(keyDataMarshaller).marshal(any());
   }
@@ -452,6 +459,91 @@ public class KeyGenCommandTest {
     KeyGenCommand.prepareConfigForNewKeys(config);
     assertThat(config.getKeys()).isNotNull();
     assertThat(config.getKeys().getKeyData()).isEmpty();
+  }
+
+  @Test
+  public void output() {
+    FilesystemKeyPair file = mock(FilesystemKeyPair.class);
+    when(file.getPublicKeyPath()).thenReturn(Paths.get("/file.pub"));
+    when(file.getPrivateKeyPath()).thenReturn(Paths.get("/file.key"));
+
+    HashicorpVaultKeyPair hashi = mock(HashicorpVaultKeyPair.class);
+    when(hashi.getSecretEngineName()).thenReturn("kv");
+    when(hashi.getSecretName()).thenReturn("mySecret");
+    when(hashi.getPublicKeyId()).thenReturn("publicKey");
+    when(hashi.getPrivateKeyId()).thenReturn("privateKey");
+    when(hashi.getSecretVersion()).thenReturn(1);
+
+    AzureVaultKeyPair azure = mock(AzureVaultKeyPair.class);
+    when(azure.getPublicKeyId()).thenReturn("myPub");
+    when(azure.getPrivateKeyId()).thenReturn("myPriv");
+    when(azure.getPublicKeyVersion()).thenReturn("abc123");
+    when(azure.getPrivateKeyVersion()).thenReturn("def456");
+
+    AWSKeyPair aws = mock(AWSKeyPair.class);
+    when(aws.getPublicKeyId()).thenReturn("myPub");
+    when(aws.getPrivateKeyId()).thenReturn("myPriv");
+
+    // cover cases where a new key pair gets implemented and output code is not yet updated
+    UnknownKeyPair unknown = mock(UnknownKeyPair.class);
+    when(unknown.getPublicKey()).thenReturn("unknownPub");
+
+    List<GeneratedKeyPair> kps =
+        List.of(
+            new GeneratedKeyPair(file, "filePub"),
+            new GeneratedKeyPair(hashi, "hashiPub"),
+            new GeneratedKeyPair(azure, "azurePub"),
+            new GeneratedKeyPair(aws, "awsPub"),
+            new GeneratedKeyPair(unknown, "unknownPub"));
+    KeyGenCommand.output(kps);
+
+    String got = systemOutOutput.getLog();
+
+    StringJoiner sj = new StringJoiner("\n");
+    sj.add("5 keypair(s) generated:");
+
+    sj.add("\t1: type=file, pub=filePub");
+    sj.add("\t\tpub: path=/file.pub");
+    sj.add("\t\tprv: path=/file.key");
+
+    sj.add("\t2: type=hashicorp, pub=hashiPub");
+    sj.add("\t\tpub: name=kv/mySecret, id=publicKey, version=1");
+    sj.add("\t\tprv: name=kv/mySecret, id=privateKey, version=1");
+
+    sj.add("\t3: type=azure, pub=azurePub");
+    sj.add("\t\tpub: id=myPub, version=abc123");
+    sj.add("\t\tprv: id=myPriv, version=def456");
+
+    sj.add("\t4: type=aws, pub=awsPub");
+    sj.add("\t\tpub: id=myPub");
+    sj.add("\t\tprv: id=myPriv");
+
+    sj.add("\t5: type=unknown, pub=unknownPub");
+
+    String expected = sj.toString();
+
+    assertThat(got).contains(expected);
+  }
+
+  static class UnknownKeyPair implements ConfigKeyPair {
+
+    @Override
+    public String getPublicKey() {
+      return null;
+    }
+
+    @Override
+    public String getPrivateKey() {
+      return null;
+    }
+
+    @Override
+    public void withPassword(char[] password) {}
+
+    @Override
+    public char[] getPassword() {
+      return new char[0];
+    }
   }
 
   static class CliExecutionExceptionHandler implements CommandLine.IExecutionExceptionHandler {

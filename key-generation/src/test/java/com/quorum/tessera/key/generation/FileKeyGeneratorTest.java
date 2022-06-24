@@ -67,18 +67,20 @@ public class FileKeyGeneratorTest {
 
   @Test
   public void generateFromKeyDataUnlockedPrivateKey() throws IOException {
-
     doReturn(keyPair).when(encryptor).generateNewKeys();
 
     String filename = UUID.randomUUID().toString();
     final Path tmpDir = Files.createTempDirectory("keygen").toAbsolutePath().resolve(filename);
 
-    final FilesystemKeyPair generated = generator.generate(tmpDir.toString(), null, null);
+    final GeneratedKeyPair generated = generator.generate(tmpDir.toString(), null, null);
 
-    assertThat(generated).isInstanceOf(FilesystemKeyPair.class);
     assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
-    assertThat(generated.getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
-    assertThat(generated.getInlineKeypair().getPrivateKeyConfig().getType()).isEqualTo(UNLOCKED);
+    assertThat(generated.getConfigKeyPair()).isInstanceOf(FilesystemKeyPair.class);
+    assertThat(generated.getConfigKeyPair().getPublicKey()).isEqualTo("cHVibGljS2V5");
+    assertThat(generated.getConfigKeyPair().getPrivateKey()).isEqualTo("cHJpdmF0ZUtleQ==");
+
+    FilesystemKeyPair fkp = (FilesystemKeyPair) generated.getConfigKeyPair();
+    assertThat(fkp.getInlineKeypair().getPrivateKeyConfig().getType()).isEqualTo(UNLOCKED);
 
     verify(encryptor).generateNewKeys();
   }
@@ -109,10 +111,14 @@ public class FileKeyGeneratorTest {
         .when(keyEncryptor)
         .encryptPrivateKey(any(PrivateKey.class), any(), eq(null));
 
-    final FilesystemKeyPair generated = generator.generate(keyFilesName, null, null);
+    final GeneratedKeyPair generated = generator.generate(keyFilesName, null, null);
 
-    final KeyDataConfig pkd = generated.getInlineKeypair().getPrivateKeyConfig();
     assertThat(generated.getPublicKey()).isEqualTo("cHVibGljS2V5");
+    assertThat(generated.getConfigKeyPair()).isInstanceOf(FilesystemKeyPair.class);
+    assertThat(generated.getConfigKeyPair().getPublicKey()).isEqualTo("cHVibGljS2V5");
+
+    final FilesystemKeyPair fkp = (FilesystemKeyPair) generated.getConfigKeyPair();
+    final KeyDataConfig pkd = fkp.getInlineKeypair().getPrivateKeyConfig();
     assertThat(pkd.getSbox()).isEqualTo("sbox");
     assertThat(pkd.getSnonce()).isEqualTo("snonce");
     assertThat(pkd.getAsalt()).isEqualTo("salt");
@@ -129,7 +135,7 @@ public class FileKeyGeneratorTest {
 
     doReturn(keyPair).when(encryptor).generateNewKeys();
 
-    final FilesystemKeyPair generated = generator.generate(keyFilesName, null, null);
+    final GeneratedKeyPair generated = generator.generate(keyFilesName, null, null);
 
     assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.pub"))).isTrue();
     assertThat(Files.exists(tempFolder.resolve("providingPathSavesToFile.key"))).isTrue();
@@ -144,7 +150,7 @@ public class FileKeyGeneratorTest {
 
     doReturn(keyPair).when(encryptor).generateNewKeys();
 
-    final FilesystemKeyPair generated = generator.generate("", null, null);
+    final GeneratedKeyPair generated = generator.generate("", null, null);
 
     assertThat(Files.exists(Paths.get(".pub"))).isTrue();
     assertThat(Files.exists(Paths.get(".key"))).isTrue();

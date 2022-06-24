@@ -4,6 +4,7 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import java.util.Map;
 import java.util.Objects;
@@ -48,11 +49,15 @@ public class AzureKeyVaultService implements KeyVaultService {
   }
 
   @Override
-  public Object setSecret(Map<String, String> azureSetSecretData) {
+  public SetSecretResponse setSecret(Map<String, String> azureSetSecretData) {
 
     final String secretName = azureSetSecretData.get(SECRET_NAME_KEY);
     final String secret = azureSetSecretData.get(SECRET_KEY);
 
-    return secretClient.setSecret(secretName, secret);
+    KeyVaultSecret kvs = secretClient.setSecret(secretName, secret);
+
+    SetSecretResponse resp =
+        new SetSecretResponse(Map.of("version", kvs.getProperties().getVersion()));
+    return resp;
   }
 }

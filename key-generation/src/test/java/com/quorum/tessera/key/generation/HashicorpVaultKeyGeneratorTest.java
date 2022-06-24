@@ -9,6 +9,7 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -65,15 +66,18 @@ public class HashicorpVaultKeyGeneratorTest {
     String secretEngine = "secretEngine";
     String filename = "secretName";
 
+    final SetSecretResponse setResp = new SetSecretResponse(Map.of("version", "1"));
+    when(keyVaultService.setSecret(anyMap())).thenReturn(setResp);
+
     KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
     when(keyVaultOptions.getSecretEngineName()).thenReturn(secretEngine);
 
-    HashicorpVaultKeyPair result =
-        hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
+    GeneratedKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
 
-    HashicorpVaultKeyPair expected =
-        new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
-    assertThat(result).isEqualToComparingFieldByField(expected);
+    HashicorpVaultKeyPair kp =
+        new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, 1);
+    GeneratedKeyPair expected = new GeneratedKeyPair(kp, pub.encodeToBase64());
+    assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 
     final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
     verify(keyVaultService).setSecret(captor.capture());
