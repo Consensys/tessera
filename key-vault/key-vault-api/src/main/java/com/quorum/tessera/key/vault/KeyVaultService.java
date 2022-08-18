@@ -6,5 +6,5 @@ public interface KeyVaultService {
 
   String getSecret(Map<String, String> getSecretData);
 
-  Object setSecret(Map<String, String> setSecretData);
+  SetSecretResponse setSecret(Map<String, String> setSecretData);
 }

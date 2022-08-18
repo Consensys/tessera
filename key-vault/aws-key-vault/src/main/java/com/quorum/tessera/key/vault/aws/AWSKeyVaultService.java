@@ -1,16 +1,12 @@
 package com.quorum.tessera.key.vault.aws;
 
 import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import java.util.Map;
 import java.util.Objects;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import software.amazon.awssdk.services.secretsmanager.model.InvalidParameterException;
-import software.amazon.awssdk.services.secretsmanager.model.InvalidRequestException;
-import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.secretsmanager.model.*;
 
 public class AWSKeyVaultService implements KeyVaultService {
 
@@ -26,7 +22,6 @@ public class AWSKeyVaultService implements KeyVaultService {
 
   @Override
   public String getSecret(Map<String, String> getSecretData) {
-
     final String secretName = getSecretData.get(SECRET_NAME_KEY);
 
     GetSecretValueRequest getSecretValueRequest =
@@ -51,14 +46,15 @@ public class AWSKeyVaultService implements KeyVaultService {
   }
 
   @Override
-  public Object setSecret(Map<String, String> setSecretData) {
-
+  public SetSecretResponse setSecret(Map<String, String> setSecretData) {
     final String secretName = setSecretData.get(SECRET_NAME_KEY);
     final String secret = setSecretData.get(SECRET_KEY);
 
     CreateSecretRequest createSecretRequest =
         CreateSecretRequest.builder().name(secretName).secretString(secret).build();
 
-    return secretsManager.createSecret(createSecretRequest);
+    CreateSecretResponse r = secretsManager.createSecret(createSecretRequest);
+
+    return new SetSecretResponse(Map.of("version", r.versionId()));
   }
 }

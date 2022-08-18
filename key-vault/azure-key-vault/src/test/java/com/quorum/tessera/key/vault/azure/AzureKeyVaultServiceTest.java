@@ -1,13 +1,14 @@
 package com.quorum.tessera.key.vault.azure;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.HttpResponse;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
+import com.azure.security.keyvault.secrets.models.SecretProperties;
+import com.quorum.tessera.key.vault.SetSecretResponse;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import java.util.Map;
 import org.junit.Before;
@@ -89,10 +90,14 @@ public class AzureKeyVaultServiceTest {
 
     final KeyVaultSecret newSecret = mock(KeyVaultSecret.class);
     when(secretClient.setSecret(secretName, secret)).thenReturn(newSecret);
+    final SecretProperties props = mock(SecretProperties.class);
+    when(newSecret.getProperties()).thenReturn(props);
+    when(props.getVersion()).thenReturn("myvers");
 
-    final Object result = keyVaultService.setSecret(setSecretData);
+    final SetSecretResponse result = keyVaultService.setSecret(setSecretData);
 
-    assertThat(result).isSameAs(newSecret);
+    assertThat(result.getProperties()).size().isEqualTo(1);
+    assertThat(result.getProperties()).contains(entry("version", "myvers"));
     verify(secretClient).setSecret("secret-name", "secret-value");
   }
 }

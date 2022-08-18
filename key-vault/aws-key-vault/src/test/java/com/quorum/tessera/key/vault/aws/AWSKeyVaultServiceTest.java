@@ -12,11 +12,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import software.amazon.awssdk.services.secretsmanager.model.InvalidParameterException;
-import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.secretsmanager.model.*;
 
 public class AWSKeyVaultServiceTest {
 
@@ -108,6 +104,10 @@ public class AWSKeyVaultServiceTest {
 
     String secretName = "id";
     String secret = "secret";
+
+    CreateSecretResponse resp = mock(CreateSecretResponse.class);
+    when(secretsManager.createSecret(any(CreateSecretRequest.class))).thenReturn(resp);
+    when(resp.versionId()).thenReturn("vers");
 
     Map<String, String> setSecretData =
         Map.of(
