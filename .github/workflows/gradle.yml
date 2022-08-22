@@ -453,21 +453,9 @@ jobs:
         run: |
           docker load --input /tmp/tessera-develop-image.tar
           docker image ls -a
-      - name: Get version of Quorum to use
-        id: quorumver
-        run: |
-          # 1.2.3-SNAPSHOT --> 1.2
-          QUORUM_MINOR_VERSION=$(cat version.txt | cut -d '-' -f 1 | cut -d '.' -f 1,2)
-          RESP_CODE=$(docker manifest inspect $QUORUM_DOCKER_IMAGE:$QUORUM_MINOR_VERSION> /dev/null ; echo $?)
-          if [ ! $RESP_CODE -eq 0 ]; then
-            echo "no quorum image found for $QUORUM_MINOR_VERSION"
-            VERSION=latest
-          fi
-          echo "using version $QUORUM_MINOR_VERSION"
-          echo ::set-output name=version::$QUORUM_MINOR_VERSION
       - name: Execute acceptance tests
         run:
-          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_tessera_docker_image='{name="${{ env.TESSERA_DOCKER_IMAGE }}:develop",local=true}' -e TF_VAR_quorum_docker_image='{name="${{ env.QUORUM_DOCKER_IMAGE }}:${{ steps.quorumver.outputs.version }}",local=false}' quorumengineering/acctests:latest -c "./mvnw --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
+          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_tessera_docker_image='{name="${{ env.TESSERA_DOCKER_IMAGE }}:develop",local=true}' -e TF_VAR_quorum_docker_image='{name="${{ env.QUORUM_DOCKER_IMAGE }}:latest",local=false}' quorumengineering/acctests:latest -c "./mvnw --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
       - name: Upload Gauge report
         uses: actions/upload-artifact@v2
         if: always()
