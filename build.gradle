@@ -118,7 +118,7 @@ allprojects {
         implementation "org.bouncycastle:bcprov-jdk15on:1.68"
 
         implementation "com.h2database:h2:2.1.212"
-        implementation "com.zaxxer:HikariCP:3.2.0"
+        implementation "com.zaxxer:HikariCP:5.0.1"
         implementation "org.hsqldb:hsqldb:2.5.1"
         implementation "org.xerial:sqlite-jdbc:3.23.1"
 
