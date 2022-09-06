@@ -4,9 +4,9 @@ plugins {
 }
 
 configurations.all {
-    resolutionStrategy {
-      force 'org.yaml:snakeyaml:1.31', 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
-    }
+  resolutionStrategy {
+    force 'org.yaml:snakeyaml:1.31', 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+  }
 }
 
 dependencies {
@@ -51,7 +51,7 @@ def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 resolve {
   classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
-    outputDir = file(generatedResources)
+  outputDir = file(generatedResources)
   outputFileName = "openapi.p2p"
   outputFormat = "JSONANDYAML"
   prettyPrint = "TRUE"
