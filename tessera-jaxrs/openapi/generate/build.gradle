@@ -4,7 +4,7 @@ plugins {
 
 configurations.all {
   resolutionStrategy {
-    force 'org.yaml:snakeyaml:1.32', 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+    force 'org.yaml:snakeyaml:1.33', 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
   }
 }
 
