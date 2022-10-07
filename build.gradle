@@ -3,7 +3,7 @@ import java.time.Duration
 plugins {
   id "org.owasp.dependencycheck" version "7.1.0.1"
   id 'jacoco'
-  id 'com.diffplug.gradle.spotless' version '4.0.1'
+  id 'com.diffplug.spotless' version '5.17.1'
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
   id "org.javamodularity.moduleplugin" version "1.8.8"
   id 'org.ec4j.editorconfig' version '0.0.3'
@@ -181,7 +181,7 @@ nexusPublishing {
 subprojects {
 
   apply plugin: "java-library"
-  apply plugin: "com.diffplug.gradle.spotless"
+  apply plugin: "com.diffplug.spotless"
   apply plugin: "maven-publish"
   apply plugin: "jacoco"
   apply plugin: "org.owasp.dependencycheck"
@@ -280,7 +280,6 @@ subprojects {
         fileTree('.') {
           include "*.gradle"
         })
-        .from("$rootDir/build.gradle")
       greclipse().configFile(rootProject.file("gradle/formatter.properties"))
       endWithNewline()
     }
