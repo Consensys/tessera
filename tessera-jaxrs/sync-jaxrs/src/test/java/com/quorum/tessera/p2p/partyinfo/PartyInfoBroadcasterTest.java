@@ -12,11 +12,9 @@ import jakarta.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
 
 public class PartyInfoBroadcasterTest {
 
@@ -36,8 +34,6 @@ public class PartyInfoBroadcasterTest {
 
   private P2pClient p2pClient;
 
-  private Executor executor;
-
   private PartyStore partyStore;
 
   @Before
@@ -45,21 +41,12 @@ public class PartyInfoBroadcasterTest {
     this.discovery = mock(Discovery.class);
     this.partyInfoParser = mock(PartyInfoParser.class);
     this.p2pClient = mock(P2pClient.class);
-    this.executor = mock(Executor.class);
     this.partyStore = mock(PartyStore.class);
-
-    doAnswer(
-            (InvocationOnMock invocation) -> {
-              ((Runnable) invocation.getArguments()[0]).run();
-              return null;
-            })
-        .when(executor)
-        .execute(any(Runnable.class));
 
     when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
     this.partyInfoBroadcaster =
-        new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor, partyStore);
+        new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, partyStore);
   }
 
   @After
