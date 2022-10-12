@@ -121,7 +121,7 @@ allprojects {
 
         implementation "com.h2database:h2:2.1.212"
         implementation "com.zaxxer:HikariCP:5.0.1"
-        implementation "org.hsqldb:hsqldb:2.5.1"
+        implementation "org.hsqldb:hsqldb:2.7.0"
         implementation "org.xerial:sqlite-jdbc:3.23.1"
 
         api 'org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:5.0.2'
