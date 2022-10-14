@@ -17,4 +17,7 @@ module tessera.acceptance.tests {
   requires jdk.httpserver;
   requires java.net.http;
   requires jakarta.json;
+  requires org.assertj.core;
+  requires org.hsqldb;
+  requires org.mockito;
 }

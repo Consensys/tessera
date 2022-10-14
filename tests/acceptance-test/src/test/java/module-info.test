@@ -1,3 +1,6 @@
+--add-modules
+    org.hsqldb,org.mockito
+
 --add-opens
     tessera.acceptance.tests/transaction.rest=io.cucumber.core,io.cucumber.java8
 
@@ -22,12 +25,6 @@
 --add-opens
     tessera.acceptance.tests/com.quorum.tessera.test.cli.version=io.cucumber.core,io.cucumber.java8
 
---add-exports
-    org.apache.commons.logging/org.apache.commons.logging.impl=spring.core
-
---add-exports
-    org.apache.commons.logging/org.apache.commons.logging=io.swagger.v3.oas.integration
-
 --add-opens
     org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities
 
@@ -39,9 +36,6 @@
 
 --add-reads
     tessera.acceptance.tests=org.yaml.snakeyaml
-
---add-reads
-    tessera.acceptance.tests=hsqldb
 
 --add-reads
     tessera.acceptance.tests=org.jnrproject.unixsocket
