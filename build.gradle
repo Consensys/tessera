@@ -3,7 +3,7 @@ import java.time.Duration
 plugins {
   id "org.owasp.dependencycheck" version "7.1.0.1"
   id 'jacoco'
-  id 'com.diffplug.spotless' version '5.17.1'
+  id 'com.diffplug.spotless' version '6.11.0'
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
   id "org.javamodularity.moduleplugin" version "1.8.8"
   id 'org.ec4j.editorconfig' version '0.0.3'
