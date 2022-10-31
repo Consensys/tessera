@@ -2,7 +2,6 @@ package db;
 
 import java.io.IOException;
 import java.util.Properties;
-
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerAcl;
 
