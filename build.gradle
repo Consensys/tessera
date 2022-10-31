@@ -76,7 +76,7 @@ allprojects {
         implementation "org.apache.commons:commons-lang3:3.12.0"
 
         implementation "com.github.jnr:jnr-unixsocket:0.38.15"
-        implementation "com.github.jnr:jffi:1.3.8"
+        implementation "com.github.jnr:jffi:1.3.9"
 
         implementation "de.mkammerer:argon2-jvm:2.5"
 
