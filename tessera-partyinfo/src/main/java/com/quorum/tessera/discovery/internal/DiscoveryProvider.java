@@ -13,7 +13,9 @@ public class DiscoveryProvider {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryProvider.class);
 
-  /** @see java.util.ServiceLoader.Provider */
+  /**
+   * @see java.util.ServiceLoader.Provider
+   */
   public static Discovery provider() {
     final DiscoveryHolder discoveryHolder = DiscoveryHolder.create();
     if (discoveryHolder.get().isPresent()) {

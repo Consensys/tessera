@@ -57,7 +57,7 @@ allprojects {
         testImplementation "junit:junit:4.13"
 
         testImplementation "org.assertj:assertj-core:3.18.0"
-        testImplementation "org.mockito:mockito-inline:3.4.4"
+        testImplementation "org.mockito:mockito-inline:4.8.1"
 
         testImplementation "com.github.jknack:handlebars:4.2.0"
 
