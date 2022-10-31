@@ -1,7 +1,8 @@
 package db;
 
 import java.io.IOException;
-import org.hsqldb.persist.HsqlProperties;
+import java.util.Properties;
+
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerAcl;
 
@@ -18,7 +19,7 @@ public class HsqlDatabaseServer implements DatabaseServer {
   @Override
   public void start() {
 
-    HsqlProperties properties = new HsqlProperties();
+    Properties properties = new Properties();
     for (int i = 0; i < 4; i++) {
       String db = nodeId + (i + 1);
       properties.setProperty(
