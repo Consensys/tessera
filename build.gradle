@@ -346,7 +346,7 @@ subprojects {
     }
   }
 
-  sourceCompatibility = "11"
+  sourceCompatibility = JavaVersion.VERSION_17
 
   java {
     withJavadocJar()
