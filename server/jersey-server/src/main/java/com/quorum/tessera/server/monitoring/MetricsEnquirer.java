@@ -1,7 +1,6 @@
 package com.quorum.tessera.server.monitoring;
 
 import com.quorum.tessera.config.AppType;
-
 import java.util.*;
 import javax.management.*;
 
@@ -45,22 +44,22 @@ public class MetricsEnquirer {
       throws MalformedObjectNameException {
 
     final String pattern =
-      Optional.ofNullable(appType)
-        .map(
-          at ->
-            switch (at) {
-              case P2P -> "P2PRestApp";
-              case Q2T -> "Q2TRestApp";
-              case ADMIN -> "AdminRestApp";
-              case THIRD_PARTY -> "ThirdPartyRestApp";
-              case ENCLAVE -> "EnclaveApplication";
-            })
-        .map(
-          t ->
-            String.format(
-              "org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*",
-              t))
-        .orElseThrow(() -> new MonitoringNotSupportedException(appType));
+        Optional.ofNullable(appType)
+            .map(
+                at ->
+                    switch (at) {
+                      case P2P -> "P2PRestApp";
+                      case Q2T -> "Q2TRestApp";
+                      case ADMIN -> "AdminRestApp";
+                      case THIRD_PARTY -> "ThirdPartyRestApp";
+                      case ENCLAVE -> "EnclaveApplication";
+                    })
+            .map(
+                t ->
+                    String.format(
+                        "org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*",
+                        t))
+            .orElseThrow(() -> new MonitoringNotSupportedException(appType));
 
     return Collections.unmodifiableSet(this.mBeanServer.queryNames(new ObjectName(pattern), null));
   }
