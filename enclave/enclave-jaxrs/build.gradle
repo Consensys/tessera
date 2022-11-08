@@ -13,7 +13,10 @@ application {
     "-Djakarta.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
     "--add-opens=org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities"
   ]
-  startScripts.enabled = true
+  startScripts {
+    def template = "${rootProject.projectDir}/gradle/unixStartScript.txt"
+    unixStartScriptGenerator.template = resources.text.fromFile(template)
+  }
 }
 
 configurations.all {

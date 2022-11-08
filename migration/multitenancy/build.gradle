@@ -32,7 +32,10 @@ application {
     "-Djakarta.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
     "-Dtessera.cli.type=MULTITENANCY_MIGRATION"
   ]
-  startScripts.enabled = true
+  startScripts {
+    def template = "${rootProject.projectDir}/gradle/unixStartScript.txt"
+    unixStartScriptGenerator.template = resources.text.fromFile(template)
+  }
 }
 
 modularity.disableEffectiveArgumentsAdjustment()

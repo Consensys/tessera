@@ -78,7 +78,7 @@ public class PathValidatorTest {
 
     assertThat(pathValidator.isValid(null, context)).isTrue();
 
-    verifyZeroInteractions(context);
+    verifyNoInteractions(context);
   }
 
   @Test
@@ -96,7 +96,7 @@ public class PathValidatorTest {
 
     assertThat(pathValidator.isValid(path, context)).isTrue();
 
-    verifyZeroInteractions(context);
+    verifyNoInteractions(context);
   }
 
   @Test

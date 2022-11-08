@@ -11,7 +11,7 @@ RUN mkdir /install
 RUN mkdir /install/enclave-jaxrs && tar xvf $(find . -name enclave-jaxrs-*.tar 2>/dev/null) -C /install/enclave-jaxrs --strip-components 1
 
 # Create executable image
-FROM eclipse-temurin:11-jre-jammy
+FROM eclipse-temurin:17-jre-jammy
 
 RUN apt-get update && apt-get install -y \
   wget \

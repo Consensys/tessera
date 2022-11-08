@@ -1,10 +1,7 @@
 package com.quorum.tessera.server.monitoring;
 
 import com.quorum.tessera.config.AppType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.management.*;
 
 public class MetricsEnquirer {
@@ -45,31 +42,25 @@ public class MetricsEnquirer {
 
   private Set<ObjectName> getTesseraResourceMBeanNames(AppType appType)
       throws MalformedObjectNameException {
-    final String type;
-    switch (appType) {
-      case P2P:
-        type = "P2PRestApp";
-        break;
-      case Q2T:
-        type = "Q2TRestApp";
-        break;
-      case ADMIN:
-        type = "AdminRestApp";
-        break;
-      case THIRD_PARTY:
-        type = "ThirdPartyRestApp";
-        break;
-      case ENCLAVE:
-        type = "EnclaveApplication";
-        break;
-      default:
-        throw new MonitoringNotSupportedException(appType);
-    }
 
-    String pattern =
-        String.format(
-            "org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*",
-            type);
+    final String pattern =
+        Optional.ofNullable(appType)
+            .map(
+                at ->
+                    switch (at) {
+                      case P2P -> "P2PRestApp";
+                      case Q2T -> "Q2TRestApp";
+                      case ADMIN -> "AdminRestApp";
+                      case THIRD_PARTY -> "ThirdPartyRestApp";
+                      case ENCLAVE -> "EnclaveApplication";
+                    })
+            .map(
+                t ->
+                    String.format(
+                        "org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*",
+                        t))
+            .orElseThrow(() -> new MonitoringNotSupportedException(appType));
+
     return Collections.unmodifiableSet(this.mBeanServer.queryNames(new ObjectName(pattern), null));
   }
 

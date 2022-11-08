@@ -40,15 +40,11 @@ public class Argon2Impl implements Argon2 {
   private Argon2Advanced getArgon2Instance(final String algorithm) {
     LOGGER.debug("Searching for the Argon2 algorithm {}", algorithm);
 
-    switch (algorithm) {
-      case "d":
-        return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2d);
-      case "id":
-        return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2id);
-      case "i":
-        return Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2i);
-      default:
-        throw new IllegalArgumentException("Invalid Argon2 algorithm " + algorithm);
-    }
+    return switch (algorithm) {
+      case "d" -> Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2d);
+      case "id" -> Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2id);
+      case "i" -> Argon2Factory.createAdvanced(Argon2Factory.Argon2Types.ARGON2i);
+      default -> throw new IllegalArgumentException("Invalid Argon2 algorithm " + algorithm);
+    };
   }
 }
