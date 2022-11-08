@@ -3,6 +3,12 @@ plugins {
   id "java-library"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.yaml:snakeyaml:1.33', 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+  }
+}
+
 dependencies {
 
   implementation project(":tessera-jaxrs:common-jaxrs")
@@ -29,12 +35,6 @@ dependencies {
   api "jakarta.inject:jakarta.inject-api"
 
   compileOnly project(':tessera-jaxrs:openapi:common')
-
-  constraints {
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion") {
-      because 'databind less than 2.13.2.2 has a bug'
-    }
-  }
 }
 
 jar {

@@ -2,7 +2,7 @@ package com.quorum.tessera.config.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
@@ -189,7 +189,7 @@ public class KeyDataUtilTest {
     assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
     assertThat(result.getPrivateKey()).isEqualTo("PRIVATEKEY");
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -208,7 +208,7 @@ public class KeyDataUtilTest {
     assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
     assertThat(result.getPrivateKeyConfig()).isSameAs(config);
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -229,7 +229,7 @@ public class KeyDataUtilTest {
     assertThat(result.getPrivateKeyId()).isEqualTo("AzureVaultPrivateKeyId");
     assertThat(result.getPublicKeyId()).isEqualTo("AzureVaultPublicKeyId");
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -254,7 +254,7 @@ public class KeyDataUtilTest {
     assertThat(result.getSecretEngineName()).isEqualTo("HashicorpVaultSecretEngineName");
     assertThat(result.getSecretName()).isEqualTo("HashicorpSecretName");
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -278,7 +278,7 @@ public class KeyDataUtilTest {
     assertThat(result.getSecretEngineName()).isEqualTo("HashicorpVaultSecretEngineName");
     assertThat(result.getSecretName()).isEqualTo("HashicorpSecretName");
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -296,7 +296,7 @@ public class KeyDataUtilTest {
     assertThat(result.getPrivateKeyId()).isEqualTo("AwsSecretsManagerPrivateKeyId");
     assertThat(result.getPublicKeyId()).isEqualTo("AwsSecretsManagerPublicKeyId");
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -317,7 +317,7 @@ public class KeyDataUtilTest {
     assertThat(result.getPrivateKeyPath()).isSameAs(privateKeyPath);
     assertThat(result.getPublicKeyPath()).isSameAs(publicKeyPath);
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -330,7 +330,7 @@ public class KeyDataUtilTest {
 
     assertThat(result).isNotNull();
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test

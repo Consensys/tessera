@@ -70,7 +70,7 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-servlet"
 
-  testImplementation "org.yaml:snakeyaml:1.27"
+  testImplementation "org.yaml:snakeyaml"
 
 }
 
@@ -113,11 +113,11 @@ test {
     )
 
   if(!file("/usr/local/lib").exists() ||  file("/usr/local/lib/").listFiles(new FilenameFilter() {
-    @Override
-    boolean accept(File dir, String name) {
-      return name.startsWith("libsodium");
-    }
-  }).length <= 0) {
+      @Override
+      boolean accept(File dir, String name) {
+        return name.startsWith("libsodium");
+      }
+    }).length <= 0) {
     exclude "**/RestSuiteHttpH2EncTypeKalium.class"
   }
 

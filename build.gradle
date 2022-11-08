@@ -3,7 +3,7 @@ import java.time.Duration
 plugins {
   id "org.owasp.dependencycheck" version "7.1.0.1"
   id 'jacoco'
-  id 'com.diffplug.gradle.spotless' version '3.25.0'
+  id 'com.diffplug.spotless' version '6.11.0'
   id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
   id "org.javamodularity.moduleplugin" version "1.8.8"
   id 'org.ec4j.editorconfig' version '0.0.3'
@@ -18,8 +18,8 @@ ext {
   slf4jVersion = "1.7.36"
   logbackVersion = "1.2.11"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.13.2";
-  jacksonDatabindVersion = "2.13.2.2";
+  jacksonVersion = "2.13.4";
+  jacksonDatabindVersion = "2.14.0-rc1";
 }
 
 allprojects {
@@ -57,7 +57,7 @@ allprojects {
         testImplementation "junit:junit:4.13"
 
         testImplementation "org.assertj:assertj-core:3.18.0"
-        testImplementation "org.mockito:mockito-inline:3.4.4"
+        testImplementation "org.mockito:mockito-inline:4.8.1"
 
         testImplementation "com.github.jknack:handlebars:4.2.0"
 
@@ -68,13 +68,15 @@ allprojects {
         testImplementation "nl.jqno.equalsverifier:equalsverifier:3.7.1"
         testImplementation "com.mockrunner:mockrunner-jdbc:2.0.4"
 
+        implementation "org.yaml:snakeyaml:1.33" // transitive dependency of jackson-databind:2.13.3
+
         implementation "commons-cli:commons-cli:1.5.0"
         implementation "commons-codec:commons-codec:1.15"
         implementation "commons-io:commons-io:2.11.0"
         implementation "org.apache.commons:commons-lang3:3.12.0"
 
         implementation "com.github.jnr:jnr-unixsocket:0.38.15"
-        implementation "com.github.jnr:jffi:1.3.8"
+        implementation "com.github.jnr:jffi:1.3.9"
 
         implementation "de.mkammerer:argon2-jvm:2.5"
 
@@ -118,7 +120,7 @@ allprojects {
         implementation "org.bouncycastle:bcprov-jdk15on:1.68"
 
         implementation "com.h2database:h2:2.1.212"
-        implementation "com.zaxxer:HikariCP:3.2.0"
+        implementation "com.zaxxer:HikariCP:5.0.1"
         implementation "org.hsqldb:hsqldb:2.5.1"
         implementation "org.xerial:sqlite-jdbc:3.30.1"
 
@@ -149,7 +151,7 @@ allprojects {
         implementation("org.glassfish:jakarta.json:2.0.1:module")
 
         api "jakarta.el:jakarta.el-api:4.0.0"
-        implementation "org.glassfish:jakarta.el:4.0.1"
+        implementation "org.glassfish:jakarta.el:4.0.2"
 
         api "jakarta.validation:jakarta.validation-api:3.0.0"
         implementation "org.hibernate.validator:hibernate-validator:7.0.1.Final"
@@ -179,7 +181,7 @@ nexusPublishing {
 subprojects {
 
   apply plugin: "java-library"
-  apply plugin: "com.diffplug.gradle.spotless"
+  apply plugin: "com.diffplug.spotless"
   apply plugin: "maven-publish"
   apply plugin: "jacoco"
   apply plugin: "org.owasp.dependencycheck"
@@ -254,7 +256,7 @@ subprojects {
   }
 
   jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.8"
   }
 
   spotless {
@@ -269,7 +271,7 @@ subprojects {
         include "**/src/test/java/**/*.java"
       }
       removeUnusedImports()
-      googleJavaFormat("1.7")
+      googleJavaFormat("1.15.0")
       trimTrailingWhitespace()
       endWithNewline()
     }
@@ -278,7 +280,6 @@ subprojects {
         fileTree('.') {
           include "*.gradle"
         })
-        .from("$rootDir/build.gradle")
       greclipse().configFile(rootProject.file("gradle/formatter.properties"))
       endWithNewline()
     }
@@ -345,7 +346,7 @@ subprojects {
     }
   }
 
-  sourceCompatibility = "11"
+  sourceCompatibility = JavaVersion.VERSION_17
 
   java {
     withJavadocJar()

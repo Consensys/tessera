@@ -120,7 +120,7 @@ public class RestPayloadPublisherTest {
     verify(discovery, times(iterations)).getRemoteNodeInfo(publicKey);
     verify(payloadEncoder, times(iterations)).encode(encodedPayload);
     payloadEncoderFactoryFunction.verify(
-        times(iterations), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)), times(iterations));
   }
 
   @Test
@@ -158,7 +158,7 @@ public class RestPayloadPublisherTest {
     }
 
     payloadEncoderFactoryFunction.verify(
-        times(2), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)), times(2));
   }
 
   @Test

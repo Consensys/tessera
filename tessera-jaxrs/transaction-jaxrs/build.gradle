@@ -3,6 +3,12 @@ plugins {
   id "java-library"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.yaml:snakeyaml:1.33', 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+  }
+}
+
 dependencies {
   implementation project(":tessera-jaxrs:common-jaxrs")
   implementation project(":tessera-jaxrs:jaxrs-client")

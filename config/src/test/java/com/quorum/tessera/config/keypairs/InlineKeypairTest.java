@@ -40,7 +40,7 @@ public class InlineKeypairTest {
 
     assertThat(result.getPrivateKey()).isEqualTo(value);
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class InlineKeypairTest {
     result.withPassword(null);
 
     assertThat(result.getPrivateKey()).isNull();
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 
   @Test

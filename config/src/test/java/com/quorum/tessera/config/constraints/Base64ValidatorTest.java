@@ -2,7 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Base64;
@@ -24,7 +24,7 @@ public class Base64ValidatorTest {
 
   @After
   public void onTearDown() {
-    verifyZeroInteractions(constraintValidatorContext);
+    verifyNoMoreInteractions(constraintValidatorContext);
   }
 
   @Test

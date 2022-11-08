@@ -3,6 +3,12 @@ plugins {
   id "java-library"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.yaml:snakeyaml:1.33', 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+  }
+}
+
 dependencies {
   api 'io.swagger.core.v3:swagger-annotations'
   api "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"

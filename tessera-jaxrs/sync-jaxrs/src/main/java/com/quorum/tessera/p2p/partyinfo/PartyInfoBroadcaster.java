@@ -10,9 +10,6 @@ import jakarta.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,29 +27,20 @@ public class PartyInfoBroadcaster implements Runnable {
 
   private final P2pClient p2pClient;
 
-  private final Executor executor;
-
   private final PartyStore partyStore;
 
   public PartyInfoBroadcaster(final P2pClient p2pClient) {
-    this(
-        Discovery.create(),
-        PartyInfoParser.create(),
-        p2pClient,
-        Executors.newCachedThreadPool(),
-        PartyStore.getInstance());
+    this(Discovery.create(), PartyInfoParser.create(), p2pClient, PartyStore.getInstance());
   }
 
   public PartyInfoBroadcaster(
       final Discovery discovery,
       final PartyInfoParser partyInfoParser,
       final P2pClient p2pClient,
-      final Executor executor,
       final PartyStore partyStore) {
     this.discovery = Objects.requireNonNull(discovery);
     this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
     this.p2pClient = Objects.requireNonNull(p2pClient);
-    this.executor = Objects.requireNonNull(executor);
     this.partyStore = Objects.requireNonNull(partyStore);
   }
 
@@ -107,24 +95,20 @@ public class PartyInfoBroadcaster implements Runnable {
    */
   protected void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
     final NodeUri nodeUri = NodeUri.create(url);
-    CompletableFuture.runAsync(
-            () -> {
-              LOGGER.debug("Sending party info to {}", nodeUri.asString());
-              p2pClient.sendPartyInfo(url, encodedPartyInfo);
-              LOGGER.debug("Sent party info to {}", nodeUri.asString());
-            },
-            executor)
-        .exceptionally(
-            ex -> {
-              Throwable cause = Optional.of(ex).map(Throwable::getCause).orElse(ex);
+    try {
 
-              LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
-              LOGGER.debug("Send failure exception", cause);
-              if (ProcessingException.class.isInstance(cause)) {
-                discovery.onDisconnect(URI.create(url));
-                partyStore.remove(URI.create(url));
-              }
-              return null;
-            });
+      LOGGER.debug("Sending party info to {}", nodeUri.asString());
+      p2pClient.sendPartyInfo(url, encodedPartyInfo);
+      LOGGER.debug("Sent party info to {}", nodeUri.asString());
+    } catch (Exception ex) {
+      Throwable cause = Optional.of(ex).map(Throwable::getCause).orElse(ex);
+
+      LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
+      LOGGER.debug("Send failure exception", cause);
+      if (ProcessingException.class.isInstance(cause)) {
+        discovery.onDisconnect(URI.create(url));
+        partyStore.remove(URI.create(url));
+      }
+    }
   }
 }

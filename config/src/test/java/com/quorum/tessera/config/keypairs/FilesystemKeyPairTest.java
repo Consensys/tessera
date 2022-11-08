@@ -2,7 +2,7 @@ package com.quorum.tessera.config.keypairs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
@@ -105,6 +105,6 @@ public class FilesystemKeyPairTest {
     assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
     assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
 
-    verifyZeroInteractions(keyEncryptor);
+    verifyNoInteractions(keyEncryptor);
   }
 }

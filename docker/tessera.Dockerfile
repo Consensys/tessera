@@ -11,7 +11,7 @@ RUN mkdir /install
 RUN mkdir /install/tessera && tar xvf $(find . -name tessera-*.tar 2>/dev/null) -C /install/tessera --strip-components 1
 
 # Create executable image
-FROM adoptopenjdk/openjdk11:debianslim
+FROM eclipse-temurin:17-jre-jammy
 
 RUN apt-get update && apt-get install -y \
   wget \
