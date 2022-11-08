@@ -440,7 +440,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 17
+          java-version: 14
           check-latest: true
       - name: download-artifact portable Docker image
         uses: actions/download-artifact@v2
