@@ -279,7 +279,7 @@ public class CliKeyPasswordResolverTest {
 
     this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
-    verifyZeroInteractions(passwordReader);
+    verifyNoInteractions(passwordReader);
   }
 
   //    @Test
