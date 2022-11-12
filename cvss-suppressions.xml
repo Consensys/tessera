@@ -32,12 +32,4 @@
         <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
         <cve>CVE-2022-38752</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: hsqldb-2.5.1.jar
-   Until 2.7.1 is released
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.hsqldb/hsqldb@2.5.1</packageUrl>
-        <cve>CVE-2022-41853</cve>
-    </suppress>
 </suppressions>
