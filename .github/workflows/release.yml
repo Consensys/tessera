@@ -245,8 +245,8 @@ jobs:
         with:
           tags: |
             ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-latest
-            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.release_sonatype.outputs.minor-ver }}
-            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.release_sonatype.outputs.full-ver }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.check-version.outputs.minor-version }}
+            ${{ env.TESSERA_DOCKER_IMAGE_NAME }}:enclave-${{ needs.check-version.outputs.full-version }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}

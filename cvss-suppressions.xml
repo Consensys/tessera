@@ -7,6 +7,7 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/net\.consensys\.quorum\.tessera/partyinfo\-model@.*$</packageUrl>
         <cpe>cpe:/a:model_project:model</cpe>
+        <cve>CVE-2020-36460</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -23,5 +24,12 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: snakeyaml-1.33.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
+        <cve>CVE-2022-38752</cve>
     </suppress>
 </suppressions>

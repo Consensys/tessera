@@ -163,8 +163,10 @@ public class TransactionResource3 {
             .get();
 
     final String[] managedParties =
-        Optional.of(response).map(com.quorum.tessera.transaction.SendResponse::getManagedParties)
-            .orElse(Collections.emptySet()).stream()
+        Optional.of(response)
+            .map(com.quorum.tessera.transaction.SendResponse::getManagedParties)
+            .orElse(Collections.emptySet())
+            .stream()
             .map(PublicKey::encodeToBase64)
             .toArray(String[]::new);
 
@@ -305,8 +307,10 @@ public class TransactionResource3 {
             .build();
 
     final String[] managedParties =
-        Optional.of(response).map(com.quorum.tessera.transaction.SendResponse::getManagedParties)
-            .orElse(Collections.emptySet()).stream()
+        Optional.of(response)
+            .map(com.quorum.tessera.transaction.SendResponse::getManagedParties)
+            .orElse(Collections.emptySet())
+            .stream()
             .map(PublicKey::encodeToBase64)
             .toArray(String[]::new);
 

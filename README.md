@@ -56,7 +56,7 @@ The following artefacts can be [added to a distribution](#supplementing-the-dist
 
 ## Prerequisites
 - [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
-    - Java 11+ (tested up to Java 14), code source is Java 11.
+    - Java 17+
 
 - [Optional: Gradle](https://gradle.org/install/)<br/>
     - If you want to use a locally installed Gradle rather than the included wrapper. Note: wrapper currently uses Gradle 7.0.2.

@@ -47,7 +47,9 @@ public class ServerConfig extends ConfigItem {
   @XmlElement
   private Map<String, String> properties = Collections.emptyMap();
 
-  /** @deprecated USe default constructor and setters */
+  /**
+   * @deprecated USe default constructor and setters
+   */
   @Deprecated
   public ServerConfig(
       final AppType app,

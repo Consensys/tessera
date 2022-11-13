@@ -12,7 +12,9 @@ public class ResendResponse {
     this.payload = payload;
   }
 
-  /** @return Optional encoded payload */
+  /**
+   * @return Optional encoded payload
+   */
   public Optional<byte[]> getPayload() {
     return Optional.ofNullable(payload);
   }

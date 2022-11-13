@@ -2,6 +2,12 @@ plugins {
   id "io.swagger.core.v3.swagger-gradle-plugin"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.yaml:snakeyaml:1.33', 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+  }
+}
+
 dependencies {
   compileOnly project(":tessera-jaxrs:common-jaxrs")
   compileOnly project(":tessera-jaxrs:sync-jaxrs")

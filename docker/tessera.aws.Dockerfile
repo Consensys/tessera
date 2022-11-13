@@ -16,7 +16,7 @@ RUN mkdir /install/aws-key-vault && tar xvf $(find . -name aws-key-vault-*.tar 2
 RUN mkdir /install/tessera-plus-vault && cp -a /install/aws-key-vault/. /install/tessera-plus-vault/ && cp -a /install/tessera/. /install/tessera-plus-vault/
 
 # Create executable image
-FROM adoptopenjdk/openjdk11:debianslim
+FROM eclipse-temurin:17-jre-jammy
 
 RUN apt-get update && apt-get install -y \
   wget \
