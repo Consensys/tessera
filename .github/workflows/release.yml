@@ -29,13 +29,13 @@ jobs:
         run: |
           # 1.2.3-SNAPSHOT --> 1.2.3
           FULL_VERSION=$(cat version.txt | cut -d '-' -f 1)
-          
+
           # 1.2.3 --> 1.2
           MINOR_VERSION=$(echo $FULL_VERSION | cut -d '.' -f 1,2)
-          
+
           echo "full-version=${FULL_VERSION}"
           echo "minor-version=${MINOR_VERSION}"
-          
+
           echo "::set-output name=full-version::$FULL_VERSION"
           echo "::set-output name=minor-version::$MINOR_VERSION"
       - name: Check release version
@@ -57,17 +57,17 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - run: ./gradlew dependencyCheckAnalyze -x test
   release-sonatype:
     needs: [ check-dependencies, check-version ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 17
       - name: Release
         id: release
         env:
@@ -90,7 +90,7 @@ jobs:
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
           pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
-          
+
           ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
 
           ./gradlew incrementProjectVersion --info
