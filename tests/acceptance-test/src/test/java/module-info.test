@@ -41,7 +41,10 @@
     tessera.acceptance.tests=org.yaml.snakeyaml
 
 --add-reads
-    tessera.acceptance.tests=hsqldb
+    tessera.acceptance.tests=org.jnrproject.unixsocket
+
+--add-modules
+    org.hsqldb
 
 --add-reads
-    tessera.acceptance.tests=org.jnrproject.unixsocket
+    tessera.acceptance.tests=org.hsqldb
