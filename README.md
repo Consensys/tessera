@@ -205,7 +205,7 @@ Security is part of our commitment to our users. At Quorum we have a close relat
 
 All security bugs in Quorum and its ecosystem (Tessera, Constellation, Cakeshop, ..etc) should be reported by email to security-quorum@consensys.net. Please use the prefix [security] in your subject. This email is delivered to Quorum security team. Your email will be acknowledged, and you'll receive a more detailed response to your email as soon as possible indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress being made towards a fix and full announcement.
 
-If you have not received a reply to your email or you have not heard from the security team please contact any team member through [Quorum slack security channel](https://www.goquorum.com/slack-inviter). *Please note* that Quorum slack channels are public discussion forum. When escalating to this medium, please do not disclose the details of the issue. Simply state that you're trying to reach a member of the security team.
+If you have not received a reply to your email or you have not heard from the security team please contact any team member through [Discord](https://discord.com/channels/697535391594446898/905421497416433704). *Please note* that Discord channels are public discussion forum. When escalating to this medium, please do not disclose the details of the issue. Simply state that you're trying to reach a member of the security team.
 
 ## Responsible Disclosure Process
 Quorum project uses the following responsible disclosure process:
@@ -229,4 +229,4 @@ Comments on This Policy If you have any suggestions to improve this policy, plea
 Tessera is built open source and we welcome external contribution on features and enhancements. Upon review you will be required to complete a Contributor License Agreement (CLA) before we are able to merge. If you have any questions about the contribution process, please feel free to send an email to [info@goquorum.com](mailto:info@goquorum.com). Please see the [Contributors guide](.github/CONTRIBUTING.md) for more information about the process.
 
 # Getting Help
-Stuck at some step? Please join our  <a href="https://www.goquorum.com/slack-inviter" target="_blank" rel="noopener">slack community</a> for support.
+Stuck at some step? Please join our  <a href="https://discord.com/channels/697535391594446898/905421497416433704" target="_blank" rel="noopener">community</a> for support.
