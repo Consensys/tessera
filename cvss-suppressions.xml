@@ -52,4 +52,12 @@
         <packageUrl regex="true">^pkg:maven/commons-io/commons-io@2.11.0</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jcl-over-slf4j-1.7.36.jar
+    (pkg:maven/org.slf4j/jcl-over-slf4j@1.7.36, cpe:2.3:a:apache:commons_net:1.7.36:*:*:*:*:*:*:*) : CVE-2021-37533
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.slf4j/jcl-over-slf4j@1.7.36</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
 </suppressions>

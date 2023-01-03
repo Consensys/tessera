@@ -15,7 +15,7 @@ ext {
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.1.13"
   jerseyVersion = "3.0.4"
-  slf4jVersion = "2.0.6"
+  slf4jVersion = "1.7.36"
   logbackVersion = "1.2.11"
   hk2Version = "3.0.2"
   jacksonVersion = "2.13.4";
