@@ -11,11 +11,10 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: h2-2.1.212.jar (pkg:maven/com.h2database/h2@2.1.212, cpe:2.3:a:h2database:h2:2.1.212:*:*:*:*:*:*:*) : CVE-2018-14335
-   this CVE is fixed in 2.1.212 but the dependency check is false positive
+   file name: h2-2.1.214.jar (pkg:maven/com.h2database/h2@2.1.214, cpe:2.3:a:h2database:h2:2.1.214:*:*:*:*:*:*:*) : CVE-2022-45868
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
-        <cve>CVE-2018-14335</cve>
+        <cve>CVE-2022-45868</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
