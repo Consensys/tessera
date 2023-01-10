@@ -60,4 +60,11 @@
         <packageUrl regex="true">^pkg:maven/org\.slf4j/jcl-over-slf4j@1.7.36</packageUrl>
         <cve>CVE-2021-37533</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eclipselink-utils.jar (project :eclipselink-utils)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.consensys\.quorum\.tessera/eclipselink\-utils@.*$</packageUrl>
+        <cve>CVE-2021-4277</cve>
+    </suppress>
 </suppressions>
