@@ -11,11 +11,10 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: h2-2.1.212.jar (pkg:maven/com.h2database/h2@2.1.212, cpe:2.3:a:h2database:h2:2.1.212:*:*:*:*:*:*:*) : CVE-2018-14335
-   this CVE is fixed in 2.1.212 but the dependency check is false positive
+   file name: h2-2.1.214.jar (pkg:maven/com.h2database/h2@2.1.214, cpe:2.3:a:h2database:h2:2.1.214:*:*:*:*:*:*:*) : CVE-2022-45868
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
-        <cve>CVE-2018-14335</cve>
+        <cve>CVE-2022-45868</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -38,5 +37,27 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
         <cve>CVE-2022-38752</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: snakeyaml-1.33.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
+        <cve>CVE-2022-1471</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-io-2.11.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/commons-io/commons-io@2.11.0</packageUrl>
+        <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jcl-over-slf4j-1.7.36.jar
+    (pkg:maven/org.slf4j/jcl-over-slf4j@1.7.36, cpe:2.3:a:apache:commons_net:1.7.36:*:*:*:*:*:*:*) : CVE-2021-37533
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.slf4j/jcl-over-slf4j@1.7.36</packageUrl>
+        <cve>CVE-2021-37533</cve>
     </suppress>
 </suppressions>
