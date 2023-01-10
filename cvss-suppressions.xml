@@ -30,20 +30,10 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
         <cve>CVE-2022-41854</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: snakeyaml-1.33.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
+        <cve>CVE-2022-3064</cve>
         <cve>CVE-2022-38752</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: snakeyaml-1.33.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
         <cve>CVE-2022-1471</cve>
+        <cve>CVE-2021-4235</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -59,5 +49,11 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.slf4j/jcl-over-slf4j@1.7.36</packageUrl>
         <cve>CVE-2021-37533</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: eclipselink-utils.jar (project :eclipselink-utils)
+   ]]></notes>
+        <cve>CVE-2021-4277</cve>
     </suppress>
 </suppressions>
