@@ -56,4 +56,32 @@
    ]]></notes>
         <cve>CVE-2021-4277</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jakarta.json-2.0.1-module.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jsonp-jaxrs-2.0.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.glassfish/jsonp-jaxrs@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jakarta.json-api-2.0.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/jakarta\.json/jakarta\.json-api@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-core-2.14.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-core@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
 </suppressions>
