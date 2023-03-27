@@ -14,7 +14,7 @@ import java.util.Objects;
       query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash"),
   @NamedQuery(
       name = "EncryptedRawTransaction.Upcheck",
-      query = "select count(c.timestamp) from EncryptedRawTransaction c"),
+      query = "select count(c) from EncryptedRawTransaction c where 1 = 2"),
   @NamedQuery(
       name = "EncryptedRawTransaction.FindAll",
       query = "select ert from EncryptedRawTransaction ert order by ert.timestamp, ert.hash"),
