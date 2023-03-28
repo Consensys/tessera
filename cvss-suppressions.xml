@@ -15,6 +15,7 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.h2database/h2@.*$</packageUrl>
         <cve>CVE-2022-45868</cve>
+        <cve>CVE-2018-14335</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
