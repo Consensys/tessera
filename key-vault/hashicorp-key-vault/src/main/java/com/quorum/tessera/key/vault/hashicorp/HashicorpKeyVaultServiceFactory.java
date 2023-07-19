@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
 import static com.quorum.tessera.config.util.EnvironmentVariables.*;
+import static com.quorum.tessera.key.vault.hashicorp.HashicorpKeyVaultServiceFactoryUtil.NAMESPACE_KEY;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
@@ -11,10 +12,13 @@ import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.vault.authentication.ClientAuthentication;
 import org.springframework.vault.authentication.SessionManager;
 import org.springframework.vault.authentication.SimpleSessionManager;
+import org.springframework.vault.client.RestTemplateBuilder;
 import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.core.VaultTemplate;
@@ -22,6 +26,9 @@ import org.springframework.vault.support.ClientOptions;
 import org.springframework.vault.support.SslConfiguration;
 
 public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(HashicorpKeyVaultServiceFactory.class);
 
   @Override
   public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
@@ -79,6 +86,7 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
     try {
       URI uri = new URI(keyVaultConfig.getProperty("url").get());
+      LOGGER.info("URL for Hashicorp key vault is {}", keyVaultConfig.getProperty("url").get());
       vaultEndpoint = VaultEndpoint.from(uri);
     } catch (URISyntaxException | NoSuchElementException | IllegalArgumentException e) {
       throw new ConfigException(
@@ -97,11 +105,41 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
             keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
     SessionManager sessionManager = new SimpleSessionManager(clientAuthentication);
+
     VaultOperations vaultOperations =
-        new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
+        getVaultOperations(
+            keyVaultConfig, vaultEndpoint, clientHttpRequestFactory, sessionManager, util);
 
     return new HashicorpKeyVaultService(
         vaultOperations, () -> new VaultVersionedKeyValueTemplateFactory() {});
+  }
+
+  private VaultOperations getVaultOperations(
+      KeyVaultConfig keyVaultConfig,
+      VaultEndpoint vaultEndpoint,
+      ClientHttpRequestFactory clientHttpRequestFactory,
+      SessionManager sessionManager,
+      HashicorpKeyVaultServiceFactoryUtil util) {
+
+    VaultOperations vaultOperations;
+
+    if (keyVaultConfig.hasProperty(NAMESPACE_KEY)
+        && keyVaultConfig.getProperty(NAMESPACE_KEY).isPresent()) {
+      LOGGER.info(
+          "Namespace for Hashicorp key vault is {}",
+          keyVaultConfig.getProperty(NAMESPACE_KEY).get());
+
+      String namespace = keyVaultConfig.getProperty(NAMESPACE_KEY).get();
+      RestTemplateBuilder restTemplateBuilder =
+          util.getRestTemplateWithVaultNamespace(
+              namespace, clientHttpRequestFactory, vaultEndpoint);
+
+      vaultOperations = new VaultTemplate(restTemplateBuilder, sessionManager);
+    } else {
+      vaultOperations = new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
+    }
+
+    return vaultOperations;
   }
 
   @Override
