@@ -18,7 +18,7 @@ dependencies {
   implementation "jakarta.transaction:jakarta.transaction-api"
   implementation "jakarta.annotation:jakarta.annotation-api"
 
-  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.bouncycastle:bcpkix-jdk18on"
 
   testImplementation project(":cli:cli-api")
 

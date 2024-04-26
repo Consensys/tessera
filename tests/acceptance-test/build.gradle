@@ -54,8 +54,8 @@ dependencies {
   testImplementation "com.github.jnr:jnr-unixsocket"
   testImplementation "org.glassfish:jakarta.el"
 
-  testImplementation "org.bouncycastle:bcpkix-jdk15on"
-  testImplementation "org.bouncycastle:bcprov-jdk15on"
+  testImplementation "org.bouncycastle:bcpkix-jdk18on"
+  testImplementation "org.bouncycastle:bcprov-jdk18on"
 
 
   testRuntimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"

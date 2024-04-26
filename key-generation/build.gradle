@@ -7,6 +7,6 @@ dependencies {
   implementation project(":config")
   implementation project(":shared")
   implementation project(":key-vault:key-vault-api")
-  implementation "org.bouncycastle:bcprov-jdk15on"
+  implementation "org.bouncycastle:bcprov-jdk18on"
   testRuntimeOnly project(":encryption:encryption-ec")
 }

@@ -61,8 +61,8 @@ dependencies {
   implementation "org.glassfish.jersey.media:jersey-media-json-processing"
   runtimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
   runtimeOnly "com.sun.mail:jakarta.mail"
-  implementation "org.bouncycastle:bcprov-jdk15on"
-  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.bouncycastle:bcprov-jdk18on"
+  implementation "org.bouncycastle:bcpkix-jdk18on"
   implementation project(":server:jersey-server")
 
 
