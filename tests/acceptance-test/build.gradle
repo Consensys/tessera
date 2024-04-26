@@ -70,7 +70,7 @@ dependencies {
 
   testImplementation "org.eclipse.jetty:jetty-servlet"
 
-  testImplementation "org.yaml:snakeyaml"
+  implementation "org.yaml:snakeyaml"
 
 }
 
