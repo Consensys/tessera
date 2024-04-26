@@ -2,6 +2,12 @@ plugins {
   id "java-library"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.bouncycastle:bcprov-jdk18on:1.78'
+  }
+}
+
 dependencies {
   implementation project(":config")
   implementation project(":shared")

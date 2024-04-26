@@ -108,7 +108,7 @@ allprojects {
         implementation "org.eclipse.jetty:jetty-http:$jettyVersion"
         implementation "org.eclipse.jetty:jetty-util:$jettyVersion"
 
-        implementation "org.cryptacular:cryptacular:1.2.4"
+        implementation "org.cryptacular:cryptacular:1.2.6"
         implementation "eu.neilalexander:jnacl:1.0.0"
 
         implementation("io.swagger.core.v3:swagger-annotations-jakarta:$swaggerVersion")
