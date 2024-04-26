@@ -7,7 +7,7 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation project(":shared")
   implementation project(":key-vault:key-vault-api")
-  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.bouncycastle:bcpkix-jdk18on"
 
   implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
   implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:$jacksonVersion"

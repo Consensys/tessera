@@ -10,7 +10,7 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation project(":eclipselink-utils")
   implementation "jakarta.transaction:jakarta.transaction-api"
-  implementation "org.bouncycastle:bcprov-jdk15on"
+  implementation "org.bouncycastle:bcprov-jdk18on"
   implementation "jakarta.validation:jakarta.validation-api"
   runtimeOnly "com.h2database:h2"
   implementation "com.zaxxer:HikariCP"

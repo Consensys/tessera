@@ -80,7 +80,7 @@ dependencies {
 
   implementation project(":tessera-context")
 
-  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.bouncycastle:bcpkix-jdk18on"
   implementation "jakarta.inject:jakarta.inject-api"
 
   implementation "org.glassfish.jersey.core:jersey-common"

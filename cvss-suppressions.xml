@@ -27,17 +27,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: snakeyaml-1.33.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org.yaml/snakeyaml@1.33</packageUrl>
-        <cve>CVE-2022-41854</cve>
-        <cve>CVE-2022-3064</cve>
-        <cve>CVE-2022-38752</cve>
-        <cve>CVE-2022-1471</cve>
-        <cve>CVE-2021-4235</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: commons-io-2.11.0.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/commons-io/commons-io@2.11.0</packageUrl>
@@ -63,6 +52,7 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.glassfish/jakarta\.json@.*$</packageUrl>
         <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -70,6 +60,7 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.glassfish/jsonp-jaxrs@.*$</packageUrl>
         <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -77,12 +68,14 @@
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/jakarta\.json/jakarta\.json-api@.*$</packageUrl>
         <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jackson-core-2.14.2.jar
+   file name: jackson-core-2.16.2.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-core@.*$</packageUrl>
         <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
     </suppress>
 </suppressions>

@@ -11,15 +11,15 @@ plugins {
 }
 
 ext {
-  jettyVersion = "11.0.11"
+  jettyVersion = "11.0.20"
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.1.13"
   jerseyVersion = "3.0.4"
   slf4jVersion = "1.7.36"
-  logbackVersion = "1.2.11"
+  logbackVersion = "1.2.13"
   hk2Version = "3.0.2"
-  jacksonVersion = "2.14.2"
-  jacksonDatabindVersion = "2.14.2"
+  jacksonVersion = "2.16.2"
+  jacksonDatabindVersion = "2.16.2"
 }
 
 allprojects {
@@ -68,7 +68,7 @@ allprojects {
         testImplementation "nl.jqno.equalsverifier:equalsverifier:3.7.1"
         testImplementation "com.mockrunner:mockrunner-jdbc:2.0.4"
 
-        implementation "org.yaml:snakeyaml:1.33" // transitive dependency of jackson-databind:2.13.3
+        implementation 'org.yaml:snakeyaml:2.0' // transitive dependency of jackson-databind:2.13.3
 
         implementation "commons-cli:commons-cli:1.5.0"
         implementation "commons-codec:commons-codec:1.15"
@@ -108,7 +108,7 @@ allprojects {
         implementation "org.eclipse.jetty:jetty-http:$jettyVersion"
         implementation "org.eclipse.jetty:jetty-util:$jettyVersion"
 
-        implementation "org.cryptacular:cryptacular:1.2.4"
+        implementation "org.cryptacular:cryptacular:1.2.6"
         implementation "eu.neilalexander:jnacl:1.0.0"
 
         implementation("io.swagger.core.v3:swagger-annotations-jakarta:$swaggerVersion")
@@ -116,14 +116,14 @@ allprojects {
         implementation('io.swagger.parser.v3:swagger-parser-v3:2.0.27')
         implementation "io.swagger.core.v3:swagger-jaxrs2-jakarta:$swaggerVersion"
 
-        implementation "org.bouncycastle:bcpkix-jdk15on:1.68"
-        implementation "org.bouncycastle:bcprov-jdk15on:1.68"
+        implementation "org.bouncycastle:bcpkix-jdk18on:1.78"
+        implementation "org.bouncycastle:bcprov-jdk18on:1.78"
 
         implementation "com.h2database:h2:2.1.214"
         implementation "com.zaxxer:HikariCP:5.0.1"
 
         implementation "org.hsqldb:hsqldb:2.7.1"
-        implementation "org.xerial:sqlite-jdbc:3.30.1"
+        implementation "org.xerial:sqlite-jdbc:3.45.1.0"
 
         api 'org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:5.0.2'
         api "jakarta.ws.rs:jakarta.ws.rs-api:3.0.0"

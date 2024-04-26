@@ -2,11 +2,17 @@ plugins {
   id "java-library"
 }
 
+configurations.all {
+  resolutionStrategy {
+    force 'org.bouncycastle:bcprov-jdk18on:1.78'
+  }
+}
+
 dependencies {
   implementation project(":config")
   implementation project(":shared")
-  implementation "org.bouncycastle:bcpkix-jdk15on"
-  implementation "org.bouncycastle:bcprov-jdk15on"
+  implementation "org.bouncycastle:bcpkix-jdk18on"
+  implementation "org.bouncycastle:bcprov-jdk18on"
 
   implementation "org.cryptacular:cryptacular"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
