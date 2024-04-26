@@ -116,8 +116,8 @@ allprojects {
         implementation('io.swagger.parser.v3:swagger-parser-v3:2.0.27')
         implementation "io.swagger.core.v3:swagger-jaxrs2-jakarta:$swaggerVersion"
 
-        implementation "org.bouncycastle:bcpkix-jdk18on:1.77"
-        implementation "org.bouncycastle:bcprov-jdk18on:1.77"
+        implementation "org.bouncycastle:bcpkix-jdk18on:1.78"
+        implementation "org.bouncycastle:bcprov-jdk18on:1.78"
 
         implementation "com.h2database:h2:2.1.214"
         implementation "com.zaxxer:HikariCP:5.0.1"
