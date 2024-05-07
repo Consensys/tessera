@@ -91,7 +91,7 @@ jobs:
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
           pubkey=`gpg --list-keys -a security-quorum@consensys.net|head -2|tail -1|xargs`
 
-          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
+          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey -Psigning.gnupg.passphrase=${GPG_PASSPHRASE} --info
 
           ./gradlew incrementProjectVersion --info
           git add version.txt
