@@ -79,6 +79,7 @@ jobs:
           echo "Releasing $FULL_VERSION"
 
           git config user.name "quorumbot"
+          git config user.email "security-quorum@consensys.net"
           now=`date +%Y%m%d%H%M%S`
 
           echo "Creating tag  $TAG_NAME"
