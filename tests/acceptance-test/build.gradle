@@ -108,6 +108,8 @@ test {
     "**/P2pTestSuite.class",
     "**/AwsKeyVaultIT.class",
     "**/RunHashicorpIT.class",
+    //"**/RunAzureIT.class",
+    "**/AzureKeyVaultIT.class",
     "**/ThirdPartyIT.class",
     "**/CucumberTestSuite.class",
     )
