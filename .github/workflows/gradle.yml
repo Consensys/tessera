@@ -134,7 +134,7 @@ jobs:
         path: /home/runner/work/tessera/tessera/encryption/encryption-kalium/build/distributions/
     - name: Execute gradle integration tests
       run: |
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,AzureKeyVaultIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - name: Upload Junit reports
       uses: actions/upload-artifact@v2
       if: always()
@@ -311,7 +311,10 @@ jobs:
       - name: Run AWS tests
         run: |
           ./gradlew :tests:acceptance-test:test --tests AwsKeyVaultIT --info
-#      - name: Run azure tests
+      - name: Run azure tests (node starts)
+        run: |
+          ./gradlew :tests:acceptance-test:test --tests AzureKeyVaultIT --info
+#      - name: Run azure tests (cucumber)
 #        run: |
 #          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
       - name: Run hashicorp tests

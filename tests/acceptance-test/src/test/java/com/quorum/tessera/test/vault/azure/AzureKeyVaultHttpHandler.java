@@ -16,6 +16,7 @@ public class AzureKeyVaultHttpHandler implements HttpHandler {
   private AtomicInteger counter = new AtomicInteger(0);
 
   private final String publicKey = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+  private final String privateKey = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
 
   private final String keyVaultUrl;
 
@@ -52,8 +53,18 @@ public class AzureKeyVaultHttpHandler implements HttpHandler {
       LOGGER.info("response send  {}", new String(response));
 
       exchange.close();
-    } else {
+    } else if (exchange.getRequestURI().toString().startsWith("/secrets/Key/")) {
+      JsonObject jsonObject = Json.createObjectBuilder().add("value", privateKey).build();
 
+      byte[] response = jsonObject.toString().getBytes();
+      exchange.sendResponseHeaders(200, response.length);
+      exchange.getResponseBody().write(response);
+
+      LOGGER.info("response send  {}", new String(response));
+
+      exchange.close();
+    } else {
+      LOGGER.info("response send empty");
       exchange.sendResponseHeaders(200, 0);
       exchange.close();
     }
