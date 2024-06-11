@@ -119,7 +119,7 @@ allprojects {
         implementation "org.bouncycastle:bcpkix-jdk18on:1.78"
         implementation "org.bouncycastle:bcprov-jdk18on:1.78"
 
-        implementation "com.h2database:h2:2.1.214"
+        implementation "com.h2database:h2:2.2.224"
         implementation "com.zaxxer:HikariCP:5.0.1"
 
         implementation "org.hsqldb:hsqldb:2.7.1"

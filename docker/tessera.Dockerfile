@@ -1,5 +1,5 @@
 # Create Tessera installation from pre-built .tar distributions
-FROM alpine:3.13 as extractor
+FROM alpine:3.20 as extractor
 
 COPY . /ctx/
 
