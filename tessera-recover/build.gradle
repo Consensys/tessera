@@ -27,5 +27,4 @@ dependencies {
   //    compile "com.zaxxer:HikariCP"
   //    compile "org.eclipse.jetty:jetty-jndi"
   //    compile "org.eclipse.jetty:jetty-plus"
-
 }

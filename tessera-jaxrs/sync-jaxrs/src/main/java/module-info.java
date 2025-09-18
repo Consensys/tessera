@@ -31,6 +31,7 @@ module tessera.partyinfo.jaxrs {
   //      org.eclipse.persistence.core;
 
   opens com.quorum.tessera.p2p.resend;
+
   //    to
   //      org.eclipse.persistence.moxy,
   //      org.eclipse.persistence.core,

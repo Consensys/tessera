@@ -57,7 +57,10 @@ final class SSLKeyStoreLoader {
   private SSLKeyStoreLoader() {}
 
   static KeyManager[] fromJksKeyStore(Path keyStoreFile, char[] keyStorePassword)
-      throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException,
+      throws NoSuchAlgorithmException,
+          IOException,
+          KeyStoreException,
+          CertificateException,
           UnrecoverableKeyException {
 
     final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);

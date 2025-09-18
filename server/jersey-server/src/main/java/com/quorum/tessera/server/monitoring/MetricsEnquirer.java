@@ -65,8 +65,11 @@ public class MetricsEnquirer {
   }
 
   private List<MBeanMetric> getMetricsForMBean(ObjectName mBeanName)
-      throws AttributeNotFoundException, MBeanException, ReflectionException,
-          InstanceNotFoundException, IntrospectionException {
+      throws AttributeNotFoundException,
+          MBeanException,
+          ReflectionException,
+          InstanceNotFoundException,
+          IntrospectionException {
     List<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
     MBeanAttributeInfo[] mBeanAttributes = this.mBeanServer.getMBeanInfo(mBeanName).getAttributes();

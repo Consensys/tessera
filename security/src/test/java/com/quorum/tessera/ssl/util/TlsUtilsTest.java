@@ -26,8 +26,14 @@ public class TlsUtilsTest {
 
   @Test
   public void testGenerateKeys()
-      throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException,
-          SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
+      throws OperatorCreationException,
+          InvalidKeyException,
+          NoSuchAlgorithmException,
+          IOException,
+          SignatureException,
+          NoSuchProviderException,
+          CertificateException,
+          KeyStoreException {
 
     final Path privateKeyFile = Files.createTempFile("privatekey", ".tmp");
     Files.deleteIfExists(privateKeyFile);

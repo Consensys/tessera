@@ -47,8 +47,14 @@ public class SSLContextBuilderTest {
 
   @Before
   public void setUp()
-      throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException,
-          KeyStoreException, SignatureException, NoSuchProviderException, CertificateException,
+      throws NoSuchAlgorithmException,
+          OperatorCreationException,
+          InvalidKeyException,
+          IOException,
+          KeyStoreException,
+          SignatureException,
+          NoSuchProviderException,
+          CertificateException,
           URISyntaxException {
     keyStoreFile = Paths.get(tmpDir.getRoot().getPath(), "keystore");
     knownHostFile = Paths.get(tmpDir.getRoot().getPath(), "knownHosts");

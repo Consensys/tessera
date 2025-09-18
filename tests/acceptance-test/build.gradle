@@ -71,7 +71,6 @@ dependencies {
   testImplementation "org.eclipse.jetty:jetty-servlet"
 
   implementation "org.yaml:snakeyaml"
-
 }
 
 test {

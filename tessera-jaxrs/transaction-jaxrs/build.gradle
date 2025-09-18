@@ -56,7 +56,6 @@ dependencies {
       because 'databind less than 2.13.2.2 has a bug'
     }
   }
-
 }
 
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
@@ -78,8 +77,6 @@ resolve {
     "com.quorum.tessera.openapi.FullyQualifiedNameResolver"
   ]
   filterClass = "com.quorum.tessera.openapi.Q2TOperationsFilter"
-
-
 }
 
 sourceSets.main.output.dir(generatedResources)

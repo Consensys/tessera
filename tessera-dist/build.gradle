@@ -85,7 +85,6 @@ dependencies {
 
   implementation "org.glassfish.jersey.core:jersey-common"
   implementation "org.glassfish.jersey.core:jersey-client"
-
 }
 
 dependencyCheck {

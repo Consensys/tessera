@@ -27,6 +27,7 @@ module tessera.common.jaxrs {
   exports com.quorum.tessera.api.constraint;
 
   opens com.quorum.tessera.api;
+
   //    to
   //      org.eclipse.persistence.moxy,
   //      org.hibernate.validator,

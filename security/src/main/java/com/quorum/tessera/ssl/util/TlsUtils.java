@@ -37,8 +37,14 @@ public interface TlsUtils {
 
   default void generateKeyStoreWithSelfSignedCertificate(
       String address, Path privateKeyFile, char[] password)
-      throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException,
-          InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
+      throws NoSuchAlgorithmException,
+          IOException,
+          OperatorCreationException,
+          CertificateException,
+          InvalidKeyException,
+          NoSuchProviderException,
+          SignatureException,
+          KeyStoreException {
 
     final SecureRandom secureRandom = new SecureRandom();
 

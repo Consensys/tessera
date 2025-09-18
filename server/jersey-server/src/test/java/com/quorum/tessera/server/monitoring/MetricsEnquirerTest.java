@@ -34,8 +34,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void metricNameDoesNotEndWithTotalSoIsNotIncluded()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -62,8 +66,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanOneMetricP2PApp()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -91,8 +99,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanOneMetricQ2TApp()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -120,8 +132,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanOneMetricAdminApp()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -149,8 +165,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanOneMetricThirdPartyApp()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -178,8 +198,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanOneMetricEnclaveApp()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -216,8 +240,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void oneMBeanMultipleMetricsSomeNotAddedAsDoNotEndWithTotal()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName = new ObjectName("domain", "key", "value");
     names.add(mBeanName);
 
@@ -250,8 +278,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void multipleMBeansOneMetricEach()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName1 = new ObjectName("domain1", "key1", "value1");
     ObjectName mBeanName2 = new ObjectName("domain2", "key2", "value2");
     names.add(mBeanName1);
@@ -290,8 +322,12 @@ public class MetricsEnquirerTest {
 
   @Test
   public void multipleMBeansSomeMetricsNotAddedAsDoNotEndWithTotal()
-      throws MalformedObjectNameException, IntrospectionException, ReflectionException,
-          AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+      throws MalformedObjectNameException,
+          IntrospectionException,
+          ReflectionException,
+          AttributeNotFoundException,
+          MBeanException,
+          InstanceNotFoundException {
     ObjectName mBeanName1 = new ObjectName("domain1", "key1", "value1");
     ObjectName mBeanName2 = new ObjectName("domain2", "key2", "value2");
     names.add(mBeanName1);

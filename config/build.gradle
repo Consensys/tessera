@@ -35,7 +35,6 @@ dependencies {
 
   testImplementation "nl.jqno.equalsverifier:equalsverifier"
   //   testImplementation "jakarta.el:jakarta.el-api"
-
 }
 
 jar {

@@ -49,7 +49,6 @@ dependencies {
       because 'databind less than 2.13.2.2 has a bug'
     }
   }
-
 }
 
 publishing {
