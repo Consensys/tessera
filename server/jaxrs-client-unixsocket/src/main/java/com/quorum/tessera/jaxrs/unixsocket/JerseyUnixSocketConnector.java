@@ -74,8 +74,9 @@ public class JerseyUnixSocketConnector implements Connector {
     final URI originalUri = request.getUri();
     final URI uri;
     Path basePath = Paths.get(unixfile);
+    boolean isUnixSocket = originalUri.getScheme().startsWith("unix");
 
-    if (originalUri.getScheme().startsWith("unix")) {
+    if (isUnixSocket) {
 
       String path = originalUri.getRawPath().replaceFirst(basePath.toString(), "");
 
@@ -94,12 +95,13 @@ public class JerseyUnixSocketConnector implements Connector {
       uri = originalUri;
     }
 
-    // Create request and specify Unix domain transport
-    Request clientRequest =
-        httpClient
-            .newRequest(uri)
-            .transport(transport) // Jetty 12: specify transport per-request
-            .method(httpMethod);
+    // Create request and specify Unix domain transport only for Unix socket requests
+    Request clientRequest = httpClient.newRequest(uri).method(httpMethod);
+
+    // Only apply Unix domain transport for Unix socket URLs
+    if (isUnixSocket) {
+      clientRequest = clientRequest.transport(transport);
+    }
 
     MultivaluedMap<String, Object> headers = request.getHeaders();
 
