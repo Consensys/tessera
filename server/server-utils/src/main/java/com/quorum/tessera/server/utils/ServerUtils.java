@@ -27,7 +27,8 @@ public class ServerUtils {
 
       HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory();
 
-      UnixDomainServerConnector connector = new UnixDomainServerConnector(server, httpConnectionFactory);
+      UnixDomainServerConnector connector =
+          new UnixDomainServerConnector(server, httpConnectionFactory);
       connector.setAcceptQueueSize(128);
 
       String path = Paths.get(serverConfig.getServerUri()).toAbsolutePath().toString();
