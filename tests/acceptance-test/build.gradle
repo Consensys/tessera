@@ -68,7 +68,7 @@ dependencies {
   implementation project(":encryption:encryption-ec")
   testImplementation project(":encryption:encryption-kalium")
 
-  testImplementation "org.eclipse.jetty:jetty-servlet"
+  testImplementation "org.eclipse.jetty.ee9:jetty-ee9-servlet"
 
   implementation "org.yaml:snakeyaml"
 }

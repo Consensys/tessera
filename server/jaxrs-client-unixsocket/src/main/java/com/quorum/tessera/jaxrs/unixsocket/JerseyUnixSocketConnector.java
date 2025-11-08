@@ -13,13 +13,12 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import org.eclipse.jetty.client.BytesRequestContent;
+import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentProvider;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.Request;
+import org.eclipse.jetty.client.unixdomain.HttpClientTransportOverUnixDomain;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.unixsocket.client.HttpClientTransportOverUnixSockets;
 import org.glassfish.jersey.client.ClientRequest;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.client.spi.AsyncConnectorCallback;
@@ -38,9 +37,9 @@ public class JerseyUnixSocketConnector implements Connector {
 
   public JerseyUnixSocketConnector(URI unixfile) {
     this.unixfile = unixfile;
-    String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
+    Path unixFilePath = Paths.get(unixfile);
 
-    httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath));
+    httpClient = new HttpClient(new HttpClientTransportOverUnixDomain(unixFilePath));
     try {
       httpClient.start();
     } catch (Exception ex) {
@@ -88,16 +87,19 @@ public class JerseyUnixSocketConnector implements Connector {
 
     MultivaluedMap<String, Object> headers = request.getHeaders();
 
-    headers.keySet().stream()
-        .forEach(
-            name -> {
-              headers
-                  .get(name)
-                  .forEach(
-                      value -> {
-                        clientRequest.header(name, Objects.toString(value));
-                      });
-            });
+    clientRequest.headers(
+        h -> {
+          headers.keySet().stream()
+              .forEach(
+                  name -> {
+                    headers
+                        .get(name)
+                        .forEach(
+                            value -> {
+                              h.put(name, Objects.toString(value));
+                            });
+                  });
+        });
 
     if (request.hasEntity()) {
       final long length = request.getLengthLong();
@@ -107,8 +109,8 @@ public class JerseyUnixSocketConnector implements Connector {
         request.setStreamProvider((int contentLength) -> bout);
         request.writeEntity();
 
-        ContentProvider content = new BytesContentProvider(bout.toByteArray());
-        clientRequest.content(content);
+        BytesRequestContent content = new BytesRequestContent(bout.toByteArray());
+        clientRequest.body(content);
       }
     }
     final ContentResponse contentResponse = clientRequest.send();

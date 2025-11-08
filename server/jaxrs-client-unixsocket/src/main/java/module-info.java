@@ -6,7 +6,7 @@ module tessera.server.jersey.unixsocket {
   requires org.eclipse.jetty.http;
   requires org.eclipse.jetty.util;
   requires org.slf4j;
-  requires org.eclipse.jetty.unixsocket.client;
+  requires org.eclipse.jetty.unixdomain.server;
 
   exports com.quorum.tessera.jaxrs.unixsocket;
 }

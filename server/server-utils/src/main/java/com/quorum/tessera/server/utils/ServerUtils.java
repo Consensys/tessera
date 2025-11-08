@@ -14,7 +14,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.unixsocket.server.UnixSocketConnector;
+import org.eclipse.jetty.unixdomain.server.UnixDomainServerConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class ServerUtils {
@@ -27,11 +27,11 @@ public class ServerUtils {
 
       HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory();
 
-      UnixSocketConnector connector = new UnixSocketConnector(server, httpConnectionFactory);
+      UnixDomainServerConnector connector = new UnixDomainServerConnector(server, httpConnectionFactory);
       connector.setAcceptQueueSize(128);
 
       String path = Paths.get(serverConfig.getServerUri()).toAbsolutePath().toString();
-      connector.setUnixSocket(path);
+      connector.setUnixDomainPath(Paths.get(path));
 
       server.setConnectors(new Connector[] {connector});
 

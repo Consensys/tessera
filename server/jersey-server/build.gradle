@@ -21,7 +21,7 @@ dependencies {
   api "jakarta.mail:jakarta.mail-api"
   implementation 'com.sun.mail:jakarta.mail'
 
-  implementation "org.eclipse.jetty:jetty-servlet"
+  implementation "org.eclipse.jetty.ee9:jetty-ee9-servlet"
   implementation "org.glassfish.jersey.inject:jersey-hk2"
   implementation("org.glassfish.jersey.core:jersey-common") {
     exclude group: "jakarta.annotation", module: "jakarta.annotation-api"

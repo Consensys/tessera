@@ -6,9 +6,7 @@ dependencies {
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  implementation "org.eclipse.jetty:jetty-unixsocket-common"
-  implementation "org.eclipse.jetty:jetty-unixsocket-client"
-  implementation "org.eclipse.jetty:jetty-unixsocket-server"
+  implementation "org.eclipse.jetty:jetty-unixdomain-server"
 
   implementation "org.glassfish.jersey.core:jersey-client"
   implementation "org.eclipse.jetty:jetty-client"

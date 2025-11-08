@@ -8,9 +8,7 @@ dependencies {
   implementation project(":server:server-api")
   implementation project(":tessera-context")
 
-  implementation "org.eclipse.jetty:jetty-unixsocket-common"
-  // implementation "org.eclipse.jetty:jetty-unixsocket-client"
-  implementation "org.eclipse.jetty:jetty-unixsocket-server"
+  implementation "org.eclipse.jetty:jetty-unixdomain-server"
 
   //api "jakarta.servlet:jakarta.servlet-api"
 

@@ -11,7 +11,7 @@ plugins {
 }
 
 ext {
-  jettyVersion = "11.0.25"
+  jettyVersion = "12.0.15"
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.2.22"
   jerseyVersion = "3.0.4"
@@ -99,12 +99,10 @@ allprojects {
         implementation "org.glassfish.jersey.core:jersey-common:$jerseyVersion"
         implementation "org.glassfish.jersey.core:jersey-client:$jerseyVersion"
 
-        implementation "org.eclipse.jetty:jetty-unixsocket-common:$jettyVersion"
-        implementation "org.eclipse.jetty:jetty-unixsocket-client:$jettyVersion"
-        implementation "org.eclipse.jetty:jetty-unixsocket-server:$jettyVersion"
+        implementation "org.eclipse.jetty:jetty-unixdomain-server:$jettyVersion"
 
         implementation "org.eclipse.jetty:jetty-client:$jettyVersion"
-        implementation "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+        implementation "org.eclipse.jetty.ee9:jetty-ee9-servlet:$jettyVersion"
 
         implementation "org.eclipse.jetty:jetty-server:$jettyVersion"
         implementation "org.eclipse.jetty:jetty-http:$jettyVersion"
