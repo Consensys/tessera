@@ -17,8 +17,10 @@ import org.eclipse.jetty.client.BytesRequestContent;
 import org.eclipse.jetty.client.ContentResponse;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.Request;
-import org.eclipse.jetty.client.unixdomain.HttpClientTransportOverUnixDomain;
+import org.eclipse.jetty.client.transport.HttpClientTransportDynamic;
 import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.io.ClientConnector;
+import org.eclipse.jetty.io.Transport;
 import org.glassfish.jersey.client.ClientRequest;
 import org.glassfish.jersey.client.ClientResponse;
 import org.glassfish.jersey.client.spi.AsyncConnectorCallback;
@@ -35,11 +37,20 @@ public class JerseyUnixSocketConnector implements Connector {
 
   private URI unixfile;
 
+  private Transport transport;
+
   public JerseyUnixSocketConnector(URI unixfile) {
     this.unixfile = unixfile;
     Path unixFilePath = Paths.get(unixfile);
 
-    httpClient = new HttpClient(new HttpClientTransportOverUnixDomain(unixFilePath));
+    // Jetty 12 uses dynamic transport with per-request transport specification
+    ClientConnector clientConnector = new ClientConnector();
+    HttpClientTransportDynamic transport = new HttpClientTransportDynamic(clientConnector);
+    httpClient = new HttpClient(transport);
+    
+    // Create the Unix domain transport for this socket path
+    this.transport = new Transport.TCPUnix(unixFilePath);
+    
     try {
       httpClient.start();
     } catch (Exception ex) {
@@ -83,7 +94,10 @@ public class JerseyUnixSocketConnector implements Connector {
       uri = originalUri;
     }
 
-    Request clientRequest = httpClient.newRequest(uri).method(httpMethod);
+    // Create request and specify Unix domain transport
+    Request clientRequest = httpClient.newRequest(uri)
+        .transport(transport)  // Jetty 12: specify transport per-request
+        .method(httpMethod);
 
     MultivaluedMap<String, Object> headers = request.getHeaders();
 
