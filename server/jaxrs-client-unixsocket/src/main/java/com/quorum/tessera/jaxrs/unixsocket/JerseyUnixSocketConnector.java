@@ -45,8 +45,8 @@ public class JerseyUnixSocketConnector implements Connector {
 
     // Jetty 12 uses dynamic transport with per-request transport specification
     ClientConnector clientConnector = new ClientConnector();
-    HttpClientTransportDynamic transport = new HttpClientTransportDynamic(clientConnector);
-    httpClient = new HttpClient(transport);
+    HttpClientTransportDynamic httpTransport = new HttpClientTransportDynamic(clientConnector);
+    httpClient = new HttpClient(httpTransport);
 
     // Create the Unix domain transport for this socket path
     this.transport = new Transport.TCPUnix(unixFilePath);
