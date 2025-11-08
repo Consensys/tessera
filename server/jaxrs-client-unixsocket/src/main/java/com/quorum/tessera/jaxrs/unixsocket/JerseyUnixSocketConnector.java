@@ -98,9 +98,12 @@ public class JerseyUnixSocketConnector implements Connector {
     // Create request and specify Unix domain transport only for Unix socket requests
     Request clientRequest = httpClient.newRequest(uri).method(httpMethod);
 
-    // Only apply Unix domain transport for Unix socket URLs
+    // Apply the appropriate transport based on URL scheme
     if (isUnixSocket) {
       clientRequest = clientRequest.transport(transport);
+    } else {
+      // For regular HTTP/HTTPS, explicitly use TCP transport
+      clientRequest = clientRequest.transport(Transport.TCP_IP);
     }
 
     MultivaluedMap<String, Object> headers = request.getHeaders();
