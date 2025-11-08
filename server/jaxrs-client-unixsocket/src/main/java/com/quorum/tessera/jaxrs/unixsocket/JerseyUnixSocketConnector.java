@@ -112,7 +112,7 @@ public class JerseyUnixSocketConnector implements Connector {
                         .get(name)
                         .forEach(
                             value -> {
-                              h.put(name, Objects.toString(value));
+                              h.add(name, Objects.toString(value));
                             });
                   });
         });
