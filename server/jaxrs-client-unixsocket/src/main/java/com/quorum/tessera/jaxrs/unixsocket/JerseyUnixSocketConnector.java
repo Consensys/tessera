@@ -47,10 +47,10 @@ public class JerseyUnixSocketConnector implements Connector {
     ClientConnector clientConnector = new ClientConnector();
     HttpClientTransportDynamic transport = new HttpClientTransportDynamic(clientConnector);
     httpClient = new HttpClient(transport);
-    
+
     // Create the Unix domain transport for this socket path
     this.transport = new Transport.TCPUnix(unixFilePath);
-    
+
     try {
       httpClient.start();
     } catch (Exception ex) {
@@ -96,7 +96,8 @@ public class JerseyUnixSocketConnector implements Connector {
 
     // Create request and specify Unix domain transport
     Request clientRequest =
-        httpClient.newRequest(uri)
+        httpClient
+            .newRequest(uri)
             .transport(transport) // Jetty 12: specify transport per-request
             .method(httpMethod);
 
@@ -104,9 +105,7 @@ public class JerseyUnixSocketConnector implements Connector {
 
     clientRequest.headers(
         h -> {
-          headers
-              .keySet()
-              .stream()
+          headers.keySet().stream()
               .forEach(
                   name -> {
                     headers
