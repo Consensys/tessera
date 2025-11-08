@@ -95,15 +95,18 @@ public class JerseyUnixSocketConnector implements Connector {
     }
 
     // Create request and specify Unix domain transport
-    Request clientRequest = httpClient.newRequest(uri)
-        .transport(transport)  // Jetty 12: specify transport per-request
-        .method(httpMethod);
+    Request clientRequest =
+        httpClient.newRequest(uri)
+            .transport(transport) // Jetty 12: specify transport per-request
+            .method(httpMethod);
 
     MultivaluedMap<String, Object> headers = request.getHeaders();
 
     clientRequest.headers(
         h -> {
-          headers.keySet().stream()
+          headers
+              .keySet()
+              .stream()
               .forEach(
                   name -> {
                     headers
