@@ -100,12 +100,15 @@ public class JerseyServer implements TesseraServer {
     this.server = ServerUtils.buildWebServer(serverConfig);
     LOGGER.debug("Built Server from {}", serverConfig);
 
-    ServletContextHandler context = new ServletContextHandler(server, "/");
+    ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+    context.setContextPath("/");
 
     ServletContainer servletContainer = new ServletContainer(config);
     ServletHolder jerseyServlet = new ServletHolder(servletContainer);
 
     context.addServlet(jerseyServlet, "/*");
+
+    this.server.setHandler(context);
 
     LOGGER.info("Starting {}", uri);
 
