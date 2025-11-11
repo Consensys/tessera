@@ -76,8 +76,17 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from sender node
-    // Resolve relative location against the Q2T base URI
-    URI deleteUri = partyOne.getQ2TUri().resolve(location);
+    URI deleteUri;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (partyOne.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        deleteUri = URI.create(partyOne.getQ2TUri().toString() + path);
+      } else {
+        deleteUri = location;
+      }
+    } else {
+      deleteUri = partyOne.getQ2TUri().resolve(location);
+    }
     final Response deleteReq = partyOne.getRestClient().target(deleteUri).request().delete();
 
     assertThat(deleteReq).isNotNull();
@@ -147,8 +156,17 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from the sender node
-    // Resolve relative location against the Q2T base URI
-    URI deleteUri = partyOne.getQ2TUri().resolve(location);
+    URI deleteUri;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (partyOne.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        deleteUri = URI.create(partyOne.getQ2TUri().toString() + path);
+      } else {
+        deleteUri = location;
+      }
+    } else {
+      deleteUri = partyOne.getQ2TUri().resolve(location);
+    }
     final Response deleteReq = partyOne.getRestClient().target(deleteUri).request().delete();
     assertThat(deleteReq).isNotNull();
     assertThat(deleteReq.getStatus()).isEqualTo(204);

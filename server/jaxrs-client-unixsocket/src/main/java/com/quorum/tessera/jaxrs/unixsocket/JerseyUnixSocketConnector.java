@@ -74,7 +74,9 @@ public class JerseyUnixSocketConnector implements Connector {
     final URI originalUri = request.getUri();
     final URI uri;
     Path basePath = Paths.get(unixfile);
-    boolean isUnixSocket = originalUri.getScheme().startsWith("unix");
+
+    boolean isUnixSocket =
+        originalUri.getScheme() != null && originalUri.getScheme().startsWith("unix");
 
     if (isUnixSocket) {
 

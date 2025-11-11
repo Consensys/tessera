@@ -63,7 +63,17 @@ public class SendIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = secondParty.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (secondParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(secondParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = secondParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
         secondParty.getRestClient().target(resolvedLocation).request().get();
 
@@ -127,7 +137,17 @@ public class SendIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = secondParty.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (secondParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(secondParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = secondParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
         secondParty.getRestClient().target(resolvedLocation).request().get();
 
@@ -180,7 +200,17 @@ public class SendIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = recipient.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (recipient.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(recipient.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = recipient.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
         recipient.getRestClient().target(resolvedLocation).request().get();
 
@@ -218,7 +248,17 @@ public class SendIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = sendingParty.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sendingParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sendingParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sendingParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
         sendingParty.getRestClient().target(resolvedLocation).request().get();
 

@@ -61,7 +61,17 @@ public class SendRawIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sender.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sender.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sender.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
@@ -108,7 +118,17 @@ public class SendRawIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sender.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sender.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sender.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
@@ -158,7 +178,17 @@ public class SendRawIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = uriToSendToWithoutPublicKey.resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (uriToSendToWithoutPublicKey.getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(uriToSendToWithoutPublicKey.toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = uriToSendToWithoutPublicKey.resolve(location);
+    }
     final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
@@ -200,7 +230,17 @@ public class SendRawIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sender.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sender.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sender.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
@@ -230,7 +270,17 @@ public class SendRawIT {
     URI location = response.getLocation();
 
     // Resolve relative location against the Q2T base URI
-    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sender.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sender.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sender.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);

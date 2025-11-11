@@ -70,8 +70,19 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (secondParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(secondParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = secondParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
-        secondParty.getRestClient().target(location).request().get();
+        secondParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -131,8 +142,19 @@ public class SendIT {
     URI location = response.getLocation();
 
     {
+      URI resolvedLocation;
+      if (location.isAbsolute() && location.getScheme().equals("http")) {
+        if (recipientParty.getQ2TUri().getScheme().startsWith("unix")) {
+          String path = location.getRawPath();
+          resolvedLocation = URI.create(recipientParty.getQ2TUri().toString() + path);
+        } else {
+          resolvedLocation = location;
+        }
+      } else {
+        resolvedLocation = recipientParty.getQ2TUri().resolve(location);
+      }
       final Response checkPersistedTxnResponse =
-          recipientParty.getRestClient().target(location).request().get();
+          recipientParty.getRestClient().target(resolvedLocation).request().get();
       assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
       ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
       assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
@@ -197,8 +219,19 @@ public class SendIT {
     URI location = response.getLocation();
 
     {
+      URI resolvedLocation;
+      if (location.isAbsolute() && location.getScheme().equals("http")) {
+        if (party.getQ2TUri().getScheme().startsWith("unix")) {
+          String path = location.getRawPath();
+          resolvedLocation = URI.create(party.getQ2TUri().toString() + path);
+        } else {
+          resolvedLocation = location;
+        }
+      } else {
+        resolvedLocation = party.getQ2TUri().resolve(location);
+      }
       final Response checkPersistedTxnResponse =
-          party.getRestClient().target(location).request().accept(MIME_TYPE_JSON_2_1).get();
+          party.getRestClient().target(resolvedLocation).request().accept(MIME_TYPE_JSON_2_1).get();
       assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
       ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
       assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
@@ -260,8 +293,19 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (thirdParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(thirdParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = thirdParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
-        thirdParty.getRestClient().target(location).request().get();
+        thirdParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -307,8 +351,19 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (recipient.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(recipient.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = recipient.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
-        recipient.getRestClient().target(location).request().get();
+        recipient.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -345,8 +400,19 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    URI resolvedLocation;
+    if (location.isAbsolute() && location.getScheme().equals("http")) {
+      if (sendingParty.getQ2TUri().getScheme().startsWith("unix")) {
+        String path = location.getRawPath();
+        resolvedLocation = URI.create(sendingParty.getQ2TUri().toString() + path);
+      } else {
+        resolvedLocation = location;
+      }
+    } else {
+      resolvedLocation = sendingParty.getQ2TUri().resolve(location);
+    }
     final Response checkPersistedTxnResponse =
-        sendingParty.getRestClient().target(location).request().get();
+        sendingParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
