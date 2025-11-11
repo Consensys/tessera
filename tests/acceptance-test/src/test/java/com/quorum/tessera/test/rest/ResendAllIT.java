@@ -76,7 +76,9 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from sender node
-    final Response deleteReq = partyOne.getRestClient().target(location).request().delete();
+    // Resolve relative location against the Q2T base URI
+    URI deleteUri = partyOne.getQ2TUri().resolve(location);
+    final Response deleteReq = partyOne.getRestClient().target(deleteUri).request().delete();
 
     assertThat(deleteReq).isNotNull();
     assertThat(deleteReq.getStatus()).isEqualTo(204);
@@ -145,7 +147,9 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from the sender node
-    final Response deleteReq = partyOne.getRestClient().target(location).request().delete();
+    // Resolve relative location against the Q2T base URI
+    URI deleteUri = partyOne.getQ2TUri().resolve(location);
+    final Response deleteReq = partyOne.getRestClient().target(deleteUri).request().delete();
     assertThat(deleteReq).isNotNull();
     assertThat(deleteReq.getStatus()).isEqualTo(204);
 

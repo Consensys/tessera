@@ -60,7 +60,9 @@ public class SendRawIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -105,7 +107,9 @@ public class SendRawIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -153,7 +157,9 @@ public class SendRawIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = uriToSendToWithoutPublicKey.resolve(location);
+    final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -193,7 +199,9 @@ public class SendRawIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -221,7 +229,9 @@ public class SendRawIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = sender.getQ2TUri().resolve(location);
+    final Response checkPersistedTxnResponse = client.target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 

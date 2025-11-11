@@ -62,8 +62,10 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = secondParty.getQ2TUri().resolve(location);
     final Response checkPersistedTxnResponse =
-        secondParty.getRestClient().target(location).request().get();
+        secondParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -124,8 +126,10 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = secondParty.getQ2TUri().resolve(location);
     final Response checkPersistedTxnResponse =
-        secondParty.getRestClient().target(location).request().get();
+        secondParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -175,8 +179,10 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = recipient.getQ2TUri().resolve(location);
     final Response checkPersistedTxnResponse =
-        recipient.getRestClient().target(location).request().get();
+        recipient.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -211,8 +217,10 @@ public class SendIT {
 
     URI location = response.getLocation();
 
+    // Resolve relative location against the Q2T base URI
+    URI resolvedLocation = sendingParty.getQ2TUri().resolve(location);
     final Response checkPersistedTxnResponse =
-        sendingParty.getRestClient().target(location).request().get();
+        sendingParty.getRestClient().target(resolvedLocation).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
