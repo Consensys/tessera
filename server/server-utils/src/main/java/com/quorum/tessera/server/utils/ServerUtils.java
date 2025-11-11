@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.http.HttpCompliance;
+import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -28,6 +29,7 @@ public class ServerUtils {
 
       HttpConfiguration httpConfig = new HttpConfiguration();
       httpConfig.setHttpCompliance(HttpCompliance.LEGACY);
+      httpConfig.setUriCompliance(UriCompliance.LEGACY);
       HttpConnectionFactory httpConnectionFactory = new HttpConnectionFactory(httpConfig);
 
       UnixDomainServerConnector connector =
@@ -45,6 +47,7 @@ public class ServerUtils {
     if (serverConfig.isSsl()) {
       HttpConfiguration https = new HttpConfiguration();
       https.setHttpCompliance(HttpCompliance.LEGACY);
+      https.setUriCompliance(UriCompliance.LEGACY);
       final SecureRequestCustomizer customizer = new SecureRequestCustomizer();
 
       Optional.ofNullable(serverConfig.getProperties().get("sniRequired"))
@@ -81,6 +84,7 @@ public class ServerUtils {
 
     HttpConfiguration httpConfig = new HttpConfiguration();
     httpConfig.setHttpCompliance(HttpCompliance.LEGACY);
+    httpConfig.setUriCompliance(UriCompliance.LEGACY);
     ServerConnector connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
     connector.setPort(uri.getPort());
     server.setConnectors(new Connector[] {connector});
